@@ -1,0 +1,45 @@
+﻿# Python
+__pycache__/
+*.py[cod]
+*.class
+*.so
+.Python
+venv/
+ENV/
+.env
+
+# Node
+node_modules/
+dist/
+.npm
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Project specific
+data/audio_sessions/*
+!data/audio_sessions/.gitkeep
+data/voices/*
+!data/voices/.gitkeep
+*.wav
+*.mp3
+
+# Logs
+*.log
+logs/
+
+# Database
+*.db
+*.sqlite
+
+# Models (large files)
+*.bin
+*.pt
+*.onnx
