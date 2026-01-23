@@ -21,7 +21,7 @@ import base64
 import asyncio
 import numpy as np
 from uuid import UUID
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional
 
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
@@ -326,7 +326,10 @@ async def process_turn(
             )
         else:
             # Use orchestration agent when ready
-            from orchestration.mocks import generate_response, retrieve_context, get_session_memory
+            from llm.agent import generate_response
+            from orchestration.mocks import retrieve_context
+            from memory.agent import get_session_memory
+            
             
             memory = get_session_memory(str(handler.session_id))
             rag_context = retrieve_context(results["transcription"])

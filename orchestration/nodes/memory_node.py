@@ -39,7 +39,7 @@ def memory_load_node(
     try:
         session_id = state.get("session_id")
         
-        # Get memory functions
+        # Get memory functions based on config
         if config and config.use_mocks:
             from orchestration.mocks import get_session_memory
         else:
@@ -68,7 +68,7 @@ def memory_load_node(
             "total_turns": 0
         }
         if config and config.verbose:
-            print(f"[MEMORY LOAD] Error (empty memory): {str(e)}")
+            print(f"[MEMORY LOAD] Error (using empty memory): {str(e)}")
     
     return state
 
@@ -83,7 +83,7 @@ def memory_save_node(
     This node:
     1. Stores salesperson message
     2. Stores VC response message
-    3. Creates checkpoint if needed
+    3. Creates checkpoint if needed (every N turns)
     4. Updates history
     
     Args:
@@ -102,13 +102,15 @@ def memory_save_node(
         session_id = state.get("session_id")
         turn_count = state.get("turn_count", 0)
         
-        # Get memory functions
+        # Get memory functions based on config
         if config and config.use_mocks:
             from orchestration.mocks import store_message, store_checkpoint
         else:
             from memory.agent import store_message, store_checkpoint
         
-        # Create and store salesperson message
+        # ══════════════════════════════════════════════════════════════════
+        # 1. Store salesperson message
+        # ══════════════════════════════════════════════════════════════════
         if state.get("transcription"):
             salesperson_msg: Message = {
                 "id": str(uuid.uuid4()),
@@ -123,8 +125,13 @@ def memory_save_node(
             
             # Add to history
             state["history"].append(salesperson_msg)
+            
+            if config and config.verbose:
+                print(f"[MEMORY SAVE] Stored salesperson message: {state['transcription'][:50]}...")
         
-        # Create and store VC message
+        # ══════════════════════════════════════════════════════════════════
+        # 2. Store VC message
+        # ══════════════════════════════════════════════════════════════════
         if state.get("llm_response"):
             vc_msg: Message = {
                 "id": str(uuid.uuid4()),
@@ -139,13 +146,22 @@ def memory_save_node(
             
             # Add to history
             state["history"].append(vc_msg)
+            
+            if config and config.verbose:
+                print(f"[MEMORY SAVE] Stored VC message: {state['llm_response'][:50]}...")
         
-        # Check if checkpoint needed
+        # ══════════════════════════════════════════════════════════════════
+        # 3. Check if checkpoint needed
+        # ══════════════════════════════════════════════════════════════════
         if config and config.enable_checkpoints:
             if _should_create_checkpoint(turn_count, config):
+                if config.verbose:
+                    print(f"[MEMORY SAVE] Creating checkpoint at turn {turn_count}...")
                 _create_checkpoint(state, config)
         
-        # Increment turn count
+        # ══════════════════════════════════════════════════════════════════
+        # 4. Increment turn count
+        # ══════════════════════════════════════════════════════════════════
         state["turn_count"] = turn_count + 1
         
         # Log timing
@@ -160,6 +176,8 @@ def memory_save_node(
     except Exception as e:
         if config and config.verbose:
             print(f"[MEMORY SAVE] Error: {str(e)}")
+            import traceback
+            traceback.print_exc()
     
     return state
 
@@ -167,6 +185,10 @@ def memory_save_node(
 def _should_create_checkpoint(turn_count: int, config: OrchestrationConfig) -> bool:
     """
     Determine if a checkpoint should be created.
+    
+    Creates checkpoint when:
+    - turn_count > 0 (not first turn)
+    - turn_count is divisible by checkpoint_interval
     
     Args:
         turn_count: Current turn number
@@ -183,54 +205,75 @@ def _create_checkpoint(state: ConversationState, config: OrchestrationConfig) ->
     """
     Create a memory checkpoint from recent messages.
     
+    Uses LLM to summarize conversation and extract key points.
+    
     Args:
         state: Current state
         config: Configuration
     """
-    if config and config.verbose:
-        print("[MEMORY SAVE] Creating checkpoint...")
-    
     try:
-        # Get functions
+        # Get functions based on config
         if config and config.use_mocks:
-            from orchestration.mocks import store_checkpoint, summarize_conversation, extract_key_points
+            from orchestration.mocks import store_checkpoint
+            # Mock summarization
+            summary = "ملخص المحادثة"
+            key_points = ["نقطة 1", "نقطة 2"]
         else:
             from memory.agent import store_checkpoint
             from llm.agent import summarize_conversation, extract_key_points
+            
+            # Get messages to summarize
+            session_id = state.get("session_id")
+            turn_count = state.get("turn_count", 0)
+            history = state.get("history", [])
+            
+            # Get last N messages (based on checkpoint interval)
+            interval = config.checkpoint_interval if config else 5
+            messages_to_summarize = history[-(interval * 2):]  # *2 because each turn has 2 messages
+            
+            if not messages_to_summarize:
+                if config.verbose:
+                    print("[MEMORY SAVE] No messages to summarize")
+                return
+            
+            # Use LLM to summarize
+            if config.verbose:
+                print(f"[MEMORY SAVE] Summarizing {len(messages_to_summarize)} messages...")
+            
+            summary = summarize_conversation(messages_to_summarize)
+            key_points = extract_key_points(messages_to_summarize)
+            
+            if config.verbose:
+                print(f"[MEMORY SAVE] Summary: {summary[:100]}...")
+                print(f"[MEMORY SAVE] Key points: {key_points}")
         
         session_id = state.get("session_id")
         turn_count = state.get("turn_count", 0)
-        history = state.get("history", [])
-        
-        # Get messages to summarize (last N messages)
         interval = config.checkpoint_interval if config else 5
-        messages_to_summarize = history[-(interval * 2):]  # *2 because each turn has 2 messages
-        
-        if not messages_to_summarize:
-            return
-        
-        # Generate summary
-        summary = summarize_conversation(messages_to_summarize)
-        key_points = extract_key_points(messages_to_summarize)
         
         # Create checkpoint
         checkpoint: MemoryCheckpoint = {
             "id": str(uuid.uuid4()),
             "session_id": session_id,
-            "turn_range": (max(0, turn_count - interval), turn_count),
+            "turn_range": (max(0, turn_count - interval + 1), turn_count),
             "summary": summary,
             "key_points": key_points,
-            "customer_preferences": {},
-            "objections_raised": [],
+            "customer_preferences": {},  # TODO: Extract from conversation
+            "objections_raised": [],      # TODO: Extract from conversation
             "created_at": datetime.now()
         }
         
         # Store checkpoint
-        store_checkpoint(session_id, checkpoint)
+        success = store_checkpoint(session_id, checkpoint)
         
         if config and config.verbose:
-            print(f"[MEMORY SAVE] Checkpoint created for turns {checkpoint['turn_range']}")
+            if success:
+                print(f"[MEMORY SAVE] ✅ Checkpoint created for turns {checkpoint['turn_range']}")
+            else:
+                print(f"[MEMORY SAVE] ❌ Failed to store checkpoint")
         
     except Exception as e:
         if config and config.verbose:
             print(f"[MEMORY SAVE] Checkpoint error: {str(e)}")
+            import traceback
+            traceback.print_exc()

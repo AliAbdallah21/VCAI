@@ -18,8 +18,8 @@ class OrchestrationConfig:
     """Configuration for the orchestration agent."""
     
     # Memory settings
-    checkpoint_interval: int = CHECKPOINT_INTERVAL      # Create checkpoint every N turns
-    recent_messages_count: int = RECENT_MESSAGES_COUNT  # Recent messages to keep
+    checkpoint_interval: int = CHECKPOINT_INTERVAL      # Create checkpoint every N turns (default: 5)
+    recent_messages_count: int = RECENT_MESSAGES_COUNT  # Recent messages to keep (default: 10)
     
     # Session limits
     max_duration_seconds: int = SESSION_MAX_DURATION    # Max session duration
@@ -37,16 +37,18 @@ class OrchestrationConfig:
     verbose: bool = True                                # Print debug logs
     log_timings: bool = True                            # Log node timings
     
-    # Mock vs Real
-    use_mocks: bool = True                              # Use mock functions (for development)
+    # ══════════════════════════════════════════════════════════════════════════
+    # IMPORTANT: Set to False to use real agents
+    # ══════════════════════════════════════════════════════════════════════════
+    use_mocks: bool = False                             # Use real functions (NOT mocks)
 
 
-# Default configuration
+# Default configuration - uses REAL agents
 DEFAULT_CONFIG = OrchestrationConfig()
 
 
 def get_config(
-    use_mocks: bool = True,
+    use_mocks: bool = False,    # Default: use real agents
     verbose: bool = True,
     **kwargs
 ) -> OrchestrationConfig:
@@ -54,7 +56,7 @@ def get_config(
     Get orchestration configuration with optional overrides.
     
     Args:
-        use_mocks: Whether to use mock functions
+        use_mocks: Whether to use mock functions (default: False = real agents)
         verbose: Whether to print debug logs
         **kwargs: Additional config overrides
     
@@ -65,4 +67,34 @@ def get_config(
         use_mocks=use_mocks,
         verbose=verbose,
         **kwargs
+    )
+
+
+# Convenience configs for different scenarios
+def get_development_config() -> OrchestrationConfig:
+    """Config for development with mocks."""
+    return OrchestrationConfig(
+        use_mocks=True,
+        verbose=True,
+        enable_checkpoints=False  # Faster without checkpoints
+    )
+
+
+def get_production_config() -> OrchestrationConfig:
+    """Config for production with real agents."""
+    return OrchestrationConfig(
+        use_mocks=False,
+        verbose=False,
+        enable_checkpoints=True,
+        log_timings=True
+    )
+
+
+def get_testing_config() -> OrchestrationConfig:
+    """Config for testing."""
+    return OrchestrationConfig(
+        use_mocks=True,
+        verbose=True,
+        enable_checkpoints=True,
+        checkpoint_interval=2  # More frequent checkpoints for testing
     )

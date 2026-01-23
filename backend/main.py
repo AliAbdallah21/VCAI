@@ -32,13 +32,24 @@ async def lifespan(app: FastAPI):
     
     if settings.preload_models:
         print("[Startup] Preloading ML models...")
+        
+        # Preload STT model
         try:
-            # Preload STT model
             from stt.realtime_stt import load_model
             load_model()
             print("[Startup] STT model loaded")
         except Exception as e:
             print(f"[Startup] Warning: Could not preload STT: {e}")
+        
+        # Preload LLM model (only if not using mocks)
+        if not settings.use_mocks:
+            try:
+                print("[Startup] Loading LLM model (this may take ~40 seconds)...")
+                from llm.agent import _load_model
+                _load_model()
+                print("[Startup] LLM model loaded")
+            except Exception as e:
+                print(f"[Startup] Warning: Could not preload LLM: {e}")
     
     print(f"[Startup] Server ready at http://{settings.host}:{settings.port}")
     print(f"[Startup] API docs at http://{settings.host}:{settings.port}/docs")

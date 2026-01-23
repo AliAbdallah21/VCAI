@@ -3,7 +3,7 @@
 Session service - handles training session management.
 """
 
-from datetime import datetime
+from datetime import datetime, timezone
 from typing import Optional, List
 from uuid import UUID
 
@@ -11,7 +11,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from backend.models import Session as TrainingSession, Message, EmotionLog, Persona, User
-from backend.schemas import SessionCreate, SessionResponse, MessageCreate, EmotionState
+from backend.schemas import SessionCreate, SessionResponse, MessageCreate, EmotionState, session
 
 
 def get_persona(db: Session, persona_id: str) -> Persona:
@@ -152,7 +152,7 @@ def end_session(
     session = get_session(db, session_id)
     
     session.status = "completed"
-    session.ended_at = datetime.utcnow()
+    session.ended_at = datetime.now(timezone.utc)
     
     # Calculate duration
     if session.started_at:

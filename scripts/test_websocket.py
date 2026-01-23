@@ -134,7 +134,7 @@ async def test_websocket(token: str, session_id: str):
             responses_received = []
             while True:
                 try:
-                    response = await asyncio.wait_for(websocket.recv(), timeout=30.0)
+                    response = await asyncio.wait_for(websocket.recv(), timeout=120.0)
                     data = json.loads(response)
                     responses_received.append(data["type"])
                     
