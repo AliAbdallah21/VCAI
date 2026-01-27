@@ -4,16 +4,17 @@ WebSocket endpoint for real-time conversation.
 
 This handles:
 - Audio streaming from salesperson
-- Real-time transcription
+- Real-time transcription (via Orchestration Agent)
 - Emotion detection & updates
-- AI response generation
+- AI response generation (via Orchestration Agent)
 - TTS audio streaming back
 - Real-time evaluation tips
+- Memory checkpoints (automatic every 5 turns)
+
+NOW USING: LangGraph Orchestration Agent!
 """
 
 import os
-
-from backend.app.utils import audio
 os.environ['KMP_DUPLICATE_LIB_OK'] = 'TRUE'
 
 import json
@@ -28,9 +29,15 @@ from fastapi import APIRouter, WebSocket, WebSocketDisconnect, Depends, Query
 from sqlalchemy.orm import Session
 
 from backend.database import get_db, SessionLocal
-from backend.services import get_session, add_message, add_emotion_log, decode_token
+from backend.services import get_session, add_message, add_emotion_log, decode_token, end_session
 from backend.schemas import MessageCreate, EmotionState
 from backend.models import Session as TrainingSession, Persona
+
+# ══════════════════════════════════════════════════════════════════════════════
+# IMPORT ORCHESTRATION AGENT
+# ══════════════════════════════════════════════════════════════════════════════
+from orchestration import OrchestrationAgent
+from orchestration.config import OrchestrationConfig
 
 router = APIRouter()
 
@@ -64,35 +71,80 @@ manager = ConnectionManager()
 
 
 class ConversationHandler:
-    """Handles a single conversation session."""
+    """
+    Handles a single conversation session.
     
-    def __init__(self, session_id: str, training_session: TrainingSession, persona: Persona):
+    NOW USES: OrchestrationAgent for processing turns through LangGraph!
+    """
+    
+    def __init__(self, session_id: str, user_id: str, training_session: TrainingSession, persona: Persona):
         self.session_id = session_id
+        self.user_id = user_id
         self.training_session = training_session
         self.persona = persona
         self.turn_count = training_session.turn_count or 0
         self.audio_buffer = []
         self.is_processing = False
         
-        # Emotion tracking
+        # Emotion tracking (for frontend display)
         self.customer_mood = 50  # Start neutral (0-100 scale, 50 = neutral)
         self.emotion_history = []
+        
+        # ══════════════════════════════════════════════════════════════════
+        # INITIALIZE ORCHESTRATION AGENT
+        # ══════════════════════════════════════════════════════════════════
+        self.agent = OrchestrationAgent(
+            use_mocks=False,  # Use REAL agents (STT, LLM, Memory)
+            verbose=True,
+            # These will use mocks since modules aren't ready:
+            # - Emotion detection (mock)
+            # - RAG retrieval (mock)
+            # - TTS synthesis (mock)
+        )
+        
+        # Start the orchestration session
+        self._start_orchestration_session()
     
-    # def add_audio_chunk(self, audio_base64: str):
-    #     """Add audio chunk to buffer."""
-    #     try:
-    #         audio_bytes = base64.b64decode(audio_base64)
-    #         audio_array = np.frombuffer(audio_bytes, dtype=np.float32)
-    #         self.audio_buffer.append(audio_array)
-    #     except Exception as e:
-    #         print(f"[WS] Error decoding audio: {e}")
+    def _start_orchestration_session(self):
+        """Initialize the orchestration agent session."""
+        try:
+            # Convert persona to dict format expected by orchestration
+            persona_dict = {
+                "id": self.persona.id,
+                "name": self.persona.name_ar,
+                "name_en": self.persona.name_en,
+                "description": getattr(self.persona, 'description_ar', ''),
+                "personality_prompt": self.persona.personality_prompt,
+                "voice_id": self.persona.voice_id,
+                "default_emotion": "neutral",
+                "difficulty": self.persona.difficulty,
+                "traits": self.persona.traits or [],
+                "avatar_url": getattr(self.persona, 'avatar_url', None)
+            }
+            
+            # Start session in orchestration agent - pass persona_dict directly!
+            self.agent.start_session(
+                session_id=self.session_id,
+                user_id=self.user_id,
+                persona_id=self.persona.id,
+                persona_dict=persona_dict  # Pass directly to avoid loading
+            )
+            
+            print(f"[WS] Orchestration session started for {self.session_id}")
+            
+        except Exception as e:
+            print(f"[WS] Error starting orchestration session: {e}")
+            import traceback
+            traceback.print_exc()
+    
     def add_audio_chunk(self, audio_base64: str):
+        """Add audio chunk to buffer."""
         try:
             # Decode base64
             audio_bytes = base64.b64decode(audio_base64)
             
             # Convert bytes to numpy array (Little Endian Float32)
-            audio_array = np.frombuffer(audio_bytes, dtype='<f4')  # '<f4' = little-endian float32
+            audio_array = np.frombuffer(audio_bytes, dtype='<f4')
             
             # Ensure it's the right dtype
             if audio_array.dtype != np.float32:
@@ -116,26 +168,20 @@ class ConversationHandler:
     
     def update_customer_mood(self, emotion: str, salesperson_quality: str):
         """Update customer mood based on emotion and salesperson performance."""
-        # Mood change based on salesperson quality
         mood_changes = {
-            "good": 5,      # Good response improves mood
-            "neutral": 0,   # Neutral keeps same
-            "bad": -10      # Bad response worsens mood
+            "good": 5,
+            "neutral": 0,
+            "bad": -10
         }
         
-        # Adjust by persona sensitivity
-        sensitivity_multiplier = self.persona.emotion_sensitivity / 50  # 1.0 at 50
-        
+        sensitivity_multiplier = (self.persona.emotion_sensitivity or 50) / 50
         change = mood_changes.get(salesperson_quality, 0) * sensitivity_multiplier
-        
-        # Apply change with bounds
         self.customer_mood = max(0, min(100, self.customer_mood + change))
         
         return self.customer_mood
     
     def get_emotion_state(self, emotion: str, quality: str) -> EmotionState:
         """Get current emotion state for frontend."""
-        # Update mood
         mood = self.update_customer_mood(emotion, quality)
         
         # Determine risk level
@@ -160,12 +206,11 @@ class ConversationHandler:
         
         self.emotion_history.append(mood)
         
-        # Generate tip based on situation
         tip = self._generate_tip(emotion, risk_level, quality)
         
         return EmotionState(
             customer_emotion=emotion,
-            customer_mood_score=int(mood * 2 - 100),  # Convert 0-100 to -100 to +100
+            customer_mood_score=int(mood * 2 - 100),
             risk_level=risk_level,
             emotion_trend=trend,
             tip=tip
@@ -178,37 +223,50 @@ class ConversationHandler:
             ("angry", "medium"): "العميل مش مبسوط، خد بالك من لهجتك",
             ("frustrated", "high"): "العميل محبط، حاول تفهم مشكلته",
             ("sad", "medium"): "العميل قلقان، طمنه وادي له معلومات واضحة",
-            ("neutral", "low"): None,  # No tip needed
+            ("neutral", "low"): None,
             ("happy", "low"): "👍 كمل كده، العميل مبسوط!",
         }
         
-        # Check specific combinations
         tip = tips.get((emotion, risk_level))
         if tip:
             return tip
         
-        # Quality-based tips
         if quality == "bad":
             return "💡 حاول تكون أكثر احترافية في ردك"
         
         return None
+    
+    def end_orchestration_session(self):
+        """End the orchestration agent session."""
+        try:
+            if self.agent:
+                summary = self.agent.end_session()
+                print(f"[WS] Orchestration session ended: {summary}")
+                return summary
+        except Exception as e:
+            print(f"[WS] Error ending orchestration session: {e}")
+        return {}
 
 
-async def process_turn(
+async def process_turn_with_orchestration(
     handler: ConversationHandler,
     db: Session
 ) -> dict:
     """
-    Process a complete turn:
-    1. STT - Transcribe audio
-    2. Emotion - Detect emotion
-    3. LLM - Generate response
-    4. Evaluate - Rate the salesperson
-    5. TTS - Generate audio
-    """
-    from backend.config import get_settings
-    settings = get_settings()
+    Process a complete turn using the LangGraph Orchestration Agent.
     
+    Flow (via LangGraph):
+        memory_load → stt → emotion → rag → llm → tts → memory_save
+    
+    This automatically:
+    - Loads memory context (checkpoints + recent messages)
+    - Transcribes audio (real STT)
+    - Detects emotion (mock for now)
+    - Retrieves RAG context (mock for now)
+    - Generates response (real LLM)
+    - Synthesizes audio (mock for now)
+    - Saves messages and creates checkpoints (real Memory Agent)
+    """
     results = {
         "transcription": "",
         "emotion": "neutral",
@@ -219,198 +277,101 @@ async def process_turn(
     }
     
     try:
-        # Get audio
+        # ══════════════════════════════════════════════════════════════════
+        # 1. GET AND VALIDATE AUDIO
+        # ══════════════════════════════════════════════════════════════════
         audio = handler.get_full_audio()
         
         # Normalize audio to boost low volume
         if len(audio) > 0 and np.abs(audio).max() > 0:
             max_val = np.abs(audio).max()
-            if max_val < 0.1:  # If audio is quiet
+            if max_val < 0.1:
                 target_level = 0.3
                 audio = audio * (target_level / max_val)
                 print(f"[WS] Audio normalized: boosted by {target_level/max_val:.1f}x")
         
-        # Add this validation:
         print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
-
-
         
         if len(audio) < 8000:  # Less than 0.5 seconds
             results["transcription"] = "[صوت قصير جداً]"
             return results
         
-        # Also check if audio is all zeros or garbage
         if np.all(audio == 0) or np.abs(audio).max() < 0.001:
             print(f"[WS] WARNING: Audio appears to be silent or corrupted")
             results["transcription"] = "[صوت صامت أو تالف]"
             return results
-
-        # ════════════════════════════════════════════════════════════════
-        # 1. STT - Transcribe
-        # ══════════════════════════════════════════════════════════════════
-        print(f"[WS] Processing STT...")
         
-        if settings.use_mocks:
-            from orchestration.mocks import mock_llm
-            results["transcription"] = "هذا نص تجريبي من الميكروفون"
-        else:
-            from stt.realtime_stt import transcribe_audio
-            results["transcription"] = transcribe_audio(audio)
+        # ══════════════════════════════════════════════════════════════════
+        # 2. PROCESS TURN THROUGH LANGGRAPH ORCHESTRATION
+        # ══════════════════════════════════════════════════════════════════
+        print(f"[WS] 🚀 Processing turn through LangGraph Orchestration...")
+        
+        # This runs the full pipeline:
+        # memory_load → stt → emotion → rag → llm → tts → memory_save
+        state = handler.agent.process_turn(audio)
+        
+        # Extract results from state
+        results["transcription"] = state.get("transcription", "")
+        results["response"] = state.get("llm_response", "")
+        
+        # Get emotion from state
+        emotion_result = state.get("emotion") or {"primary_emotion": "neutral", "confidence": 0.5}
+        results["emotion"] = emotion_result.get("primary_emotion", "neutral")
+        
+        # Get audio output
+        audio_output = state.get("audio_output")
+        if audio_output is not None:
+            audio_bytes = audio_output.astype(np.float32).tobytes()
+            results["audio_base64"] = base64.b64encode(audio_bytes).decode('utf-8')
         
         print(f"[WS] Transcription: {results['transcription'][:50]}...")
-        
-        # ══════════════════════════════════════════════════════════════════
-        # 2. Emotion Detection
-        # ══════════════════════════════════════════════════════════════════
-        print(f"[WS] Detecting emotion...")
-        
-        if settings.use_mocks:
-            from orchestration.mocks import detect_emotion
-            emotion_result = detect_emotion(results["transcription"], audio)
-        else:
-            # Use mock for now until emotion module is ready
-            from orchestration.mocks import detect_emotion
-            emotion_result = detect_emotion(results["transcription"], audio)
-        
-        results["emotion"] = emotion_result["primary_emotion"]
+        print(f"[WS] Response: {results['response'][:50]}...")
         print(f"[WS] Emotion: {results['emotion']}")
         
         # ══════════════════════════════════════════════════════════════════
-        # 3. Real-time Evaluation (simple for now)
+        # 3. EVALUATE SALESPERSON (Rule-based for now)
         # ══════════════════════════════════════════════════════════════════
-        print(f"[WS] Evaluating response...")
-        
-        evaluation = evaluate_salesperson_turn(
-            results["transcription"],
-            handler.persona
-        )
+        evaluation = evaluate_salesperson_turn(results["transcription"], handler.persona)
         results["evaluation"] = evaluation
-        print(f"[WS] Quality: {evaluation['quality']}")
         
         # ══════════════════════════════════════════════════════════════════
-        # 4. Get Emotion State for Frontend
+        # 4. GET EMOTION STATE FOR FRONTEND
         # ══════════════════════════════════════════════════════════════════
-        emotion_state = handler.get_emotion_state(
-            results["emotion"],
-            evaluation["quality"]
-        )
+        emotion_state = handler.get_emotion_state(results["emotion"], evaluation["quality"])
         results["emotion_state"] = emotion_state
         
         # ══════════════════════════════════════════════════════════════════
-        # 5. LLM - Generate Response
+        # 5. UPDATE HANDLER TURN COUNT
         # ══════════════════════════════════════════════════════════════════
-        print(f"[WS] Generating response...")
-        
-        if settings.use_mocks:
-            from orchestration.mocks import generate_response, retrieve_context, get_session_memory
-            
-            memory = get_session_memory(str(handler.session_id))
-            rag_context = retrieve_context(results["transcription"])
-            
-            results["response"] = generate_response(
-                customer_text=results["transcription"],
-                emotion=emotion_result,
-                emotional_context={
-                    "current": emotion_result,
-                    "trend": emotion_state.emotion_trend,
-                    "recommendation": "be_professional",
-                    "risk_level": emotion_state.risk_level
-                },
-                persona={
-                    "id": handler.persona.id,
-                    "name": handler.persona.name_ar,
-                    "personality_prompt": handler.persona.personality_prompt
-                },
-                memory=memory,
-                rag_context=rag_context
-            )
-        else:
-            # Use orchestration agent when ready
-            from llm.agent import generate_response
-            from orchestration.mocks import retrieve_context
-            from memory.agent import get_session_memory
-            
-            
-            memory = get_session_memory(str(handler.session_id))
-            rag_context = retrieve_context(results["transcription"])
-            
-            results["response"] = generate_response(
-                customer_text=results["transcription"],
-                emotion=emotion_result,
-                emotional_context={
-                    "current": emotion_result,
-                    "trend": emotion_state.emotion_trend,
-                    "recommendation": "be_professional",
-                    "risk_level": emotion_state.risk_level
-                },
-                persona={
-                    "id": handler.persona.id,
-                    "name": handler.persona.name_ar,
-                    "personality_prompt": handler.persona.personality_prompt
-                },
-                memory=memory,
-                rag_context=rag_context
-            )
-        
-        print(f"[WS] Response: {results['response'][:50]}...")
+        handler.turn_count = state.get("turn_count", handler.turn_count + 1)
         
         # ══════════════════════════════════════════════════════════════════
-        # 6. TTS - Generate Audio
+        # 6. SAVE TO DATABASE (Additional DB records beyond memory agent)
         # ══════════════════════════════════════════════════════════════════
-        print(f"[WS] Generating TTS...")
+        # Note: Messages are already saved by memory_save_node in orchestration
+        # Here we save additional info like emotion_log with evaluation
         
-        if settings.use_mocks:
-            from orchestration.mocks import text_to_speech
-            audio_output = text_to_speech(
-                results["response"],
-                handler.persona.voice_id or "egyptian_male_01",
-                results["emotion"]
-            )
-        else:
-            # Use mock for now until TTS module is ready
-            from orchestration.mocks import text_to_speech
-            audio_output = text_to_speech(
-                results["response"],
-                handler.persona.voice_id or "egyptian_male_01",
-                results["emotion"]
-            )
-        
-        # Convert to base64
-        audio_bytes = audio_output.astype(np.float32).tobytes()
-        results["audio_base64"] = base64.b64encode(audio_bytes).decode('utf-8')
-        
-        print(f"[WS] TTS complete: {len(audio_output)} samples")
+        try:
+            # Save emotion log with evaluation info
+            add_emotion_log(db, UUID(handler.session_id), None, emotion_state)
+            
+            # Update session turn count
+            handler.training_session.turn_count = handler.turn_count
+            db.commit()
+        except Exception as db_error:
+            print(f"[WS] DB save warning (non-critical): {db_error}")
         
         # ══════════════════════════════════════════════════════════════════
-        # 7. Save to Database
+        # 7. LOG CHECKPOINT INFO
         # ══════════════════════════════════════════════════════════════════
-        handler.turn_count += 1
+        memory = state.get("memory", {})
+        checkpoints = memory.get("checkpoints", [])
+        if checkpoints:
+            print(f"[WS] 📌 Session has {len(checkpoints)} checkpoint(s)")
         
-        # Save salesperson message
-        salesperson_msg = MessageCreate(
-            turn_number=handler.turn_count,
-            speaker="salesperson",
-            text=results["transcription"],
-            detected_emotion=results["emotion"],
-            emotion_confidence=emotion_result.get("confidence", 0.5),
-            response_quality=evaluation["quality"],
-            quality_reason=evaluation["reason"],
-            suggestion=evaluation["suggestion"]
-        )
-        add_message(db, UUID(handler.session_id), salesperson_msg)
-        
-        # Save customer message
-        customer_msg = MessageCreate(
-            turn_number=handler.turn_count,
-            speaker="customer",
-            text=results["response"]
-        )
-        add_message(db, UUID(handler.session_id), customer_msg)
-        
-        # Save emotion log
-        add_emotion_log(db, UUID(handler.session_id), None, emotion_state)
-        
-        db.commit()
+        # Check if checkpoint was just created (every 5 turns)
+        if handler.turn_count > 0 and handler.turn_count % 5 == 0:
+            print(f"[WS] 📌 Checkpoint should have been created at turn {handler.turn_count}")
         
     except Exception as e:
         print(f"[WS] Error processing turn: {e}")
@@ -428,14 +389,12 @@ def evaluate_salesperson_turn(text: str, persona: Persona) -> dict:
     """
     text_lower = text.lower()
     
-    # Bad patterns
     bad_patterns = [
         "مش فاهم", "مش عارف", "مش شغلي",
         "روح", "امشي", "سيبني",
         "غبي", "احمق", "بايخ"
     ]
     
-    # Good patterns
     good_patterns = [
         "أهلا", "مرحبا", "اتفضل",
         "أكيد", "طبعا", "بكل سرور",
@@ -443,7 +402,6 @@ def evaluate_salesperson_turn(text: str, persona: Persona) -> dict:
         "اسمحلي", "خليني اشرح", "ممكن اساعدك"
     ]
     
-    # Check for bad patterns
     for pattern in bad_patterns:
         if pattern in text_lower:
             return {
@@ -452,7 +410,6 @@ def evaluate_salesperson_turn(text: str, persona: Persona) -> dict:
                 "suggestion": "حاول تكون أكثر احترافية ولطافة مع العميل"
             }
     
-    # Check for good patterns
     good_count = sum(1 for pattern in good_patterns if pattern in text_lower)
     
     if good_count >= 2:
@@ -484,20 +441,28 @@ async def websocket_endpoint(
     """
     WebSocket endpoint for real-time conversation.
     
+    NOW USING: LangGraph Orchestration Agent!
+    
     Connect: ws://localhost:8000/ws/{session_id}?token={jwt_token}
     
     Messages from client:
     - {"type": "audio", "data": {"audio_base64": "..."}}
+    - {"type": "audio_complete", "data": {"audio_base64": "...", "format": "webm"}}
     - {"type": "end_speaking"}
     - {"type": "end_session"}
+    - {"type": "ping"}
     
     Messages to client:
+    - {"type": "connected", "data": {...}}
+    - {"type": "processing", "data": {"status": "started|completed"}}
     - {"type": "transcription", "data": {"text": "..."}}
-    - {"type": "emotion", "data": {"emotion": "...", "mood_score": ..., "risk_level": "...", "tip": "..."}}
+    - {"type": "emotion", "data": {"emotion": "...", "mood_score": ..., ...}}
     - {"type": "response", "data": {"text": "..."}}
     - {"type": "audio", "data": {"audio_base64": "...", "sample_rate": 22050}}
-    - {"type": "evaluation", "data": {"quality": "...", "reason": "...", "suggestion": "..."}}
+    - {"type": "evaluation", "data": {"quality": "...", ...}}
+    - {"type": "session_ended", "data": {...}}
     - {"type": "error", "data": {"message": "..."}}
+    - {"type": "pong"}
     """
     
     # Validate token
@@ -508,6 +473,7 @@ async def websocket_endpoint(
     
     # Get database session
     db = SessionLocal()
+    handler = None
     
     try:
         # Validate session
@@ -526,10 +492,17 @@ async def websocket_endpoint(
         # Get persona
         persona = db.query(Persona).filter(Persona.id == training_session.persona_id).first()
         
-        # Create handler
-        handler = ConversationHandler(session_id, training_session, persona)
+        # ══════════════════════════════════════════════════════════════════
+        # CREATE HANDLER WITH ORCHESTRATION AGENT
+        # ══════════════════════════════════════════════════════════════════
+        handler = ConversationHandler(
+            session_id=session_id,
+            user_id=token_data.user_id,
+            training_session=training_session,
+            persona=persona
+        )
         
-        # Connect
+        # Connect WebSocket
         await manager.connect(session_id, websocket)
         
         # Send welcome message
@@ -543,23 +516,29 @@ async def websocket_endpoint(
                     "name_en": persona.name_en,
                     "difficulty": persona.difficulty
                 },
-                "message": f"متصل مع {persona.name_ar}"
+                "message": f"متصل مع {persona.name_ar}",
+                "orchestration": "LangGraph"  # Indicate we're using orchestration
             }
         })
         
-        # Main loop
+        # ══════════════════════════════════════════════════════════════════
+        # MAIN MESSAGE LOOP
+        # ══════════════════════════════════════════════════════════════════
         while True:
-            # Receive message
             data = await websocket.receive_json()
             msg_type = data.get("type")
             
+            # ──────────────────────────────────────────────────────────────
+            # AUDIO CHUNK (streaming)
+            # ──────────────────────────────────────────────────────────────
             if msg_type == "audio":
-                # Add audio chunk to buffer
                 audio_data = data.get("data", {}).get("audio_base64", "")
                 handler.add_audio_chunk(audio_data)
             
+            # ──────────────────────────────────────────────────────────────
+            # AUDIO COMPLETE (WebM from browser)
+            # ──────────────────────────────────────────────────────────────
             elif msg_type == "audio_complete":
-                # Handle complete audio file (WebM format from browser)
                 audio_data = data.get("data", {}).get("audio_base64", "")
                 audio_format = data.get("data", {}).get("format", "webm")
                 
@@ -567,6 +546,7 @@ async def websocket_endpoint(
                     try:
                         import tempfile
                         import subprocess
+                        import wave
                         
                         # Decode base64
                         audio_bytes = base64.b64decode(audio_data)
@@ -584,13 +564,11 @@ async def websocket_endpoint(
                         ], capture_output=True)
                         
                         # Read WAV file
-                        import wave
                         with wave.open(temp_output, 'rb') as wav:
                             frames = wav.readframes(wav.getnframes())
                             audio_array = np.frombuffer(frames, dtype=np.int16).astype(np.float32) / 32768.0
                         
                         # Clean up temp files
-                        import os
                         os.unlink(temp_input)
                         os.unlink(temp_output)
                         
@@ -605,7 +583,7 @@ async def websocket_endpoint(
                         })
                         continue
                 
-                # Now process the turn (fall through to end_speaking logic)
+                # Process the turn
                 if handler.is_processing:
                     continue
                 
@@ -617,42 +595,16 @@ async def websocket_endpoint(
                         "data": {"status": "started"}
                     })
                     
-                    results = await process_turn(handler, db)
+                    # ══════════════════════════════════════════════════════
+                    # PROCESS WITH LANGGRAPH ORCHESTRATION
+                    # ══════════════════════════════════════════════════════
+                    results = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: process_turn_with_orchestration_sync(handler, db)
+                    )
                     
-                    await websocket.send_json({
-                        "type": "transcription",
-                        "data": {"text": results["transcription"]}
-                    })
-                    
-                    if results["emotion_state"]:
-                        await websocket.send_json({
-                            "type": "emotion",
-                            "data": {
-                                "emotion": results["emotion_state"].customer_emotion,
-                                "mood_score": results["emotion_state"].customer_mood_score,
-                                "risk_level": results["emotion_state"].risk_level,
-                                "trend": results["emotion_state"].emotion_trend,
-                                "tip": results["emotion_state"].tip
-                            }
-                        })
-                    
-                    await websocket.send_json({
-                        "type": "evaluation",
-                        "data": results["evaluation"]
-                    })
-                    
-                    await websocket.send_json({
-                        "type": "response",
-                        "data": {"text": results["response"]}
-                    })
-                    
-                    await websocket.send_json({
-                        "type": "audio",
-                        "data": {
-                            "audio_base64": results["audio_base64"],
-                            "sample_rate": 22050
-                        }
-                    })
+                    # Send results to client
+                    await _send_turn_results(websocket, results)
                     
                     await websocket.send_json({
                         "type": "processing",
@@ -663,65 +615,33 @@ async def websocket_endpoint(
                     handler.is_processing = False
                 
                 continue
-
+            
+            # ──────────────────────────────────────────────────────────────
+            # END SPEAKING (process buffered audio)
+            # ──────────────────────────────────────────────────────────────
             elif msg_type == "end_speaking":
-                # Process the complete turn
                 if handler.is_processing:
                     continue
                 
                 handler.is_processing = True
                 
                 try:
-                    # Send processing indicator
                     await websocket.send_json({
                         "type": "processing",
                         "data": {"status": "started"}
                     })
                     
-                    # Process turn
-                    results = await process_turn(handler, db)
+                    # ══════════════════════════════════════════════════════
+                    # PROCESS WITH LANGGRAPH ORCHESTRATION
+                    # ══════════════════════════════════════════════════════
+                    results = await asyncio.get_event_loop().run_in_executor(
+                        None,
+                        lambda: process_turn_with_orchestration_sync(handler, db)
+                    )
                     
-                    # Send transcription
-                    await websocket.send_json({
-                        "type": "transcription",
-                        "data": {"text": results["transcription"]}
-                    })
+                    # Send results to client
+                    await _send_turn_results(websocket, results)
                     
-                    # Send emotion state
-                    if results["emotion_state"]:
-                        await websocket.send_json({
-                            "type": "emotion",
-                            "data": {
-                                "emotion": results["emotion_state"].customer_emotion,
-                                "mood_score": results["emotion_state"].customer_mood_score,
-                                "risk_level": results["emotion_state"].risk_level,
-                                "trend": results["emotion_state"].emotion_trend,
-                                "tip": results["emotion_state"].tip
-                            }
-                        })
-                    
-                    # Send evaluation
-                    await websocket.send_json({
-                        "type": "evaluation",
-                        "data": results["evaluation"]
-                    })
-                    
-                    # Send response text
-                    await websocket.send_json({
-                        "type": "response",
-                        "data": {"text": results["response"]}
-                    })
-                    
-                    # Send audio
-                    await websocket.send_json({
-                        "type": "audio",
-                        "data": {
-                            "audio_base64": results["audio_base64"],
-                            "sample_rate": 22050
-                        }
-                    })
-                    
-                    # Send processing complete
                     await websocket.send_json({
                         "type": "processing",
                         "data": {"status": "completed"}
@@ -730,9 +650,14 @@ async def websocket_endpoint(
                 finally:
                     handler.is_processing = False
             
+            # ──────────────────────────────────────────────────────────────
+            # END SESSION
+            # ──────────────────────────────────────────────────────────────
             elif msg_type == "end_session":
-                # End the session
-                from backend.services import end_session
+                # End orchestration session
+                orchestration_summary = handler.end_orchestration_session()
+                
+                # End database session
                 end_session(db, UUID(session_id))
                 
                 await websocket.send_json({
@@ -740,11 +665,15 @@ async def websocket_endpoint(
                     "data": {
                         "total_turns": handler.turn_count,
                         "final_mood": handler.customer_mood,
-                        "message": "تم إنهاء الجلسة"
+                        "message": "تم إنهاء الجلسة",
+                        "orchestration_summary": orchestration_summary
                     }
                 })
                 break
             
+            # ──────────────────────────────────────────────────────────────
+            # PING/PONG
+            # ──────────────────────────────────────────────────────────────
             elif msg_type == "ping":
                 await websocket.send_json({"type": "pong"})
     
@@ -765,6 +694,71 @@ async def websocket_endpoint(
             pass
     
     finally:
+        # Clean up
+        if handler:
+            handler.end_orchestration_session()
         manager.disconnect(session_id)
         db.close()
 
+
+def process_turn_with_orchestration_sync(handler: ConversationHandler, db: Session) -> dict:
+    """
+    Synchronous wrapper for process_turn_with_orchestration.
+    Used with run_in_executor for async compatibility.
+    """
+    import asyncio
+    
+    # Create a new event loop for this thread if needed
+    try:
+        loop = asyncio.get_event_loop()
+    except RuntimeError:
+        loop = asyncio.new_event_loop()
+        asyncio.set_event_loop(loop)
+    
+    # Run the async function
+    return asyncio.run(process_turn_with_orchestration(handler, db))
+
+
+async def _send_turn_results(websocket: WebSocket, results: dict):
+    """Send all turn results to the client."""
+    
+    # Send transcription
+    await websocket.send_json({
+        "type": "transcription",
+        "data": {"text": results["transcription"]}
+    })
+    
+    # Send emotion state
+    if results.get("emotion_state"):
+        await websocket.send_json({
+            "type": "emotion",
+            "data": {
+                "emotion": results["emotion_state"].customer_emotion,
+                "mood_score": results["emotion_state"].customer_mood_score,
+                "risk_level": results["emotion_state"].risk_level,
+                "trend": results["emotion_state"].emotion_trend,
+                "tip": results["emotion_state"].tip
+            }
+        })
+    
+    # Send evaluation
+    await websocket.send_json({
+        "type": "evaluation",
+        "data": results["evaluation"]
+    })
+    
+    # Send response text
+    await websocket.send_json({
+        "type": "response",
+        "data": {"text": results["response"]}
+    })
+    
+    # Send audio
+    if results.get("audio_base64"):
+        await websocket.send_json({
+            "type": "audio",
+            "data": {
+                "audio_base64": results["audio_base64"],
+                "sample_rate": 22050
+            }
+        })

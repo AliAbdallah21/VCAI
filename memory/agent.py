@@ -4,7 +4,6 @@
 # Actual DB logic lives in memory/store.py
 
 from __future__ import annotations
-
 from shared.types import Message, MemoryCheckpoint, SessionMemory
 
 # Import internal storage functions (you will implement these in store.py next)
@@ -20,7 +19,6 @@ from memory.store import (
 def store_message(session_id: str, message: Message) -> bool:
     """
     Store a conversation message.
-
     OUTPUT:
         bool: True if successful
     """
@@ -51,7 +49,6 @@ def get_checkpoints(session_id: str) -> list[MemoryCheckpoint]:
 def get_session_memory(session_id: str) -> SessionMemory:
     """
     Get full session memory (checkpoints + recent messages).
-
     OUTPUT:
         SessionMemory: {
             "session_id": str,
@@ -63,7 +60,6 @@ def get_session_memory(session_id: str) -> SessionMemory:
     checkpoints = get_checkpoints(session_id)
     recent_messages = get_recent_messages(session_id, last_n=10)
     total_turns = get_total_turns_db(session_id)
-
     return {
         "session_id": session_id,
         "checkpoints": checkpoints,

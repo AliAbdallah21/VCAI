@@ -23,44 +23,15 @@ from shared.types import Persona, Scenario
 class OrchestrationAgent:
     """
     Main orchestration agent that manages conversation flow.
-    
-    Usage:
-        # Initialize
-        agent = OrchestrationAgent(use_mocks=True)
-        
-        # Start session
-        agent.start_session(
-            session_id="session_001",
-            user_id="user_001",
-            persona_id="difficult_customer"
-        )
-        
-        # Process turn
-        result = agent.process_turn(audio_input)
-        
-        # Get response audio
-        audio_output = result["audio_output"]
-        
-        # End session
-        agent.end_session()
     """
     
     def __init__(
         self,
-        use_mocks: bool = True,
+        use_mocks: bool = False,
         verbose: bool = True,
         simple_mode: bool = False,
         **config_kwargs
     ):
-        """
-        Initialize the orchestration agent.
-        
-        Args:
-            use_mocks: Use mock functions (True for development)
-            verbose: Print debug logs
-            simple_mode: Use simplified graph (no memory/RAG)
-            **config_kwargs: Additional config options
-        """
         self.config = get_config(
             use_mocks=use_mocks,
             verbose=verbose,
@@ -80,28 +51,22 @@ class OrchestrationAgent:
         session_id: str,
         user_id: str,
         persona_id: str = None,
-        scenario_id: str = None
+        scenario_id: str = None,
+        persona_dict: dict = None
     ) -> ConversationState:
         """
         Start a new conversation session.
-        
-        Args:
-            session_id: Unique session identifier
-            user_id: User/trainee identifier
-            persona_id: Optional persona to load
-            scenario_id: Optional scenario to load
-        
-        Returns:
-            ConversationState: Initial state
         """
         if self.config.verbose:
             print(f"\n{'='*60}")
             print(f"[AGENT] Starting session: {session_id}")
             print(f"{'='*60}")
         
-        # Load persona if specified
+        # Load persona - use provided dict or load by ID
         persona = None
-        if persona_id:
+        if persona_dict:
+            persona = persona_dict
+        elif persona_id:
             persona = self._load_persona(persona_id)
         
         # Load scenario if specified
@@ -127,7 +92,8 @@ class OrchestrationAgent:
         
         if self.config.verbose:
             if persona:
-                print(f"[AGENT] Persona: {persona['name']}")
+                persona_name = persona.get('name', persona.get('name_ar', 'Unknown'))
+                print(f"[AGENT] Persona: {persona_name}")
             print(f"[AGENT] Session started at {datetime.now()}")
         
         return self.state
@@ -135,12 +101,6 @@ class OrchestrationAgent:
     def process_turn(self, audio_input: np.ndarray) -> ConversationState:
         """
         Process a single conversation turn.
-        
-        Args:
-            audio_input: Audio from salesperson (16kHz, float32)
-        
-        Returns:
-            ConversationState: Updated state with response
         """
         if not self.session_active:
             raise RuntimeError("No active session. Call start_session() first.")
@@ -171,12 +131,7 @@ class OrchestrationAgent:
         return self.state
     
     def end_session(self) -> dict:
-        """
-        End the current session.
-        
-        Returns:
-            dict: Session summary
-        """
+        """End the current session."""
         if not self.session_active:
             return {"error": "No active session"}
         
@@ -218,19 +173,30 @@ class OrchestrationAgent:
             return self.state.get("llm_response")
         return None
     
+    def set_persona(self, persona_dict: dict) -> None:
+        """Set persona directly on state."""
+        if self.state:
+            self.state["persona"] = persona_dict
+    
     def _load_persona(self, persona_id: str) -> Persona:
         """Load persona by ID."""
-        if self.config.use_mocks:
+        # Always use mock since persona.agent doesn't have get_persona yet
+        try:
             from orchestration.mocks import get_persona
-        else:
-            from persona.agent import get_persona
-        
-        return get_persona(persona_id)
+            return get_persona(persona_id)
+        except ImportError:
+            return {
+                "id": persona_id,
+                "name": "عميل افتراضي",
+                "name_en": "Default Customer",
+                "personality_prompt": "أنت عميل مصري بتدور على شقة",
+                "difficulty": "medium",
+                "traits": [],
+                "default_emotion": "neutral"
+            }
     
     def _load_scenario(self, scenario_id: str) -> Scenario:
         """Load scenario by ID."""
-        # TODO: Implement scenario loading
-        # For now, return None
         return None
     
     def _print_turn_summary(self) -> None:
@@ -238,9 +204,21 @@ class OrchestrationAgent:
         state = self.state
         
         print(f"\n[TURN SUMMARY]")
-        print(f"  Input: '{state.get('transcription', 'N/A')[:50]}...'")
-        print(f"  Emotion: {state.get('emotion', {}).get('primary_emotion', 'N/A')}")
-        print(f"  Output: '{state.get('llm_response', 'N/A')[:50]}...'")
+        transcription = state.get('transcription', 'N/A')
+        if transcription and len(transcription) > 50:
+            transcription = transcription[:50] + "..."
+        print(f"  Input: '{transcription}'")
+        
+        emotion = state.get('emotion', {})
+        if isinstance(emotion, dict):
+            print(f"  Emotion: {emotion.get('primary_emotion', 'N/A')}")
+        else:
+            print(f"  Emotion: {emotion}")
+        
+        response = state.get('llm_response', 'N/A')
+        if response and len(response) > 50:
+            response = response[:50] + "..."
+        print(f"  Output: '{response}'")
         
         if state.get("node_timings"):
             print(f"\n[TIMINGS]")
@@ -248,23 +226,12 @@ class OrchestrationAgent:
                 print(f"  {node}: {time_taken:.3f}s")
 
 
-# Convenience functions
 def create_agent(
-    use_mocks: bool = True,
+    use_mocks: bool = False,
     verbose: bool = True,
     simple_mode: bool = False
 ) -> OrchestrationAgent:
-    """
-    Create an orchestration agent.
-    
-    Args:
-        use_mocks: Use mock functions
-        verbose: Print debug logs
-        simple_mode: Use simplified graph
-    
-    Returns:
-        OrchestrationAgent: Ready-to-use agent
-    """
+    """Create an orchestration agent."""
     return OrchestrationAgent(
         use_mocks=use_mocks,
         verbose=verbose,
@@ -273,31 +240,22 @@ def create_agent(
 
 
 def quick_test():
-    """
-    Quick test of the orchestration agent.
-    Run: python -c "from orchestration.agent import quick_test; quick_test()"
-    """
+    """Quick test of the orchestration agent."""
     print("="*60)
     print("VCAI Orchestration Agent - Quick Test")
     print("="*60)
     
-    # Create agent
     agent = create_agent(use_mocks=True, verbose=True)
     
-    # Start session
     agent.start_session(
         session_id="test_session",
         user_id="test_user",
         persona_id="difficult_customer"
     )
     
-    # Simulate audio input (3 seconds of random noise)
     audio_input = np.random.randn(16000 * 3).astype(np.float32) * 0.1
-    
-    # Process turn
     result = agent.process_turn(audio_input)
     
-    # Get outputs
     response_text = agent.get_response_text()
     response_audio = agent.get_response_audio()
     
@@ -307,10 +265,8 @@ def quick_test():
     print(f"Response text: {response_text}")
     print(f"Response audio: {response_audio.shape if response_audio is not None else 'None'}")
     
-    # End session
     summary = agent.end_session()
     print(f"\nSession summary: {summary}")
-    
     print("\n✅ Quick test completed!")
 
 

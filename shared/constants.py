@@ -55,7 +55,9 @@ TTS_DEFAULT_VOICE = "egyptian_male_01"
 # RAG/Embeddings
 EMBEDDING_MODEL = "sentence-transformers/paraphrase-multilingual-MiniLM-L12-v2"
 FAISS_INDEX_TYPE = "IndexFlatIP"      # Inner product similarity
-RAG_TOP_K = 3                         # Number of documents to retrieve
+RAG_TOP_K = 3                         # Number of documents to 
+DOCUMENTS_DIR = "data/documents"
+
 
 
 # ══════════════════════════════════════════════════════════════════════════════

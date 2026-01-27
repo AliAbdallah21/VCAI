@@ -1,0 +1,46 @@
+{
+  "company_name": "شركة الأهرام للعقارات",
+  "company_name_en": "Al-Ahram Real Estate",
+  "policies": {
+    "payment": {
+      "minimum_down_payment": "10%",
+      "maximum_installment_years": 8,
+      "early_payment_discount": "5% خصم عند الدفع الكامل",
+      "late_payment_penalty": "2% شهرياً",
+      "accepted_methods": ["كاش", "شيكات", "تحويل بنكي", "فيزا"],
+      "description_ar": "نقدم خطط سداد مرنة تبدأ من مقدم 10% وتقسيط حتى 8 سنوات. خصم 5% عند الدفع الكامل كاش."
+    },
+    "reservation": {
+      "reservation_fee": 50000,
+      "reservation_validity_days": 14,
+      "refundable": true,
+      "description_ar": "مبلغ الحجز 50,000 جنيه يُخصم من المقدم. الحجز صالح لمدة 14 يوم وقابل للاسترداد."
+    },
+    "delivery": {
+      "delay_penalty": "1% من قيمة الوحدة عن كل شهر تأخير",
+      "inspection_period_days": 30,
+      "description_ar": "في حالة تأخر التسليم، يحصل العميل على تعويض 1% عن كل شهر. فترة معاينة 30 يوم بعد الاستلام."
+    },
+    "maintenance": {
+      "warranty_years": 5,
+      "maintenance_fee_percentage": "3% سنوياً من قيمة الوحدة",
+      "description_ar": "ضمان 5 سنوات على التشطيبات. رسوم صيانة 3% سنوياً تشمل الحراسة والنظافة والصيانة."
+    },
+    "resale": {
+      "allowed_after_months": 12,
+      "company_commission": "2%",
+      "description_ar": "يُسمح بإعادة البيع بعد 12 شهر من التعاقد. عمولة الشركة 2% في حالة إعادة البيع من خلالنا."
+    }
+  },
+  "contact": {
+    "hotline": "19999",
+    "whatsapp": "+201234567890",
+    "email": "sales@alahram-realestate.com",
+    "working_hours": "9 صباحاً - 9 مساءً، 7 أيام"
+  },
+  "branches": [
+    {"location": "التجمع الخامس", "address": "شارع التسعين، بجوار داون تاون مول"},
+    {"location": "الشيخ زايد", "address": "محور 26 يوليو، أمام مول العرب"},
+    {"location": "مدينة نصر", "address": "شارع عباس العقاد، برج الحرية"}
+  ]
+}
