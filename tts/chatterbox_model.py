@@ -19,7 +19,7 @@ from chatterbox.mtl_tts import ChatterboxMultilingualTTS
 class ChatterboxTTSConfig:
     device: str = "cuda"
     default_language_id: str = "ar"   # your project default
-    sample_rate_out: int = TTS_SAMPLE_RATE  # 22050 or 24000
+    sample_rate_out: int = TTS_SAMPLE_RATE  # 24000 or 24000
     # optional: HF token if repo is gated in some environments
     hf_token_env: str = "HF_TOKEN"
 
@@ -97,7 +97,7 @@ class ChatterboxTTSModel:
         else:
             wav = torch.tensor(wav_torch).float().cpu()
 
-        # Resample if project expects 22050 but model is 24000
+        # Resample if project expects 24000 but model is 24000
         if self.cfg.sample_rate_out and self.cfg.sample_rate_out != self.sr:
             wav = ta.functional.resample(wav, self.sr, self.cfg.sample_rate_out)
 

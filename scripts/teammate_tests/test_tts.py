@@ -18,7 +18,7 @@ import numpy as np
 # TEST CONFIGURATION
 # ══════════════════════════════════════════════════════════════════════════════
 
-EXPECTED_SAMPLE_RATE = 22050
+EXPECTED_SAMPLE_RATE = 24000
 EXPECTED_DTYPE = np.float32
 MIN_AUDIO_DURATION = 0.5  # seconds
 MAX_AUDIO_DURATION = 30.0  # seconds

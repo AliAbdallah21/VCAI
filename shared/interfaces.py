@@ -55,13 +55,15 @@ def transcribe_audio(audio_data: np.ndarray) -> str:
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PERSON B: TTS (Text-to-Speech)
+# PERSON B: TTS (Text-to-Speech) - Bakr's Component
 # ══════════════════════════════════════════════════════════════════════════════
 
 def text_to_speech(
     text: str,
     voice_id: str = "default",
-    emotion: str = "neutral"
+    emotion: str = "neutral",
+    language_id: str = "ar"
+
 ) -> np.ndarray:
     """
     Convert text to speech audio.
@@ -84,11 +86,17 @@ def text_to_speech(
             - Emotional tone for speech
             - Options: "neutral", "happy", "frustrated", "interested", "hesitant"
             - Default: "neutral"
+
+            
+        language_id: str
+            - Language code for multilingual TTS
+            - Examples: "ar", "en", "fr", "es"
+            - Default: "ar"
     
     OUTPUT:
         np.ndarray:
             - Shape: (n_samples,) - 1D array
-            - Sample rate: 22050 Hz
+            - Sample rate: 24000 Hz
             - Dtype: float32
     
     EXAMPLE:
@@ -100,7 +108,7 @@ def text_to_speech(
 
 
 # ══════════════════════════════════════════════════════════════════════════════
-# PERSON B: Persona Agent
+# PERSON B: Persona Agent - Bakr
 # ══════════════════════════════════════════════════════════════════════════════
 
 def get_persona(persona_id: str) -> Persona:

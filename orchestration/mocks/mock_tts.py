@@ -20,7 +20,8 @@ from shared.constants import TTS_SAMPLE_RATE
 def text_to_speech(
     text: str,
     voice_id: str = "default",
-    emotion: str = "neutral"
+    emotion: str = "neutral",
+    language_id: str = "ar"
 ) -> np.ndarray:
     """
     Mock TTS - generates silent audio with realistic duration.
@@ -29,9 +30,10 @@ def text_to_speech(
         text: str - Arabic text to speak
         voice_id: str - Voice ID (ignored in mock)
         emotion: str - Emotion (ignored in mock)
+        language_id: str - Language (Arabic by default)
     
     OUTPUT:
-        np.ndarray - Silent audio, 22050 Hz, float32
+        np.ndarray - Silent audio, 24000 Hz, float32
     """
     # Estimate duration: ~0.1 seconds per character for Arabic
     # Average speaking rate

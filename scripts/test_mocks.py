@@ -32,7 +32,7 @@ def test_tts():
     assert audio.dtype == np.float32, "Audio should be float32"
     assert len(audio) > 0, "Audio should not be empty"
     
-    print(f"✅ Generated audio: {len(audio)} samples, {len(audio)/22050:.2f}s")
+    print(f"✅ Generated audio: {len(audio)} samples, {len(audio)/24000:.2f}s")
     
     # Test get_available_voices
     voices = get_available_voices()
@@ -341,7 +341,7 @@ def test_full_flow():
     
     # Step 9: TTS
     audio_output = text_to_speech(response, voice_id=persona["voice_id"])
-    print(f"9️⃣ TTS: {len(audio_output)} samples ({len(audio_output)/22050:.2f}s)")
+    print(f"9️⃣ TTS: {len(audio_output)} samples ({len(audio_output)/24000:.2f}s)")
     
     # Store VC response
     vc_message = {

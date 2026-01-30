@@ -73,7 +73,7 @@ def tts_node(
         state["node_timings"]["tts"] = elapsed
         
         if config and config.verbose:
-            duration = len(audio_output) / 22050 if audio_output is not None else 0
+            duration = len(audio_output) / 24000 if audio_output is not None else 0
             print(f"[TTS NODE] Audio duration: {duration:.2f}s")
             print(f"[TTS NODE] Voice: {voice_id}, Emotion: {emotion}")
             print(f"[TTS NODE] Time: {elapsed:.3f}s")

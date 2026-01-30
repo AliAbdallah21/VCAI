@@ -16,7 +16,7 @@ STT_MIN_DURATION = 0.5                # Minimum audio duration in seconds
 STT_MAX_DURATION = 15.0               # Maximum audio duration in seconds
 
 # TTS Audio Config
-TTS_SAMPLE_RATE = 22050              # Hz
+TTS_SAMPLE_RATE = 24000              # Hz
 TTS_CHANNELS = 1                      # Mono
 TTS_DTYPE = "float32"
 

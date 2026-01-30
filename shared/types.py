@@ -15,7 +15,7 @@ import numpy as np
 
 class AudioConfig(TypedDict):
     """Standard audio configuration"""
-    sample_rate: int          # 16000 Hz for STT, 22050 Hz for TTS
+    sample_rate: int          # 16000 Hz for STT, 24000 Hz for TTS
     channels: int             # 1 (mono)
     dtype: str                # "float32"
 
