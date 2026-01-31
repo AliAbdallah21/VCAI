@@ -1,168 +1,221 @@
-# voice_emotion.py
+"""
+Voice Emotion Detection Module
+Detects emotion from audio using Wav2Vec2 model
+"""
 
 import torch
-import librosa
 import numpy as np
-from transformers import Wav2Vec2ForSequenceClassification, Wav2Vec2FeatureExtractor
-from pathlib import Path
-import warnings
-warnings.filterwarnings('ignore')
+from typing import Dict
+from transformers import (
+    Wav2Vec2ForSequenceClassification,
+    Wav2Vec2FeatureExtractor
+)
+import torch.nn.functional as F
 
-class EmotionalAgent:
-    """
-    Emotional Agent for recognizing emotions from audio files.
-    Integrates your trained Wav2Vec2 model into the VCAI system.
-    """
+
+# ══════════════════════════════════════════════════════════════════════════════
+# TYPE DEFINITIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+class EmotionResult(dict):
+    """Emotion detection result"""
+    def __init__(self, primary_emotion: str, confidence: float, intensity: str, scores: Dict[str, float]):
+        super().__init__(
+            primary_emotion=primary_emotion,
+            confidence=confidence,
+            intensity=intensity,
+            scores=scores
+        )
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+EMOTION_LABELS = {
+    "angry": 0,
+    "happy": 1,
+    "hesitant": 2,
+    "interested": 3,
+    "neutral": 4
+}
+
+ID_TO_LABEL = {v: k for k, v in EMOTION_LABELS.items()}
+
+# Intensity thresholds
+INTENSITY_THRESHOLDS = {
+    "high": 0.7,
+    "medium": 0.4,
+    "low": 0.0
+}
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MODEL LOADER (SINGLETON)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class EmotionDetector:
+    """Singleton emotion detector model"""
+    _instance = None
+    _model = None
+    _feature_extractor = None
     
-    def __init__(self, model_path, device=None):
-        """Initialize the Emotional Agent"""
-        self.model_path = Path(model_path)
-        self.device = device if device else ('cuda' if torch.cuda.is_available() else 'cpu')
+    @classmethod
+    def get_instance(cls, model_path: str = "./emotion-recognition-model/final"):
+        """Get or create singleton instance"""
+        if cls._instance is None:
+            cls._instance = cls(model_path)
+        return cls._instance
+    
+    def __init__(self, model_path: str):
+        """Initialize model and feature extractor"""
+        if EmotionDetector._model is None:
+            print(f"Loading emotion detection model from {model_path}...")
+            EmotionDetector._model = Wav2Vec2ForSequenceClassification.from_pretrained(
+                model_path
+            )
+            EmotionDetector._feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
+                model_path
+            )
+            EmotionDetector._model.eval()
+            
+            # Move to GPU if available
+            if torch.cuda.is_available():
+                EmotionDetector._model = EmotionDetector._model.cuda()
+                print("Model loaded on GPU")
+            else:
+                print("Model loaded on CPU")
+    
+    @property
+    def model(self):
+        return EmotionDetector._model
+    
+    @property
+    def feature_extractor(self):
+        return EmotionDetector._feature_extractor
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# HELPER FUNCTIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+def _get_intensity(confidence: float) -> str:
+    """Determine emotion intensity from confidence score"""
+    if confidence >= INTENSITY_THRESHOLDS["high"]:
+        return "high"
+    elif confidence >= INTENSITY_THRESHOLDS["medium"]:
+        return "medium"
+    else:
+        return "low"
+
+
+def _preprocess_audio(audio: np.ndarray, max_length: int = 80000) -> np.ndarray:
+    """Preprocess audio array to fixed length"""
+    # Ensure audio is 1D
+    if len(audio.shape) > 1:
+        audio = audio.flatten()
+    
+    # Pad or truncate to max_length
+    if len(audio) > max_length:
+        audio = audio[:max_length]
+    else:
+        audio = np.pad(audio, (0, max_length - len(audio)))
+    
+    return audio
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MAIN FUNCTION: DETECT EMOTION
+# ══════════════════════════════════════════════════════════════════════════════
+
+def detect_emotion(
+    text: str,
+    audio: np.ndarray,
+    model_path: str = "./emotion-recognition-model/final"
+) -> EmotionResult:
+    """
+    Detect emotion from audio.
+    
+    OWNER: Person C
+    STATUS: ✅ Implemented
+    
+    Args:
+        text: Arabic transcription (not currently used but kept for future text analysis)
+        audio: Raw audio from speaker
+            - Shape: (n_samples,) - 1D array
+            - Sample rate: 16000 Hz
+            - Dtype: float32
+        model_path: Path to trained emotion model
+    
+    Returns:
+        EmotionResult with:
+            - primary_emotion: Detected emotion ("angry", "happy", "hesitant", "interested", "neutral")
+            - confidence: Confidence score (0.0 to 1.0)
+            - intensity: Emotion intensity ("low", "medium", "high")
+            - scores: Dictionary with scores for all emotions
+    
+    Example:
+        >>> emotion = detect_emotion("ده غالي أوي!", audio_data)
+        >>> print(emotion["primary_emotion"])
+        "angry"
+        >>> print(emotion["confidence"])
+        0.87
+    """
+    try:
+        # Get model instance
+        detector = EmotionDetector.get_instance(model_path)
         
-        # Emotion labels
-        self.emotion_labels = {
-            0: "angry",
-            1: "happy",
-            2: "hesitant",
-            3: "interested",
-            4: "neutral"
-        }
+        # Preprocess audio
+        audio_processed = _preprocess_audio(audio)
         
-        self.label_to_id = {v: k for k, v in self.emotion_labels.items()}
-        
-        print(f"🤖 Loading Emotional Agent...")
-        print(f"📍 Model path: {self.model_path}")
-        print(f"💻 Device: {self.device}")
-        
-        self.model = self.load_model()
-        self.feature_extractor = Wav2Vec2FeatureExtractor.from_pretrained(
-            "facebook/wav2vec2-xls-r-300m"
+        # Extract features
+        inputs = detector.feature_extractor(
+            audio_processed,
+            sampling_rate=16000,
+            return_tensors="pt",
+            padding=True
         )
         
-        print(f"✅ Emotional Agent loaded successfully!")
-    
-    def load_model(self):
-        """Load the trained model from disk"""
-        try:
-            model = Wav2Vec2ForSequenceClassification.from_pretrained(
-                self.model_path,
-                num_labels=len(self.emotion_labels),
-                ignore_mismatched_sizes=True
-            )
-            model.to(self.device)
-            model.eval()
-            return model
-        except Exception as e:
-            raise Exception(f"❌ Failed to load model: {e}")
-    
-    def load_audio(self, audio_path, target_sr=16000, max_length=5):
-        """Load and preprocess audio file"""
-        try:
-            audio, sr = librosa.load(audio_path, sr=target_sr)
-            max_samples = max_length * target_sr
-            if len(audio) > max_samples:
-                audio = audio[:max_samples]
-            else:
-                audio = np.pad(audio, (0, max_samples - len(audio)))
-            return audio
-        except Exception as e:
-            raise Exception(f"❌ Failed to load audio: {e}")
-    
-    def predict_emotion(self, audio_path):
-        """
-        Predict emotion from audio file
+        # Move to GPU if available
+        if torch.cuda.is_available():
+            inputs = {k: v.cuda() for k, v in inputs.items()}
         
-        Returns:
-            dict: {
-                'emotion': str,
-                'confidence': float,
-                'all_probabilities': dict
-            }
-        """
-        try:
-            # Load audio
-            audio = self.load_audio(audio_path)
-            
-            # Extract features
-            inputs = self.feature_extractor(
-                audio,
-                sampling_rate=16000,
-                padding=True,
-                return_tensors="pt"
-            )
-            
-            input_values = inputs.input_values.to(self.device)
-            
-            # Get prediction
-            with torch.no_grad():
-                logits = self.model(input_values).logits
-                probabilities = torch.nn.functional.softmax(logits, dim=-1)
-                predicted_id = torch.argmax(probabilities, dim=-1).item()
-                confidence = probabilities[0][predicted_id].item()
-            
-            # Get all probabilities
-            all_probs = {}
-            for idx, emotion in self.emotion_labels.items():
-                all_probs[emotion] = probabilities[0][idx].item()
-            
-            predicted_emotion = self.emotion_labels[predicted_id]
-            
-            return {
-                'emotion': predicted_emotion,
-                'confidence': confidence,
-                'all_probabilities': all_probs
-            }
-            
-        except Exception as e:
-            raise Exception(f"❌ Prediction failed: {e}")
-    
-    def predict_emotion_from_array(self, audio_array, sample_rate=16000):
-        """Predict emotion from audio numpy array (for real-time audio)"""
-        try:
-            # Resample if needed
-            if sample_rate != 16000:
-                audio_array = librosa.resample(
-                    audio_array, 
-                    orig_sr=sample_rate, 
-                    target_sr=16000
-                )
-            
-            # Truncate or pad
-            max_samples = 5 * 16000
-            if len(audio_array) > max_samples:
-                audio_array = audio_array[:max_samples]
-            else:
-                audio_array = np.pad(audio_array, (0, max_samples - len(audio_array)))
-            
-            # Extract features
-            inputs = self.feature_extractor(
-                audio_array,
-                sampling_rate=16000,
-                padding=True,
-                return_tensors="pt"
-            )
-            
-            input_values = inputs.input_values.to(self.device)
-            
-            # Get prediction
-            with torch.no_grad():
-                logits = self.model(input_values).logits
-                probabilities = torch.nn.functional.softmax(logits, dim=-1)
-                predicted_id = torch.argmax(probabilities, dim=-1).item()
-                confidence = probabilities[0][predicted_id].item()
-            
-            # Get all probabilities
-            all_probs = {}
-            for idx, emotion in self.emotion_labels.items():
-                all_probs[emotion] = probabilities[0][idx].item()
-            
-            predicted_emotion = self.emotion_labels[predicted_id]
-            
-            return {
-                'emotion': predicted_emotion,
-                'confidence': confidence,
-                'all_probabilities': all_probs
-            }
-            
-        except Exception as e:
-            raise Exception(f"❌ Prediction from array failed: {e}")
+        # Run inference
+        with torch.no_grad():
+            outputs = detector.model(**inputs)
+            logits = outputs.logits
+        
+        # Get probabilities
+        probabilities = F.softmax(logits, dim=-1)
+        probs = probabilities[0].cpu().numpy()
+        
+        # Get prediction
+        predicted_id = int(np.argmax(probs))
+        primary_emotion = ID_TO_LABEL[predicted_id]
+        confidence = float(probs[predicted_id])
+        
+        # Build scores dictionary
+        scores = {
+            emotion: float(probs[idx])
+            for emotion, idx in EMOTION_LABELS.items()
+        }
+        
+        # Determine intensity
+        intensity = _get_intensity(confidence)
+        
+        return EmotionResult(
+            primary_emotion=primary_emotion,
+            confidence=confidence,
+            intensity=intensity,
+            scores=scores
+        )
+        
+    except Exception as e:
+        # Fallback to neutral emotion if detection fails
+        print(f"Error in emotion detection: {e}")
+        return EmotionResult(
+            primary_emotion="neutral",
+            confidence=0.5,
+            intensity="low",
+            scores={emotion: 0.2 for emotion in EMOTION_LABELS.keys()}
+        )
