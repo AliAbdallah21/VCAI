@@ -1,26 +1,38 @@
-# __init__.py
-
 """
-Emotion Recognition Module for VCAI
-Provides voice, text, and multimodal emotion recognition
+Emotion Detection Package
+Provides voice emotion detection and emotional context analysis
 """
 
-from .agent import EmotionAgent
-from .voice_emotion import EmotionalAgent
-from .text_emotion import TextEmotionAnalyzer
-from .fusion import EmotionFusion
-from .config import EmotionConfig
-
-__version__ = "1.0.0"
-__author__ = "VCAI Team"
+from .voice_emotion import detect_emotion, EmotionResult
+from .agent import analyze_emotional_context, EmotionalContext, Message
+from .config import (
+    EMOTION_LABELS,
+    ID_TO_LABEL,
+    INTENSITY_THRESHOLDS,
+    RISK_THRESHOLDS,
+    POSITIVE_EMOTIONS,
+    NEGATIVE_EMOTIONS,
+    AGENT_BEHAVIORS
+)
 
 __all__ = [
-    'EmotionAgent',          # Main orchestrator
-    'EmotionalAgent',        # Voice emotion
-    'TextEmotionAnalyzer',   # Text emotion
-    'EmotionFusion',         # Fusion
-    'EmotionConfig',         # Config
+    # Main functions
+    'detect_emotion',
+    'analyze_emotional_context',
+    
+    # Types
+    'EmotionResult',
+    'EmotionalContext',
+    'Message',
+    
+    # Configuration
+    'EMOTION_LABELS',
+    'ID_TO_LABEL',
+    'INTENSITY_THRESHOLDS',
+    'RISK_THRESHOLDS',
+    'POSITIVE_EMOTIONS',
+    'NEGATIVE_EMOTIONS',
+    'AGENT_BEHAVIORS',
 ]
 
-# For easy imports:
-# from emotion import EmotionAgent
+__version__ = '1.0.0'
