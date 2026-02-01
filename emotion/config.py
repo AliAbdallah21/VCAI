@@ -42,8 +42,7 @@ RISK_THRESHOLDS = {
 # ══════════════════════════════════════════════════════════════════════════════
 
 # Default model path
-DEFAULT_MODEL_PATH = "./emotion-recognition-model/final"
-
+DEFAULT_MODEL_PATH = "C:/VCAI/emotion/model/final"
 # Audio preprocessing settings
 SAMPLE_RATE = 16000
 MAX_AUDIO_LENGTH = 80000  # 5 seconds at 16kHz

@@ -4,7 +4,7 @@ Document loader for RAG pipeline.
 Loads documents from data/documents folder and chunks them for embedding.
 """
 
-from _future_ import annotations
+from __future__ import annotations
 
 import json
 import hashlib

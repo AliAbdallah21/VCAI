@@ -43,3 +43,5 @@ logs/
 *.bin
 *.pt
 *.onnx
+*.safetensors
+emotion/model/

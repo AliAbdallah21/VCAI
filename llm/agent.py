@@ -177,6 +177,11 @@ def generate_response(
         return "ممكن تكرر تاني؟"
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# PATCH: Replace generate_response_streaming() in C:\VCAI\llm\agent.py
+# Find the existing generate_response_streaming function and replace it with this
+# ══════════════════════════════════════════════════════════════════════════════
+
 def generate_response_streaming(
     customer_text: str,
     emotion: dict,
@@ -185,14 +190,72 @@ def generate_response_streaming(
     memory: dict,
     rag_context: dict
 ) -> Generator[str, None, None]:
-    """Generate response with streaming."""
-    
-    # For now, just yield the full response
-    response = generate_response(
-        customer_text, emotion, emotional_context,
-        persona, memory, rag_context
+    """
+    Generate response with TRUE token-by-token streaming.
+    Yields complete sentences as they form.
+    """
+    model, tokenizer = _load_model()
+
+    # Build prompt (same as non-streaming)
+    system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
+    messages = build_messages(system_prompt, memory, customer_text)
+    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+    inputs = tokenizer(text, return_tensors="pt").to(model.device)
+
+    # Create streamer
+    streamer = TextIteratorStreamer(
+        tokenizer,
+        skip_prompt=True,
+        skip_special_tokens=True
     )
-    yield response
+
+    # Generation kwargs
+    gen_kwargs = {
+        **inputs,
+        "max_new_tokens": 60,
+        "temperature": 0.7,
+        "top_p": 0.9,
+        "do_sample": True,
+        "pad_token_id": tokenizer.eos_token_id,
+        "repetition_penalty": 1.15,
+        "streamer": streamer,
+    }
+
+    # Run generation in background thread
+    thread = Thread(target=model.generate, kwargs=gen_kwargs)
+    thread.start()
+
+    # Buffer tokens and yield at sentence boundaries
+    buffer = ""
+    sentence_endings = ('.', '،', '؟', '!', '؛', '?', ',')
+
+    try:
+        for token_text in streamer:
+            buffer += token_text
+
+            # Check for sentence boundary
+            for i, char in enumerate(buffer):
+                if char in sentence_endings:
+                    sentence = buffer[:i+1].strip()
+                    buffer = buffer[i+1:].strip()
+
+                    if sentence and len(sentence) > 3:
+                        cleaned = _clean_response(sentence)
+                        if cleaned and len(cleaned) > 3:
+                            yield cleaned
+                    break
+
+        # Yield remaining buffer
+        if buffer.strip():
+            cleaned = _clean_response(buffer.strip())
+            if cleaned and len(cleaned) > 3:
+                yield cleaned
+
+    except Exception as e:
+        print(f"[LLM] Streaming error: {e}")
+        yield "ممكن تكرر تاني؟"
+
+    thread.join(timeout=10)
 
 
 # ══════════════════════════════════════════════════════════════════════════════

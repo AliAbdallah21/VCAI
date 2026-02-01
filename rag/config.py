@@ -1,5 +1,5 @@
 # rag/config.py
-from _future_ import annotations
+from __future__ import annotations
 
 from pathlib import Path
 

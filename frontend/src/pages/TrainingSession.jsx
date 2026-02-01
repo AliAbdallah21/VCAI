@@ -1,4 +1,4 @@
-﻿import { useState, useEffect, useRef } from 'react';
+﻿import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { createWebSocket } from '../services/api';
 
@@ -15,6 +15,82 @@ export default function TrainingSession() {
   const mediaRecorderRef = useRef(null);
   const audioChunksRef = useRef([]);
   const messagesEndRef = useRef(null);
+
+  // ══════════════════════════════════════════════════════════════════════
+  // STREAMING AUDIO QUEUE
+  // ══════════════════════════════════════════════════════════════════════
+  const audioContextRef = useRef(null);
+  const audioQueueRef = useRef([]);
+  const isPlayingRef = useRef(false);
+  const hasReceivedChunksRef = useRef(false);  // Track if we got streaming chunks this turn
+
+  // Get or create AudioContext (reuse across chunks for gapless playback)
+  const getAudioContext = useCallback(() => {
+    if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
+      audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
+    }
+    // Resume if suspended (browser autoplay policy)
+    if (audioContextRef.current.state === 'suspended') {
+      audioContextRef.current.resume();
+    }
+    return audioContextRef.current;
+  }, []);
+
+  // Play next chunk from queue
+  const playNextChunk = useCallback(() => {
+    if (audioQueueRef.current.length === 0) {
+      isPlayingRef.current = false;
+      return;
+    }
+
+    isPlayingRef.current = true;
+    const chunk = audioQueueRef.current.shift();
+
+    try {
+      const ctx = getAudioContext();
+      const buffer = ctx.createBuffer(1, chunk.data.length, chunk.sampleRate);
+      buffer.getChannelData(0).set(chunk.data);
+
+      const source = ctx.createBufferSource();
+      source.buffer = buffer;
+      source.connect(ctx.destination);
+      
+      // When this chunk finishes, play the next one
+      source.onended = () => {
+        playNextChunk();
+      };
+      
+      source.start();
+    } catch (err) {
+      console.error('Chunk playback error:', err);
+      // Try next chunk even if this one failed
+      playNextChunk();
+    }
+  }, [getAudioContext]);
+
+  // Add chunk to queue and start playback if not already playing
+  const queueAudioChunk = useCallback((base64Audio, sampleRate) => {
+    try {
+      const binaryString = atob(base64Audio);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      const float32Array = new Float32Array(bytes.buffer);
+
+      audioQueueRef.current.push({
+        data: float32Array,
+        sampleRate: sampleRate || 24000
+      });
+
+      // Start playing if not already
+      if (!isPlayingRef.current) {
+        playNextChunk();
+      }
+    } catch (err) {
+      console.error('Audio chunk decode error:', err);
+    }
+  }, [playNextChunk]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -35,14 +111,19 @@ export default function TrainingSession() {
         case 'connected':
           setConnected(true);
           break;
+
         case 'transcription':
           if (data.data.text && data.data.text.trim() !== '...' && data.data.text.trim() !== '') {
             setMessages(m => [...m, { speaker: 'you', text: data.data.text }]);
           }
           break;
+
         case 'response':
+          // Only add customer message if we haven't received it yet
+          // (streaming sends transcription early, response comes at the end)
           setMessages(m => [...m, { speaker: 'customer', text: data.data.text }]);
           break;
+
         case 'emotion':
           setEmotion({ 
             mood: data.data.mood_score, 
@@ -50,14 +131,42 @@ export default function TrainingSession() {
             tip: data.data.tip 
           });
           break;
+
         case 'processing':
-          setIsProcessing(data.data.status === 'started');
+          if (data.data.status === 'started') {
+            setIsProcessing(true);
+            // Reset streaming state for new turn
+            hasReceivedChunksRef.current = false;
+            audioQueueRef.current = [];
+          } else {
+            setIsProcessing(false);
+          }
           break;
+
         case 'session_ended':
           navigate('/dashboard');
           break;
+
+        // ══════════════════════════════════════════════════════════════
+        // NEW: Handle streaming audio chunks
+        // ══════════════════════════════════════════════════════════════
+        case 'audio_chunk':
+          if (data.data.is_final) {
+            // All chunks received
+            console.log(`🔊 Streaming complete: ${data.data.total_chunks} chunks`);
+          } else {
+            // Queue this chunk for immediate playback
+            hasReceivedChunksRef.current = true;
+            queueAudioChunk(data.data.audio_base64, data.data.sample_rate);
+            console.log(`🔊 Chunk ${data.data.chunk_index}: "${data.data.text?.substring(0, 30)}..."`);
+          }
+          break;
+
         case 'audio':
-          playAudio(data.data.audio_base64, data.data.sample_rate);
+          // Full audio fallback - only play if we didn't get streaming chunks
+          if (!hasReceivedChunksRef.current) {
+            playAudio(data.data.audio_base64, data.data.sample_rate);
+          }
           break;
       }
     };
@@ -66,10 +175,15 @@ export default function TrainingSession() {
       if (ws.readyState === WebSocket.OPEN) {
         ws.close();
       }
+      // Clean up AudioContext on unmount
+      if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
+        audioContextRef.current.close();
+      }
     };
-  }, [sessionId, navigate]);
+  }, [sessionId, navigate, queueAudioChunk]);
 
-  const playAudio = async (base64Audio, sampleRate = 22050) => {
+  // Original full-audio playback (kept as fallback)
+  const playAudio = async (base64Audio, sampleRate = 24000) => {
     try {
       const binaryString = atob(base64Audio);
       const bytes = new Uint8Array(binaryString.length);
@@ -77,20 +191,25 @@ export default function TrainingSession() {
         bytes[i] = binaryString.charCodeAt(i);
       }
       
-      const audioContext = new (window.AudioContext || window.webkitAudioContext)();
-      const audioBuffer = await audioContext.decodeAudioData(bytes.buffer);
+      const float32Array = new Float32Array(bytes.buffer);
+      const ctx = getAudioContext();
+      const audioBuffer = ctx.createBuffer(1, float32Array.length, sampleRate);
+      audioBuffer.getChannelData(0).set(float32Array);
       
-      const source = audioContext.createBufferSource();
+      const source = ctx.createBufferSource();
       source.buffer = audioBuffer;
-      source.connect(audioContext.destination);
+      source.connect(ctx.destination);
       source.start();
     } catch (err) {
-      console.log('Audio playback error:', err);
+      console.error('Audio playback error:', err);
     }
   };
 
   const startRecording = async () => {
     try {
+      // Resume AudioContext on user gesture (browser autoplay policy)
+      getAudioContext();
+
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           sampleRate: 16000,

@@ -38,7 +38,9 @@ from backend.models import Session as TrainingSession, Persona
 # ══════════════════════════════════════════════════════════════════════════════
 from orchestration import OrchestrationAgent
 from orchestration.config import OrchestrationConfig
-
+from orchestration.nodes.llm_node import llm_node_streaming
+from orchestration.nodes.tts_node import tts_chunk
+from orchestration.state import reset_turn_state
 router = APIRouter()
 
 
@@ -246,6 +248,228 @@ class ConversationHandler:
         except Exception as e:
             print(f"[WS] Error ending orchestration session: {e}")
         return {}
+    
+
+async def process_turn_streaming(handler, db, websocket) -> dict:
+    """
+    Process turn with streaming: LLM sentences -> TTS chunks -> send immediately.
+    User hears first sentence ~2s faster than waiting for full response.
+    """
+    import time as _time
+    import asyncio
+    import base64
+    import numpy as np
+    from uuid import UUID
+
+    results = {
+        "transcription": "",
+        "emotion": "neutral",
+        "response": "",
+        "audio_base64": "",
+        "evaluation": {"quality": "neutral", "reason": "", "suggestion": ""},
+        "emotion_state": None
+    }
+
+    try:
+        # ══════════════════════════════════════════════════════════════════
+        # 1. GET AND VALIDATE AUDIO
+        # ══════════════════════════════════════════════════════════════════
+        audio = handler.get_full_audio()
+
+        if len(audio) > 0 and np.abs(audio).max() > 0:
+            max_val = np.abs(audio).max()
+            if max_val < 0.1:
+                target_level = 0.3
+                audio = audio * (target_level / max_val)
+                print(f"[WS] Audio normalized: boosted by {target_level/max_val:.1f}x")
+
+        print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
+
+        if len(audio) < 8000:
+            results["transcription"] = "[صوت قصير جداً]"
+            return results
+
+        if np.all(audio == 0) or np.abs(audio).max() < 0.001:
+            results["transcription"] = "[صوت صامت أو تالف]"
+            return results
+
+        # ══════════════════════════════════════════════════════════════════
+        # 2. PREPARE STATE (same way agent.process_turn does it)
+        # ══════════════════════════════════════════════════════════════════
+        print(f"[WS] 🚀 Processing turn (STREAMING mode)...")
+
+        agent = handler.agent
+        config = agent.config
+
+        # Reset turn state exactly like agent.process_turn() does
+        agent.state = reset_turn_state(agent.state)
+        agent.state["audio_input"] = audio
+        state = agent.state
+
+        if config.verbose:
+            print(f"\n{'='*60}")
+            print(f"[AGENT] Processing turn {state['turn_count'] + 1} (streaming)")
+            print(f"{'='*60}")
+
+        turn_start = _time.time()
+
+        # ══════════════════════════════════════════════════════════════════
+        # 3. RUN PRE-LLM NODES (same order as graph)
+        # ══════════════════════════════════════════════════════════════════
+        from orchestration.nodes import (
+            stt_node,
+            emotion_node,
+            rag_node,
+            memory_load_node,
+            memory_save_node,
+        )
+        from orchestration.nodes.llm_node import llm_node_streaming
+        from orchestration.nodes.tts_node import tts_chunk
+
+        state = memory_load_node(state, config)
+        state = stt_node(state, config)
+        state = emotion_node(state, config)
+        state = rag_node(state, config)
+
+        results["transcription"] = state.get("transcription", "")
+
+        # Send transcription immediately (user sees what they said fast)
+        await websocket.send_json({
+            "type": "transcription",
+            "data": {"text": results["transcription"]}
+        })
+
+        emotion_result = state.get("emotion") or {"primary_emotion": "neutral", "confidence": 0.5}
+        results["emotion"] = emotion_result.get("primary_emotion", "neutral")
+
+        # ══════════════════════════════════════════════════════════════════
+        # 4. STREAMING LLM -> TTS PIPELINE
+        # ══════════════════════════════════════════════════════════════════
+        all_audio_chunks = []
+        full_response = ""
+        chunk_count = 0
+        llm_start = _time.time()
+
+        for sentence, updated_state in llm_node_streaming(state, config):
+            chunk_count += 1
+            full_response += (" " + sentence if full_response else sentence)
+
+            # Generate TTS for this sentence in thread pool (non-blocking)
+            tts_start = _time.time()
+            audio_chunk = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda s=sentence: tts_chunk(s, state, config)
+            )
+            tts_elapsed = _time.time() - tts_start
+
+            if audio_chunk is not None and len(audio_chunk) > 0:
+                all_audio_chunks.append(audio_chunk)
+
+                # Send audio chunk to frontend IMMEDIATELY
+                audio_bytes = audio_chunk.astype(np.float32).tobytes()
+                audio_b64 = base64.b64encode(audio_bytes).decode('utf-8')
+
+                await websocket.send_json({
+                    "type": "audio_chunk",
+                    "data": {
+                        "audio_base64": audio_b64,
+                        "sample_rate": 24000,
+                        "chunk_index": chunk_count,
+                        "text": sentence,
+                        "is_final": False
+                    }
+                })
+
+                print(f"[WS] 🔊 Chunk {chunk_count}: '{sentence[:30]}...' ({tts_elapsed:.2f}s TTS)")
+
+        llm_tts_elapsed = _time.time() - llm_start
+
+        # Store complete response
+        state["llm_response"] = full_response.strip()
+        state["phase"] = "idle"
+        results["response"] = full_response.strip()
+
+        # Combine all audio for state
+        if all_audio_chunks:
+            combined_audio = np.concatenate(all_audio_chunks)
+            state["audio_output"] = combined_audio
+            audio_bytes = combined_audio.astype(np.float32).tobytes()
+            results["audio_base64"] = base64.b64encode(audio_bytes).decode('utf-8')
+
+        # Signal end of streaming
+        await websocket.send_json({
+            "type": "audio_chunk",
+            "data": {"is_final": True, "total_chunks": chunk_count}
+        })
+
+        print(f"[WS] ✅ Streaming done: {chunk_count} chunks in {llm_tts_elapsed:.2f}s")
+
+        # ══════════════════════════════════════════════════════════════════
+        # 5. MEMORY SAVE
+        # ══════════════════════════════════════════════════════════════════
+        state = memory_save_node(state, config)
+
+        # Update agent state so next turn has correct history
+        agent.state = state
+
+        # Calculate total time
+        total_time = _time.time() - turn_start
+        state["node_timings"]["total"] = total_time
+
+        # Print turn summary
+        if config.verbose:
+            transcription = state.get('transcription', 'N/A')
+            if transcription and len(transcription) > 50:
+                transcription = transcription[:50] + "..."
+            em = state.get('emotion', {})
+            em_label = em.get('primary_emotion', 'N/A') if isinstance(em, dict) else em
+            response = state.get('llm_response', 'N/A')
+            if response and len(response) > 50:
+                response = response[:50] + "..."
+
+            print(f"\n[TURN SUMMARY]")
+            print(f"  Input: '{transcription}'")
+            print(f"  Emotion: {em_label}")
+            print(f"  Output: '{response}'")
+            print(f"\n[TIMINGS]")
+            for node, t in state["node_timings"].items():
+                print(f"  {node}: {t:.3f}s")
+
+        # ══════════════════════════════════════════════════════════════════
+        # 6. EVALUATE + EMOTION STATE
+        # ══════════════════════════════════════════════════════════════════
+        evaluation = evaluate_salesperson_turn(results["transcription"], handler.persona)
+        results["evaluation"] = evaluation
+
+        emotion_state = handler.get_emotion_state(results["emotion"], evaluation["quality"])
+        results["emotion_state"] = emotion_state
+
+        handler.turn_count = state.get("turn_count", handler.turn_count + 1)
+
+        try:
+            add_emotion_log(db, UUID(handler.session_id), None, emotion_state)
+            handler.training_session.turn_count = handler.turn_count
+            db.commit()
+        except Exception as db_error:
+            print(f"[WS] DB save warning: {db_error}")
+
+    except Exception as e:
+        print(f"[WS] Streaming error: {e}")
+        import traceback
+        traceback.print_exc()
+
+        # Fallback: try non-streaming
+        try:
+            print(f"[WS] Falling back to non-streaming...")
+            results = await asyncio.get_event_loop().run_in_executor(
+                None,
+                lambda: process_turn_with_orchestration_sync(handler, db)
+            )
+        except Exception as fallback_error:
+            print(f"[WS] Fallback also failed: {fallback_error}")
+            results["response"] = "عذراً، حصل مشكلة. ممكن تعيد الكلام؟"
+
+    return results
 
 
 async def process_turn_with_orchestration(
@@ -458,7 +682,7 @@ async def websocket_endpoint(
     - {"type": "transcription", "data": {"text": "..."}}
     - {"type": "emotion", "data": {"emotion": "...", "mood_score": ..., ...}}
     - {"type": "response", "data": {"text": "..."}}
-    - {"type": "audio", "data": {"audio_base64": "...", "sample_rate": 22050}}
+    - {"type": "audio", "data": {"audio_base64": "...", "sample_rate": 24000}}
     - {"type": "evaluation", "data": {"quality": "...", ...}}
     - {"type": "session_ended", "data": {...}}
     - {"type": "error", "data": {"message": "..."}}
@@ -598,10 +822,7 @@ async def websocket_endpoint(
                     # ══════════════════════════════════════════════════════
                     # PROCESS WITH LANGGRAPH ORCHESTRATION
                     # ══════════════════════════════════════════════════════
-                    results = await asyncio.get_event_loop().run_in_executor(
-                        None,
-                        lambda: process_turn_with_orchestration_sync(handler, db)
-                    )
+                    results = await process_turn_streaming(handler, db, websocket)
                     
                     # Send results to client
                     await _send_turn_results(websocket, results)
@@ -634,10 +855,8 @@ async def websocket_endpoint(
                     # ══════════════════════════════════════════════════════
                     # PROCESS WITH LANGGRAPH ORCHESTRATION
                     # ══════════════════════════════════════════════════════
-                    results = await asyncio.get_event_loop().run_in_executor(
-                        None,
-                        lambda: process_turn_with_orchestration_sync(handler, db)
-                    )
+                    results = await process_turn_streaming(handler, db, websocket) 
+                    
                     
                     # Send results to client
                     await _send_turn_results(websocket, results)
@@ -719,15 +938,14 @@ def process_turn_with_orchestration_sync(handler: ConversationHandler, db: Sessi
     return asyncio.run(process_turn_with_orchestration(handler, db))
 
 
-async def _send_turn_results(websocket: WebSocket, results: dict):
-    """Send all turn results to the client."""
-    
-    # Send transcription
-    await websocket.send_json({
-        "type": "transcription",
-        "data": {"text": results["transcription"]}
-    })
-    
+# ══════════════════════════════════════════════════════════════════════════════
+# UPDATED _send_turn_results (replace existing)
+# Skips transcription since streaming already sent it
+# ══════════════════════════════════════════════════════════════════════════════
+
+async def _send_turn_results(websocket, results: dict):
+    """Send remaining turn results. Transcription + audio chunks already sent."""
+
     # Send emotion state
     if results.get("emotion_state"):
         await websocket.send_json({
@@ -740,25 +958,26 @@ async def _send_turn_results(websocket: WebSocket, results: dict):
                 "tip": results["emotion_state"].tip
             }
         })
-    
+
     # Send evaluation
     await websocket.send_json({
         "type": "evaluation",
         "data": results["evaluation"]
     })
-    
-    # Send response text
+
+    # Send full response text (for chat display)
     await websocket.send_json({
         "type": "response",
         "data": {"text": results["response"]}
     })
-    
-    # Send audio
+
+    # Send full combined audio as fallback
+    # Frontend will ignore this if it already played chunks
     if results.get("audio_base64"):
         await websocket.send_json({
             "type": "audio",
             "data": {
                 "audio_base64": results["audio_base64"],
-                "sample_rate": 22050
+                "sample_rate": 24000
             }
         })

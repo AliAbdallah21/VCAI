@@ -1,5 +1,5 @@
 # rag/agent.py
-from _future_ import annotations
+from __future__ import annotations
 
 from shared.exceptions import RAGIndexNotFoundError, RAGRetrievalError
 from shared.types import RAGContext

@@ -50,6 +50,27 @@ async def lifespan(app: FastAPI):
                 print("[Startup] LLM model loaded")
             except Exception as e:
                 print(f"[Startup] Warning: Could not preload LLM: {e}")
+
+        try:
+            print("[Startup] Loading TTS model (this may take ~30 seconds)...")
+            from tts.agent import _get_model
+            _get_model()
+            print("[Startup] TTS model loaded")
+        except Exception as e:
+            print(f"[Startup] Warning: Could not preload TTS: {e}")
+
+        # Preload Emotion models
+        try:
+            print("[Startup] Loading Emotion models...")
+            from emotion.voice_emotion import EmotionDetector
+            EmotionDetector.get_instance()
+            print("[Startup] Voice emotion model loaded")
+            
+            from emotion.text_emotion import TextEmotionDetector
+            TextEmotionDetector.get_instance()
+            print("[Startup] Text emotion model loaded")
+        except Exception as e:
+            print(f"[Startup] Warning: Could not preload Emotion models: {e}")
     
     print(f"[Startup] Server ready at http://{settings.host}:{settings.port}")
     print(f"[Startup] API docs at http://{settings.host}:{settings.port}/docs")

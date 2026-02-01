@@ -91,3 +91,14 @@ sentence-transformers>=2.2.2
 tf-keras>=2.15.0
 
 bcrypt==3.2.2
+
+pydantic_settings>=2.1.0
+sqlalchemy>=2.0.25
+psycopg2 == 2.9.11
+pydantic[email]>=2.5.3
+python-jose[cryptography]>=3.3.0
+passlib[bcrypt]>=1.7.4
+langgraph>=0.0.26
+
+bitsandbytes==0.39.1
+accelerate==0.26.0

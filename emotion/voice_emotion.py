@@ -61,7 +61,7 @@ class EmotionDetector:
     _feature_extractor = None
     
     @classmethod
-    def get_instance(cls, model_path: str = "./emotion-recognition-model/final"):
+    def get_instance(cls, model_path: str = "C:/VCAI/emotion/model/final"):
         """Get or create singleton instance"""
         if cls._instance is None:
             cls._instance = cls(model_path)
@@ -131,7 +131,7 @@ def _preprocess_audio(audio: np.ndarray, max_length: int = 80000) -> np.ndarray:
 def detect_emotion(
     text: str,
     audio: np.ndarray,
-    model_path: str = "./emotion-recognition-model/final"
+    model_path: str = "C:/VCAI/emotion/model/final"
 ) -> EmotionResult:
     """
     Detect emotion from audio.
