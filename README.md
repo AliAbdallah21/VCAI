@@ -4,11 +4,11 @@
 
 ![VCAI](https://img.shields.io/badge/VCAI-Virtual%20Customer%20AI-0066CC?style=for-the-badge&labelColor=000000)
 ![Version](https://img.shields.io/badge/version-1.0.0-green?style=for-the-badge)
-![Python](https://img.shields.io/badge/Python-3.12+-3776AB?style=for-the-badge&logo=python&logoColor=white)
+![Python](https://img.shields.io/badge/Python-3.11-3776AB?style=for-the-badge&logo=python&logoColor=white)
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 
-**AI-powered sales training platform with real-time voice conversations in Egyptian Arabic**
+*AI-powered sales training platform with real-time voice conversations in Egyptian Arabic*
 
 [Overview](#-overview) · [Features](#-features) · [Demo](#-demo) · [Installation](#-installation) · [Architecture](#-architecture) · [API](#-api-documentation)
 
@@ -18,24 +18,24 @@
 
 ## 🎯 Overview
 
-VCAI (Virtual Customer AI) is an intelligent training platform designed for real estate sales professionals. It simulates realistic customer interactions in **Egyptian Arabic**, providing a safe environment to practice handling various customer personalities and scenarios.
+VCAI (Virtual Customer AI) is an intelligent training platform designed for real estate sales professionals. It simulates realistic customer interactions in *Egyptian Arabic*, providing a safe environment to practice handling various customer personalities and scenarios.
 
 ### The Problem
 
 Traditional sales training relies on role-playing with colleagues or managers, which is:
-- **Inconsistent** - Different trainers provide different experiences
-- **Limited** - Can't practice 24/7
-- **Biased** - Colleagues may not act like real difficult customers
-- **Expensive** - Requires dedicated training time from senior staff
+- *Inconsistent* - Different trainers provide different experiences
+- *Limited* - Can't practice 24/7
+- *Biased* - Colleagues may not act like real difficult customers
+- *Expensive* - Requires dedicated training time from senior staff
 
 ### The Solution
 
 VCAI provides an AI-powered virtual customer that:
-- **Responds naturally** in Egyptian Arabic dialect
-- **Adapts emotionally** based on the conversation flow
-- **Simulates different personalities** from friendly to difficult customers
-- **Provides instant feedback** on sales techniques
-- **Available 24/7** for unlimited practice sessions
+- *Responds naturally* in Egyptian Arabic dialect
+- *Adapts emotionally* based on the conversation flow
+- *Simulates different personalities* from friendly to difficult customers
+- *Provides instant feedback* on sales techniques
+- *Available 24/7* for unlimited practice sessions
 
 ---
 
@@ -43,26 +43,26 @@ VCAI provides an AI-powered virtual customer that:
 
 ### Core Capabilities
 
-| Feature | Description |
-|---------|-------------|
-| 🎤 **Real-time Speech Recognition** | Powered by Whisper large-v3-turbo with GPU acceleration |
-| 🗣️ **Natural Voice Responses** | Egyptian Arabic text-to-speech synthesis |
-| 😤 **Emotion Detection** | Analyzes voice tone and text sentiment |
-| 🤖 **Intelligent Responses** | Context-aware customer simulation using fine-tuned LLM |
-| 📚 **Knowledge Retrieval** | RAG system with property and company information |
-| 🧠 **Conversation Memory** | Maintains context with automatic checkpointing |
-| 👥 **Multiple Personas** | 5 distinct customer personalities |
-| 📊 **Performance Analytics** | Session scoring and improvement tracking |
+| Feature | Technology | Status |
+|---------|------------|--------|
+| 🎤 *Real-time Speech Recognition* | Faster-Whisper large-v3-turbo (GPU) | ✅ Working |
+| 🗣️ *Egyptian Arabic TTS* | Chatterbox Multilingual, fine-tuned on Egyptian data | ✅ Working |
+| 😤 *Emotion Detection* | Custom-trained emotion2vec + AraBERT fusion (96.8% accuracy) | ✅ Working |
+| 🤖 *Intelligent Responses* | Qwen 2.5-7B-Instruct, 4-bit quantized (BitsAndBytes NF4) | ✅ Working |
+| 📚 *Knowledge Retrieval* | ChromaDB + Sentence-Transformers RAG | 🟡 In Progress |
+| 🧠 *Conversation Memory* | PostgreSQL with automatic checkpointing every 5 turns | ✅ Working |
+| 🔊 *Streaming Audio* | LLM→TTS sentence-level streaming for low perceived latency | ✅ Working |
+| 👥 *Multiple Personas* | 5 distinct customer personalities | ✅ Working |
 
 ### Customer Personas
 
 | Persona | Personality | Challenge Level |
 |---------|-------------|-----------------|
-| 🧐 **Price-Focused Customer** | Primarily concerned with getting the best deal | Medium |
-| 😤 **Difficult Customer** | Skeptical, hard to please, raises objections | Hard |
-| 😊 **Friendly Customer** | Open and cooperative, easy to work with | Easy |
-| ⏰ **Rushed Customer** | Limited time, wants quick answers | Medium |
-| 🔬 **Detail-Oriented Customer** | Asks many technical questions | Hard |
+| 🧐 *Price-Focused Customer* | Primarily concerned with getting the best deal | Medium |
+| 😤 *Difficult Customer* | Skeptical, hard to please, raises objections | Hard |
+| 😊 *Friendly Customer* | Open and cooperative, easy to work with | Easy |
+| ⏰ *Rushed Customer* | Limited time, wants quick answers | Medium |
+| 🔬 *Detail-Oriented Customer* | Asks many technical questions | Hard |
 
 ---
 
@@ -70,7 +70,7 @@ VCAI provides an AI-powered virtual customer that:
 
 ### Training Session Flow
 
-```
+
 ┌─────────────────────────────────────────────────────────────┐
 │                     Training Session                         │
 ├─────────────────────────────────────────────────────────────┤
@@ -90,7 +90,7 @@ VCAI provides an AI-powered virtual customer that:
 │  📊 Emotion: Interested │ Mood: 65% │ Risk: Low             │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
-```
+
 
 ---
 
@@ -100,22 +100,16 @@ VCAI provides an AI-powered virtual customer that:
 
 | Component | Minimum | Recommended |
 |-----------|---------|-------------|
-| **OS** | Windows 10/11, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04 |
-| **CPU** | Intel i5 / AMD Ryzen 5 | Intel i7 / AMD Ryzen 7 |
-| **RAM** | 8 GB | 16 GB |
-| **Storage** | 10 GB | 20 GB SSD |
-| **Python** | 3.12.x | 3.12.x |
-| **Node.js** | 18.x | 20.x+ |
+| *OS* | Windows 10/11, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04 |
+| *CPU* | Intel i5 / AMD Ryzen 5 | Intel i7 / AMD Ryzen 7 |
+| *RAM* | 16 GB | 32 GB |
+| *GPU* | NVIDIA GTX 1060 (6GB VRAM) | NVIDIA RTX 3060+ (12GB VRAM) |
+| *Storage* | 20 GB SSD | 40 GB SSD |
+| *CUDA* | 12.1 | 12.1+ |
+| *Python* | 3.11.x | 3.11.x |
+| *Node.js* | 18.x | 20.x+ |
 
-### GPU Acceleration (Recommended)
-
-| Component | Requirement |
-|-----------|-------------|
-| **GPU** | NVIDIA GTX 1060+ (6GB VRAM) |
-| **CUDA** | 11.8 or 12.x |
-| **cuDNN** | 8.x |
-
-> 💡 **No GPU?** VCAI automatically falls back to CPU mode. Speech recognition will be slower (~3-5x) but fully functional.
+> ⚠️ *GPU is required.* VCAI loads multiple models simultaneously (STT, LLM, TTS, Emotion) which require ~10GB VRAM total.
 
 ---
 
@@ -124,40 +118,60 @@ VCAI provides an AI-powered virtual customer that:
 ### Prerequisites
 
 Ensure you have installed:
-- [Python 3.12](https://www.python.org/downloads/)
+- [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
+- [PostgreSQL](https://www.postgresql.org/download/) (create a database named vcai)
 - [Node.js 20+](https://nodejs.org/)
 - [FFmpeg](https://ffmpeg.org/download.html)
-- [CUDA Toolkit](https://developer.nvidia.com/cuda-downloads) (optional, for GPU)
+- [CUDA Toolkit 12.1+](https://developer.nvidia.com/cuda-downloads)
+- NVIDIA GPU drivers (latest)
 
-### Quick Start
+### Step-by-Step Setup
 
-```bash
-# Clone the repository
+bash
+# 1. Clone the repository
 git clone https://github.com/your-org/VCAI.git
 cd VCAI
 
-# Create and activate virtual environment
-python -m venv venv
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
+# 2. Create conda environment (Python 3.11 required for Chatterbox)
+conda create -n vcai python=3.11 -y
+conda activate vcai
 
-# Install backend dependencies
+# 3. Install Chatterbox TTS first (has specific dependency requirements)
+pip install chatterbox-tts
+
+# 4. Reinstall PyTorch with CUDA support (chatterbox may install CPU-only)
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+
+# 5. Install remaining project dependencies
 pip install -r requirements.txt
 
-# Install frontend dependencies
+# 6. Install frontend dependencies
 cd frontend && npm install && cd ..
 
-# Start the application
-# Terminal 1 - Backend
+# 7. Start the application
+# Terminal 1 — Backend
 python -m backend.main
 
-# Terminal 2 - Frontend
+# Terminal 2 — Frontend
 cd frontend && npm run dev
-```
+
+
+### Verify Installation
+
+bash
+# Check CUDA is available
+python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}, Device: {torch.cuda.get_device_name(0)}')"
+
+# Check bitsandbytes
+python -c "import bitsandbytes; print('BitsAndBytes OK')"
+
+# Check chatterbox
+python -c "from chatterbox.mtl_tts import ChatterboxMultilingualTTS; print('Chatterbox OK')"
+
 
 ### Access the Application
 
-Open your browser and navigate to: **http://localhost:5173**
+Open your browser and navigate to: *http://localhost:5173*
 
 ---
 
@@ -165,16 +179,17 @@ Open your browser and navigate to: **http://localhost:5173**
 
 ### System Overview
 
-```
+
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         Client Layer                                 │
 │  ┌───────────────────────────────────────────────────────────────┐ │
 │  │                    React Frontend (Vite)                       │ │
-│  │   Dashboard │ Training Session │ Analytics │ Settings          │ │
+│  │   Dashboard │ Training Session │ Session Setup │ Login        │ │
 │  └───────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
                                    │
-                                   │ WebSocket / REST API
+                                   │ WebSocket (streaming audio chunks)
+                                   │ REST API (auth, sessions, personas)
                                    ▼
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         API Layer                                    │
@@ -188,124 +203,124 @@ Open your browser and navigate to: **http://localhost:5173**
 ┌─────────────────────────────────────────────────────────────────────┐
 │                      Orchestration Layer                             │
 │  ┌───────────────────────────────────────────────────────────────┐ │
-│  │                  LangGraph Pipeline                            │ │
+│  │              LangGraph Pipeline (Streaming)                    │ │
 │  │                                                                 │ │
 │  │   ┌─────────┐    ┌─────────┐    ┌─────────┐    ┌─────────┐   │ │
 │  │   │ Memory  │───▶│   STT   │───▶│ Emotion │───▶│   RAG   │   │ │
-│  │   │  Load   │    │         │    │         │    │         │   │ │
+│  │   │  Load   │    │ Whisper │    │ Fusion  │    │ ChromaDB│   │ │
 │  │   └─────────┘    └─────────┘    └─────────┘    └─────────┘   │ │
 │  │                                                      │         │ │
 │  │   ┌─────────┐    ┌─────────┐    ┌─────────┐         │         │ │
-│  │   │ Memory  │◀───│   TTS   │◀───│   LLM   │◀────────┘         │ │
-│  │   │  Save   │    │         │    │         │                   │ │
-│  │   └─────────┘    └─────────┘    └─────────┘                   │ │
-│  │                                                                 │ │
+│  │   │ Memory  │◀───│   TTS   │◀──▶│   LLM   │◀────────┘         │ │
+│  │   │  Save   │    │Chatter- │    │  Qwen   │  (streaming)     │ │
+│  │   └─────────┘    │  box    │    │ 2.5-7B  │                   │ │
+│  │                   └─────────┘    └─────────┘                   │ │
 │  └───────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
-                                   │
-                                   ▼
-┌─────────────────────────────────────────────────────────────────────┐
-│                         AI Services                                  │
-│                                                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │     STT      │  │   Emotion    │  │     LLM      │              │
-│  │   Whisper    │  │  Detection   │  │  Fine-tuned  │              │
-│  │ large-v3-tb  │  │    Model     │  │    Arabic    │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-│                                                                      │
-│  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐              │
-│  │     TTS      │  │     RAG      │  │    Memory    │              │
-│  │   Egyptian   │  │   ChromaDB   │  │   PostgreSQL │              │
-│  │    Arabic    │  │   Embeddings │  │   /SQLite    │              │
-│  └──────────────┘  └──────────────┘  └──────────────┘              │
-│                                                                      │
-└─────────────────────────────────────────────────────────────────────┘
-```
+
+
+### Streaming Pipeline
+
+VCAI uses a sentence-level streaming architecture for low perceived latency:
+
+
+User speaks → STT (0.3s) → Emotion (0.06s) → RAG → LLM starts generating
+  → Sentence 1 complete → TTS chunk 1 → Send to browser → PLAY immediately
+  → Sentence 2 complete → TTS chunk 2 → Send to browser → PLAY next
+  → ...
+User hears first audio at ~2.5s instead of ~5.5s (55% faster perceived latency)
+
 
 ### Conversation Turn Pipeline
 
-| Step | Component | Description | Latency |
-|------|-----------|-------------|---------|
-| 1 | **Memory Load** | Retrieve conversation history and checkpoints | ~5ms |
-| 2 | **STT** | Transcribe Arabic speech using Whisper | ~300-500ms |
-| 3 | **Emotion** | Analyze emotional state from voice + text | ~50ms |
-| 4 | **RAG** | Retrieve relevant property information | ~100ms |
-| 5 | **LLM** | Generate contextual customer response | ~500-800ms |
-| 6 | **TTS** | Synthesize Egyptian Arabic speech | ~200ms |
-| 7 | **Memory Save** | Store messages and create checkpoints | ~10ms |
-
-**Total Turn Latency:** ~1-2 seconds (GPU) / ~3-5 seconds (CPU)
+| Step | Component | Technology | Latency |
+|------|-----------|------------|---------|
+| 1 | *Memory Load* | PostgreSQL + checkpoints | ~5ms |
+| 2 | *STT* | Faster-Whisper large-v3-turbo | ~300-450ms |
+| 3 | *Emotion* | emotion2vec + AraBERT fusion | ~55-60ms |
+| 4 | *RAG* | ChromaDB + sentence-transformers | ~100ms |
+| 5 | *LLM* | Qwen 2.5-7B (4-bit NF4) | ~1-3s (streamed) |
+| 6 | *TTS* | Chatterbox Multilingual (Egyptian fine-tuned) | ~1.5-3s per chunk |
+| 7 | *Memory Save* | PostgreSQL + LLM summarization | ~5ms (8s on checkpoint) |
 
 ---
 
 ## 📁 Project Structure
 
-```
+
 VCAI/
 ├── backend/                    # FastAPI Backend
-│   ├── main.py                # Application entry point
+│   ├── main.py                # Entry point + ML model preloading
 │   ├── config.py              # Configuration management
 │   ├── database.py            # Database connection
 │   ├── models/                # SQLAlchemy ORM models
-│   ├── routers/               # API route handlers
+│   ├── routers/               # API routes + WebSocket handler
 │   ├── schemas/               # Pydantic validation schemas
 │   └── services/              # Business logic services
 │
-├── frontend/                   # React Frontend
-│   ├── src/
-│   │   ├── components/        # Reusable UI components
-│   │   ├── pages/             # Page components
-│   │   ├── context/           # React context providers
-│   │   └── services/          # API client services
-│   └── package.json
+├── frontend/                   # React Frontend (Vite)
+│   └── src/
+│       ├── components/        # Reusable UI components
+│       ├── pages/             # Page components
+│       │   ├── TrainingSession.jsx  # Main training UI + audio streaming
+│       │   ├── SessionSetup.jsx     # Persona selection
+│       │   ├── Dashboard.jsx        # Session history
+│       │   └── Login.jsx / Register.jsx
+│       ├── context/           # Auth context provider
+│       └── services/          # API + WebSocket client
 │
 ├── orchestration/              # LangGraph Orchestration
 │   ├── agent.py               # Main orchestration agent
-│   ├── state.py               # Conversation state management
+│   ├── state.py               # ConversationState (TypedDict)
 │   ├── config.py              # Pipeline configuration
 │   ├── graphs/                # LangGraph workflow definitions
-│   ├── nodes/                 # Individual pipeline nodes
-│   └── mocks/                 # Mock implementations for testing
+│   │   └── conversation_graph.py  # Main pipeline graph
+│   └── nodes/                 # Individual pipeline nodes
+│       ├── stt_node.py
+│       ├── emotion_node.py
+│       ├── rag_node.py
+│       ├── llm_node.py        # + llm_node_streaming() generator
+│       ├── tts_node.py        # + tts_chunk() for streaming
+│       └── memory_node.py     # load + save
 │
-├── stt/                        # Speech-to-Text Module
-│   └── realtime_stt.py        # Whisper implementation
+├── stt/                        # Speech-to-Text
+│   └── realtime_stt.py        # Faster-Whisper implementation
 │
-├── tts/                        # Text-to-Speech Module
-│   └── agent.py               # TTS implementation
+├── tts/                        # Text-to-Speech
+│   ├── agent.py               # TTS interface + Egyptian checkpoint loading
+│   └── chatterbox_model.py    # Chatterbox wrapper class
 │
-├── emotion/                    # Emotion Detection Module
-│   └── agent.py               # Emotion classifier
+├── emotion/                    # Emotion Detection
+│   ├── agent.py               # Emotion analysis orchestrator
+│   ├── voice_emotion.py       # emotion2vec voice classifier
+│   ├── text_emotion.py        # AraBERT text sentiment
+│   └── fusion.py              # Voice + text emotion fusion
 │
-├── llm/                        # Language Model Module
-│   ├── agent.py               # Response generation
-│   └── prompts.py             # Prompt templates
+├── llm/                        # Language Model
+│   ├── agent.py               # Qwen 2.5-7B with streaming support
+│   └── prompts.py             # System prompt templates
 │
 ├── rag/                        # Retrieval-Augmented Generation
-│   └── agent.py               # Document retrieval
+│   ├── agent.py               # RAG interface
+│   ├── embeddings.py          # Embedding model
+│   ├── vector_store.py        # ChromaDB operations
+│   └── document_loader.py     # Document ingestion
 │
 ├── memory/                     # Conversation Memory
 │   ├── agent.py               # Memory interface
-│   └── store.py               # Database operations
+│   └── store.py               # PostgreSQL CRUD operations
 │
 ├── persona/                    # Customer Personas
-│   └── agent.py               # Persona management
+│   └── agent.py               # Persona management + prompts
 │
 ├── shared/                     # Shared Utilities
 │   ├── types.py               # TypedDict definitions
 │   ├── constants.py           # Application constants
 │   └── interfaces.py          # Function signatures
 │
-├── scripts/                    # Utility Scripts
-│   └── tests/                 # Test scripts
-│
-├── data/                       # Data Files
-│   ├── documents/             # RAG knowledge base
-│   ├── personas/              # Persona configurations
-│   └── models/                # Trained model weights
-│
 ├── requirements.txt            # Python dependencies
-└── README.md                   # This file
-```
+└── README.md
+
 
 ---
 
@@ -314,74 +329,52 @@ VCAI/
 ### Interactive Documentation
 
 When the backend is running, access the interactive API docs at:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
+- *Swagger UI:* http://localhost:8000/docs
+- *ReDoc:* http://localhost:8000/redoc
 
 ### REST Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Authenticate user |
-| `GET` | `/api/auth/me` | Get current user profile |
-| `GET` | `/api/personas` | List available personas |
-| `GET` | `/api/personas/{id}` | Get persona details |
-| `POST` | `/api/sessions` | Create training session |
-| `GET` | `/api/sessions` | List user sessions |
-| `GET` | `/api/sessions/{id}` | Get session details |
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Authenticate user |
+| GET | /api/auth/me | Get current user profile |
+| GET | /api/personas | List available personas |
+| GET | /api/personas/{id} | Get persona details |
+| POST | /api/sessions | Create training session |
+| GET | /api/sessions | List user sessions |
+| GET | /api/sessions/{id} | Get session details |
 
 ### WebSocket Protocol
 
-**Endpoint:** `ws://localhost:8000/ws/{session_id}?token={jwt_token}`
+*Endpoint:* ws://localhost:8000/ws/{session_id}?token={jwt_token}
 
-#### Client → Server Messages
+#### Client → Server
 
-```json
-{
-  "type": "audio_complete",
-  "data": {
-    "audio_base64": "...",
-    "format": "webm"
-  }
-}
-```
+json
+{ "type": "audio_complete", "data": { "audio_base64": "...", "format": "webm" } }
 
-```json
-{
-  "type": "end_session"
-}
-```
+json
+{ "type": "end_session" }
 
-#### Server → Client Messages
 
-```json
-{
-  "type": "transcription",
-  "data": {
-    "text": "السلام عليكم"
-  }
-}
-```
+#### Server → Client
 
-```json
-{
-  "type": "response",
-  "data": {
-    "text": "وعليكم السلام، أقدر أساعدك في إيه؟"
-  }
-}
-```
+json
+{ "type": "transcription", "data": { "text": "السلام عليكم" } }
 
-```json
-{
-  "type": "emotion",
-  "data": {
-    "emotion": "interested",
-    "mood_score": 65,
-    "risk_level": "low"
-  }
-}
-```
+json
+{ "type": "audio_chunk", "data": { "audio_base64": "...", "sample_rate": 24000, "chunk_index": 1, "text": "وعليكم السلام", "is_final": false } }
+
+json
+{ "type": "audio_chunk", "data": { "is_final": true, "total_chunks": 2 } }
+
+json
+{ "type": "response", "data": { "text": "Full response text" } }
+
+json
+{ "type": "emotion", "data": { "emotion": "interested", "mood_score": 65, "risk_level": "low", "tip": "..." } }
+
 
 ---
 
@@ -389,161 +382,115 @@ When the backend is running, access the interactive API docs at:
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Create a .env file in the project root:
 
-```env
-# Database
-DATABASE_URL=sqlite:///./vcai.db
+env
+# Database (PostgreSQL required)
+DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/vcai
 
 # Security
 SECRET_KEY=your-secure-secret-key-here
+JWT_ALGORITHM=HS256
+JWT_EXPIRATION_HOURS=24
 
 # Feature Flags
 USE_MOCKS=false
 DEBUG=false
 
-# Model Settings
-STT_MODEL=large-v3-turbo
-LLM_MODEL=your-model-path
-```
 
-### Runtime Configuration
+> ⚠️ *PostgreSQL is required.* Install [PostgreSQL](https://www.postgresql.org/download/) and create a database named vcai before running the app. The SQL schema is in scripts/setup_db.sql.
 
-Key settings in `backend/config.py`:
+### TTS Fine-tuned Checkpoint
 
-| Setting | Default | Description |
-|---------|---------|-------------|
-| `use_mocks` | `false` | Use mock implementations |
-| `checkpoint_interval` | `5` | Turns between checkpoints |
-| `recent_messages_count` | `10` | Messages to include in context |
-| `rag_top_k` | `3` | Number of documents to retrieve |
+The TTS uses an Egyptian Arabic fine-tuned checkpoint. Configure the path in tts/agent.py:
+
+python
+EGYPTIAN_CHECKPOINT = r"C:\path\to\checkpoint-2000\model.safetensors"
+# Set to None to use base Chatterbox model
+
 
 ---
 
 ## 🔧 Troubleshooting
 
-### Common Issues
-
 <details>
-<summary><b>🔴 Backend fails to start</b></summary>
+<summary><b>🔴 Chatterbox install fails (pkuseg error)</b></summary>
 
-**Symptoms:** Module not found errors
+This is a known issue with chatterbox-tts >= 0.1.3. Fix:
+bash
+pip install --upgrade pip setuptools wheel cython
+pip install numpy
+pip install --no-build-isolation pkuseg
+pip install chatterbox-tts
 
-**Solution:**
-```bash
-# Ensure virtual environment is activated
-source venv/bin/activate  # Linux/Mac
-venv\Scripts\activate     # Windows
-
-# Reinstall dependencies
-pip install -r requirements.txt
-```
 </details>
 
 <details>
-<summary><b>🔴 CUDA not detected</b></summary>
+<summary><b>🔴 CUDA not detected after install</b></summary>
 
-**Symptoms:** Running on CPU despite having NVIDIA GPU
+Chatterbox may install CPU-only PyTorch. Reinstall:
+bash
+pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
 
-**Solution:**
-```bash
-# Verify CUDA installation
-nvidia-smi
-nvcc --version
-
-# Reinstall PyTorch with CUDA support
-pip uninstall torch
-pip install torch --index-url https://download.pytorch.org/whl/cu118
-```
 </details>
 
 <details>
-<summary><b>🔴 Microphone not working</b></summary>
+<summary><b>🔴 bcrypt / chromadb dependency conflict</b></summary>
 
-**Symptoms:** Empty transcriptions or "No audio detected"
+Install bcrypt before chromadb:
+bash
+pip install bcrypt==4.0.1
+pip install chromadb
 
-**Solution:**
-1. Check microphone permissions in browser
-2. Verify microphone in system settings
-3. Increase microphone volume and enable boost
-4. Test with: `python scripts/test_mic.py`
 </details>
 
 <details>
-<summary><b>🔴 WebSocket connection fails</b></summary>
+<summary><b>🔴 bitsandbytes CUDA errors on Windows</b></summary>
 
-**Symptoms:** 403 Forbidden or connection refused
+Use the latest version which has native Windows support:
+bash
+pip install bitsandbytes>=0.45.0
 
-**Solution:**
-1. Ensure backend is running on port 8000
-2. Check JWT token validity (re-login if needed)
-3. Clear browser local storage and refresh
 </details>
 
----
+<details>
+<summary><b>🔴 Microphone not transcribing accurately</b></summary>
 
-## 🧪 Testing
-
-```bash
-# Run all tests
-python -m pytest tests/
-
-# Test specific component
-python scripts/test_stt.py
-python scripts/test_emotion.py
-python scripts/test_memory.py
-
-# Test full conversation flow
-python scripts/test_full_pipeline.py
-```
+Increase microphone volume and enable boost in Windows sound settings. The system normalizes quiet audio automatically, but very low input levels may still cause issues.
+</details>
 
 ---
 
 ## 📈 Performance Metrics
 
-### Benchmarks (NVIDIA RTX 3060)
+### Benchmarks (NVIDIA RTX — tested)
 
-| Metric | Value |
-|--------|-------|
-| STT Latency | 300-500ms |
-| LLM Response | 500-800ms |
-| Total Turn Time | 1.2-1.5s |
-| Concurrent Sessions | 5-10 |
-| Memory Usage | ~4GB VRAM |
-
-### Optimization Tips
-
-1. **Enable GPU acceleration** for 3-5x faster inference
-2. **Use SSD storage** for faster model loading
-3. **Increase checkpoint interval** to reduce database writes
-4. **Limit conversation history** to most recent messages
+| Metric | First Turn | Subsequent Turns |
+|--------|-----------|-----------------|
+| STT Latency | ~1.1s (cold start) | 0.25-0.45s |
+| Emotion Analysis | ~0.7s (model load) | 0.05-0.06s |
+| LLM Response | 2-3s | 1-3s |
+| TTS per Chunk | 1.5-3s | 1.2-2.5s |
+| Memory Load/Save | 50ms / 5ms | 3-5ms / 5ms |
+| *First Audio Heard* | *~4s* | *~2.5s* |
+| *Total Turn Time* | ~6.5s | 2.5-5s |
 
 ---
 
 ## 🛣️ Roadmap
 
-- [x] Core conversation pipeline
-- [x] Real-time speech recognition
-- [x] LangGraph orchestration
+- [x] Core conversation pipeline (LangGraph orchestration)
+- [x] Real-time speech recognition (Faster-Whisper GPU)
+- [x] Emotion detection (custom-trained emotion2vec + AraBERT fusion)
+- [x] LLM integration (Qwen 2.5-7B, 4-bit quantized)
+- [x] Egyptian Arabic TTS (Chatterbox fine-tuned)
+- [x] Streaming audio pipeline (sentence-level LLM→TTS)
 - [x] Conversation memory with checkpoints
-- [ ] Enhanced emotion detection model
-- [ ] Egyptian Arabic TTS integration
-- [ ] RAG with property database
+- [x] WebSocket real-time communication
+- [ ] RAG with property database (ChromaDB)
 - [ ] Performance analytics dashboard
-- [ ] Multi-language support
+- [ ] Post-session evaluation and scoring
 - [ ] Mobile application
-
----
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our [Contributing Guide](CONTRIBUTING.md) for details.
-
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/amazing-feature`
-3. Commit changes: `git commit -m 'Add amazing feature'`
-4. Push to branch: `git push origin feature/amazing-feature`
-5. Open a Pull Request
 
 ---
 
@@ -555,17 +502,17 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ## 🙏 Acknowledgments
 
-- [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper) for speech recognition
-- [LangGraph](https://github.com/langchain-ai/langgraph) for orchestration
-- [FastAPI](https://fastapi.tiangolo.com/) for the backend framework
-- [React](https://react.dev/) for the frontend framework
+- [Faster-Whisper](https://github.com/SYSTRAN/faster-whisper) — Speech recognition
+- [Chatterbox TTS](https://github.com/resemble-ai/chatterbox) — Text-to-speech
+- [Qwen 2.5](https://github.com/QwenLM/Qwen2.5) — Language model
+- [LangGraph](https://github.com/langchain-ai/langgraph) — Pipeline orchestration
+- [FastAPI](https://fastapi.tiangolo.com/) — Backend framework
+- [React](https://react.dev/) — Frontend framework
 
 ---
 
 <div align="center">
 
-**Built with ❤️ for sales excellence**
-
-[Report Bug](https://github.com/your-org/VCAI/issues) · [Request Feature](https://github.com/your-org/VCAI/issues)
+*Built with ❤️ for sales excellence*
 
 </div>

@@ -1,104 +1,70 @@
+# ══════════════════════════════════════════════════════════════════════════════
 # VCAI Requirements
-# =================
-# 
-# IMPORTANT: PyTorch must be installed FIRST with CUDA support!
-# See docs/SETUP.md for complete setup guide.
+# ══════════════════════════════════════════════════════════════════════════════
 #
-# Quick setup:
-#   1. Install PyTorch with CUDA: pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-#   2. Then: pip install -r requirements.txt
+# INSTALLATION ORDER (Important!):
+#
+#   Step 1: Create conda environment
+#     conda create -n vcai python=3.11 -y
+#     conda activate vcai
+#
+#   Step 2: Install Chatterbox TTS (installs PyTorch + CUDA automatically)
+#     pip install chatterbox-tts
+#
+#   Step 3: Reinstall PyTorch with correct CUDA (chatterbox may install CPU-only)
+#     pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
+#
+#   Step 4: Install project requirements
+#     pip install -r requirements.txt
+#
+# ══════════════════════════════════════════════════════════════════════════════
 
-# ------------------------------------------------------------------------------
-# FastAPI and Server
-# ------------------------------------------------------------------------------
+# ── FastAPI & Server ─────────────────────────────────────────────────────────
 fastapi>=0.109.0
 uvicorn[standard]>=0.27.0
 python-multipart>=0.0.6
 websockets>=12.0
 
-# ------------------------------------------------------------------------------
-# Database
-# ------------------------------------------------------------------------------
+# ── Database ─────────────────────────────────────────────────────────────────
 sqlalchemy>=2.0.25
-asyncpg>=0.29.0
-alembic>=1.13.1
 psycopg2-binary>=2.9.9
+alembic>=1.13.1
 
-# ------------------------------------------------------------------------------
-# Redis (Cache and Session)
-# ------------------------------------------------------------------------------
-redis>=5.0.1
-
-# ------------------------------------------------------------------------------
-# Authentication
-# ------------------------------------------------------------------------------
+# ── Authentication ───────────────────────────────────────────────────────────
 python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
+passlib>=1.7.4
+bcrypt==4.0.1
 
-# ------------------------------------------------------------------------------
-# Validation
-# ------------------------------------------------------------------------------
+# ── Validation ───────────────────────────────────────────────────────────────
 pydantic>=2.5.3
 pydantic-settings>=2.1.0
 email-validator>=2.1.0
 
-# ------------------------------------------------------------------------------
-# ML/AI Components
-# ------------------------------------------------------------------------------
-# NOTE: PyTorch is NOT listed here - install separately with CUDA!
-# pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-
+# ── ML / AI ──────────────────────────────────────────────────────────────────
+# NOTE: PyTorch is NOT listed here — install via Step 2 & 3 above!
+# NOTE: chatterbox-tts is NOT listed here — install via Step 2 above!
 faster-whisper>=1.0.1
+transformers>=4.38.0
+safetensors>=0.4.0
+bitsandbytes>=0.45.0
+accelerate>=0.26.0
+
+# ── Orchestration ────────────────────────────────────────────────────────────
 langgraph>=0.0.26
 langchain>=0.1.0
 langchain-core>=0.1.0
-faiss-cpu>=1.8.0
-sentence-transformers>=2.2.2
 
-# ------------------------------------------------------------------------------
-# Audio Processing
-# ------------------------------------------------------------------------------
-numpy>=1.26.0
-sounddevice>=0.4.6
-soundfile>=0.12.1
-
-# ------------------------------------------------------------------------------
-# Utilities
-# ------------------------------------------------------------------------------
-python-dotenv>=1.0.0
-httpx>=0.26.0
-aiofiles>=23.2.1
-
-# ------------------------------------------------------------------------------
-# Testing
-# ------------------------------------------------------------------------------
-pytest>=7.4.4
-pytest-asyncio>=0.23.3
-
-# ------------------------------------------------------------------------------
-# Development
-# ------------------------------------------------------------------------------
-black>=23.12.1
-isort>=5.13.2
-flake8>=7.0.0
-
-# ------------------------------------------------------------------------------
-# RAG / Vector Store
-# ------------------------------------------------------------------------------
+# ── RAG / Vector Store ───────────────────────────────────────────────────────
 chromadb>=0.4.22
 faiss-cpu>=1.8.0
 sentence-transformers>=2.2.2
-tf-keras>=2.15.0
 
-bcrypt==3.2.2
+# ── Audio Processing ─────────────────────────────────────────────────────────
+numpy>=1.26.0
+soundfile>=0.12.1
+librosa>=0.10.0
 
-pydantic_settings>=2.1.0
-sqlalchemy>=2.0.25
-psycopg2 == 2.9.11
-pydantic[email]>=2.5.3
-python-jose[cryptography]>=3.3.0
-passlib[bcrypt]>=1.7.4
-langgraph>=0.0.26
-
-bitsandbytes==0.39.1
-accelerate==0.26.0
+# ── Utilities ────────────────────────────────────────────────────────────────
+python-dotenv>=1.0.0
+httpx>=0.26.0
+aiofiles>=23.2.1
