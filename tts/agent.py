@@ -16,7 +16,7 @@ _tts_model: ChatterboxTTSModel | None = None
 # EGYPTIAN FINE-TUNE CHECKPOINT
 # Set to None to use base model only
 # ══════════════════════════════════════════════════════════════════════════════
-EGYPTIAN_CHECKPOINT = r"C:\chatterboxMulti\egyptian-finetune\output_dahih_shaghal\checkpoint-2000\model.safetensors"
+EGYPTIAN_CHECKPOINT = r"C:\chatterboxMulti\egyptian-finetune\output_dahih_egyptian_partial\epoch_1\model.safetensors"
 
 
 def _get_model() -> ChatterboxTTSModel:
