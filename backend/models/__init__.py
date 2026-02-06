@@ -6,6 +6,7 @@ SQLAlchemy models for VCAI.
 from backend.models.user import User
 from backend.models.persona import Persona
 from backend.models.session import Session, Message, EmotionLog, Checkpoint, UserStats
+from backend.models.evaluation import EvaluationReport
 
 __all__ = [
     "User",
@@ -14,5 +15,6 @@ __all__ = [
     "Message",
     "EmotionLog",
     "Checkpoint",
-    "UserStats"
+    "UserStats",
+    "EvaluationReport"
 ]

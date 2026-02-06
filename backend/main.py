@@ -14,7 +14,7 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.config import get_settings
-from backend.routers import auth_router, personas_router, sessions_router
+from backend.routers import auth_router, personas_router, sessions_router, evaluation_router
 from backend.routers.websocket import router as websocket_router
 
 settings = get_settings()
@@ -103,6 +103,7 @@ app.add_middleware(
 app.include_router(auth_router, prefix="/api")
 app.include_router(personas_router, prefix="/api")
 app.include_router(sessions_router, prefix="/api")
+app.include_router(evaluation_router, prefix="/api")
 app.include_router(websocket_router)  # WebSocket at root level
 
 

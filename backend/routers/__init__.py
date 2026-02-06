@@ -6,9 +6,11 @@ API routers.
 from backend.routers.auth import router as auth_router
 from backend.routers.personas import router as personas_router
 from backend.routers.sessions import router as sessions_router
+from backend.routers.evaluation import router as evaluation_router
 
 __all__ = [
     "auth_router",
     "personas_router",
-    "sessions_router"
+    "sessions_router",
+    "evaluation_router"
 ]
