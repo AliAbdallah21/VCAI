@@ -5,6 +5,7 @@ import Register from './pages/Register';
 import Dashboard from './pages/Dashboard';
 import SessionSetup from './pages/SessionSetup';
 import TrainingSession from './pages/TrainingSession';
+import EvaluationReport from './pages/EvaluationReport';
 
 const ProtectedRoute = ({ children }) => {
   const { isAuthenticated, loading } = useAuth();
@@ -28,6 +29,7 @@ function AppRoutes() {
       <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
       <Route path="/setup" element={<ProtectedRoute><SessionSetup /></ProtectedRoute>} />
       <Route path="/session/:sessionId" element={<ProtectedRoute><TrainingSession /></ProtectedRoute>} />
+      <Route path="/evaluation/:sessionId" element={<ProtectedRoute><EvaluationReport /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

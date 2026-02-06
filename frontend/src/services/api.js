@@ -43,6 +43,17 @@ export const sessionsAPI = {
   end: (id) => api.post(`/sessions/${id}/end`).then(r => r.data),
 };
 
+export const evaluationAPI = {
+  triggerEvaluation: (sessionId, mode = 'training') => 
+    api.post(`/evaluation/${sessionId}/trigger?mode=${mode}`).then(r => r.data),
+  getStatus: (sessionId) => 
+    api.get(`/evaluation/${sessionId}/status`).then(r => r.data),
+  getQuickStats: (sessionId) => 
+    api.get(`/evaluation/${sessionId}/quick-stats`).then(r => r.data),
+  getReport: (sessionId) => 
+    api.get(`/evaluation/${sessionId}/report`).then(r => r.data),
+};
+
 export const createWebSocket = (sessionId) => {
   const token = localStorage.getItem('token');
   return new WebSocket(`${WS_URL}/ws/${sessionId}?token=${token}`);

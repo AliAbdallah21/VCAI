@@ -67,8 +67,8 @@ export default function Dashboard() {
           </div>
         </div>
 
-        <Link 
-          to="/setup" 
+        <Link
+          to="/setup"
           className="block bg-gradient-to-r from-blue-600 to-purple-600 rounded-2xl p-8 text-white mb-8 hover:opacity-95 transition"
         >
           <div className="flex items-center justify-between">
@@ -95,10 +95,10 @@ export default function Dashboard() {
           ) : (
             <div className="divide-y divide-slate-100">
               {sessions.map((s) => (
-                <div 
-                  key={s.id} 
+                <div
+                  key={s.id}
                   className="px-6 py-4 flex items-center justify-between hover:bg-slate-50 cursor-pointer transition"
-                  onClick={() => navigate(`/session/${s.id}`)}
+                  onClick={() => navigate(`/evaluation/${s.id}`)}
                 >
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 bg-slate-100 rounded-full flex items-center justify-center text-lg">👤</div>
@@ -108,11 +108,10 @@ export default function Dashboard() {
                     </div>
                   </div>
                   <div className="flex items-center gap-4">
-                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${
-                      s.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
-                      s.difficulty === 'hard' ? 'bg-red-100 text-red-700' :
-                      'bg-amber-100 text-amber-700'
-                    }`}>
+                    <span className={`px-2 py-1 rounded-full text-xs font-medium ${s.difficulty === 'easy' ? 'bg-emerald-100 text-emerald-700' :
+                        s.difficulty === 'hard' ? 'bg-red-100 text-red-700' :
+                          'bg-amber-100 text-amber-700'
+                      }`}>
                       {s.difficulty}
                     </span>
                     <div className="text-xl font-bold text-emerald-600">{s.overall_score || '—'}</div>
