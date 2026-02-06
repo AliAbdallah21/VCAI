@@ -174,7 +174,7 @@ def text_to_speech(
         np.ndarray:
             - Audio samples
             - dtype: float32
-            - sample_rate: 22050 Hz
+            - sample_rate: 24000 Hz
             - shape: (n_samples,) - 1D array
             - values: between -1.0 and 1.0
     
@@ -196,7 +196,7 @@ def text_to_speech(
     # 3. Adjust for emotion (pitch, speed, etc.)
     # 4. Generate audio
     # 5. Convert to float32 numpy array
-    # 6. Ensure sample rate is 22050 Hz
+    # 6. Ensure sample rate is 24000 Hz
     # 7. Return 1D array
     
     pass
