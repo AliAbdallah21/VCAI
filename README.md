@@ -8,7 +8,7 @@
 ![React](https://img.shields.io/badge/React-19-61DAFB?style=for-the-badge&logo=react&logoColor=black)
 ![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688?style=for-the-badge&logo=fastapi&logoColor=white)
 
-**AI-powered sales training platform with real-time voice conversations in Egyptian Arabic**
+*AI-powered sales training platform with real-time voice conversations in Egyptian Arabic*
 
 [Overview](#-overview) · [Features](#-features) · [Demo](#-demo) · [Installation](#-installation) · [Architecture](#-architecture) · [API](#-api-documentation)
 
@@ -18,24 +18,24 @@
 
 ## 🎯 Overview
 
-VCAI (Virtual Customer AI) is an intelligent training platform designed for real estate sales professionals. It simulates realistic customer interactions in **Egyptian Arabic**, providing a safe environment to practice handling various customer personalities and scenarios.
+VCAI (Virtual Customer AI) is an intelligent training platform designed for real estate sales professionals. It simulates realistic customer interactions in *Egyptian Arabic*, providing a safe environment to practice handling various customer personalities and scenarios.
 
 ### The Problem
 
 Traditional sales training relies on role-playing with colleagues or managers, which is:
-- **Inconsistent** - Different trainers provide different experiences
-- **Limited** - Can't practice 24/7
-- **Biased** - Colleagues may not act like real difficult customers
-- **Expensive** - Requires dedicated training time from senior staff
+- *Inconsistent* - Different trainers provide different experiences
+- *Limited* - Can't practice 24/7
+- *Biased* - Colleagues may not act like real difficult customers
+- *Expensive* - Requires dedicated training time from senior staff
 
 ### The Solution
 
 VCAI provides an AI-powered virtual customer that:
-- **Responds naturally** in Egyptian Arabic dialect
-- **Adapts emotionally** based on the conversation flow
-- **Simulates different personalities** from friendly to difficult customers
-- **Provides instant feedback** on sales techniques
-- **Available 24/7** for unlimited practice sessions
+- *Responds naturally* in Egyptian Arabic dialect
+- *Adapts emotionally* based on the conversation flow
+- *Simulates different personalities* from friendly to difficult customers
+- *Provides instant feedback* on sales techniques
+- *Available 24/7* for unlimited practice sessions
 
 ---
 
@@ -45,24 +45,24 @@ VCAI provides an AI-powered virtual customer that:
 
 | Feature | Technology | Status |
 |---------|------------|--------|
-| 🎤 **Real-time Speech Recognition** | Faster-Whisper large-v3-turbo (GPU) | ✅ Working |
-| 🗣️ **Egyptian Arabic TTS** | Chatterbox Multilingual, fine-tuned on Egyptian data | ✅ Working |
-| 😤 **Emotion Detection** | Custom-trained emotion2vec + AraBERT fusion (96.8% accuracy) | ✅ Working |
-| 🤖 **Intelligent Responses** | Qwen 2.5-7B-Instruct, 4-bit quantized (BitsAndBytes NF4) | ✅ Working |
-| 📚 **Knowledge Retrieval** | ChromaDB + Sentence-Transformers RAG | 🟡 In Progress |
-| 🧠 **Conversation Memory** | PostgreSQL with automatic checkpointing every 5 turns | ✅ Working |
-| 🔊 **Streaming Audio** | LLM→TTS sentence-level streaming for low perceived latency | ✅ Working |
-| 👥 **Multiple Personas** | 5 distinct customer personalities | ✅ Working |
+| 🎤 *Real-time Speech Recognition* | Faster-Whisper large-v3-turbo (GPU) | ✅ Working |
+| 🗣️ *Egyptian Arabic TTS* | Chatterbox Multilingual, fine-tuned on Egyptian data | ✅ Working |
+| 😤 *Emotion Detection* | Custom-trained emotion2vec + AraBERT fusion (96.8% accuracy) | ✅ Working |
+| 🤖 *Intelligent Responses* | Qwen 2.5-7B-Instruct, 4-bit quantized (BitsAndBytes NF4) | ✅ Working |
+| 📚 *Knowledge Retrieval* | ChromaDB + Sentence-Transformers RAG | 🟡 In Progress |
+| 🧠 *Conversation Memory* | PostgreSQL with automatic checkpointing every 5 turns | ✅ Working |
+| 🔊 *Streaming Audio* | LLM→TTS sentence-level streaming for low perceived latency | ✅ Working |
+| 👥 *Multiple Personas* | 5 distinct customer personalities | ✅ Working |
 
 ### Customer Personas
 
 | Persona | Personality | Challenge Level |
 |---------|-------------|-----------------|
-| 🧐 **Price-Focused Customer** | Primarily concerned with getting the best deal | Medium |
-| 😤 **Difficult Customer** | Skeptical, hard to please, raises objections | Hard |
-| 😊 **Friendly Customer** | Open and cooperative, easy to work with | Easy |
-| ⏰ **Rushed Customer** | Limited time, wants quick answers | Medium |
-| 🔬 **Detail-Oriented Customer** | Asks many technical questions | Hard |
+| 🧐 *Price-Focused Customer* | Primarily concerned with getting the best deal | Medium |
+| 😤 *Difficult Customer* | Skeptical, hard to please, raises objections | Hard |
+| 😊 *Friendly Customer* | Open and cooperative, easy to work with | Easy |
+| ⏰ *Rushed Customer* | Limited time, wants quick answers | Medium |
+| 🔬 *Detail-Oriented Customer* | Asks many technical questions | Hard |
 
 ---
 
@@ -70,7 +70,7 @@ VCAI provides an AI-powered virtual customer that:
 
 ### Training Session Flow
 
-```
+
 ┌─────────────────────────────────────────────────────────────┐
 │                     Training Session                         │
 ├─────────────────────────────────────────────────────────────┤
@@ -90,7 +90,7 @@ VCAI provides an AI-powered virtual customer that:
 │  📊 Emotion: Interested │ Mood: 65% │ Risk: Low             │
 │                                                              │
 └─────────────────────────────────────────────────────────────┘
-```
+
 
 ---
 
@@ -100,16 +100,16 @@ VCAI provides an AI-powered virtual customer that:
 
 | Component | Minimum | Recommended |
 |-----------|---------|-------------|
-| **OS** | Windows 10/11, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04 |
-| **CPU** | Intel i5 / AMD Ryzen 5 | Intel i7 / AMD Ryzen 7 |
-| **RAM** | 16 GB | 32 GB |
-| **GPU** | NVIDIA GTX 1060 (6GB VRAM) | NVIDIA RTX 3060+ (12GB VRAM) |
-| **Storage** | 20 GB SSD | 40 GB SSD |
-| **CUDA** | 12.1 | 12.1+ |
-| **Python** | 3.11.x | 3.11.x |
-| **Node.js** | 18.x | 20.x+ |
+| *OS* | Windows 10/11, Ubuntu 20.04+ | Windows 11, Ubuntu 22.04 |
+| *CPU* | Intel i5 / AMD Ryzen 5 | Intel i7 / AMD Ryzen 7 |
+| *RAM* | 16 GB | 32 GB |
+| *GPU* | NVIDIA GTX 1060 (6GB VRAM) | NVIDIA RTX 3060+ (12GB VRAM) |
+| *Storage* | 20 GB SSD | 40 GB SSD |
+| *CUDA* | 12.1 | 12.1+ |
+| *Python* | 3.11.x | 3.11.x |
+| *Node.js* | 18.x | 20.x+ |
 
-> ⚠️ **GPU is required.** VCAI loads multiple models simultaneously (STT, LLM, TTS, Emotion) which require ~10GB VRAM total.
+> ⚠️ *GPU is required.* VCAI loads multiple models simultaneously (STT, LLM, TTS, Emotion) which require ~10GB VRAM total.
 
 ---
 
@@ -119,7 +119,7 @@ VCAI provides an AI-powered virtual customer that:
 
 Ensure you have installed:
 - [Anaconda](https://www.anaconda.com/download) or [Miniconda](https://docs.conda.io/en/latest/miniconda.html)
-- [PostgreSQL](https://www.postgresql.org/download/) (create a database named `vcai`)
+- [PostgreSQL](https://www.postgresql.org/download/) (create a database named vcai)
 - [Node.js 20+](https://nodejs.org/)
 - [FFmpeg](https://ffmpeg.org/download.html)
 - [CUDA Toolkit 12.1+](https://developer.nvidia.com/cuda-downloads)
@@ -127,7 +127,7 @@ Ensure you have installed:
 
 ### Step-by-Step Setup
 
-```bash
+bash
 # 1. Clone the repository
 git clone https://github.com/your-org/VCAI.git
 cd VCAI
@@ -154,11 +154,11 @@ python -m backend.main
 
 # Terminal 2 — Frontend
 cd frontend && npm run dev
-```
+
 
 ### Verify Installation
 
-```bash
+bash
 # Check CUDA is available
 python -c "import torch; print(f'CUDA: {torch.cuda.is_available()}, Device: {torch.cuda.get_device_name(0)}')"
 
@@ -167,11 +167,11 @@ python -c "import bitsandbytes; print('BitsAndBytes OK')"
 
 # Check chatterbox
 python -c "from chatterbox.mtl_tts import ChatterboxMultilingualTTS; print('Chatterbox OK')"
-```
+
 
 ### Access the Application
 
-Open your browser and navigate to: **http://localhost:5173**
+Open your browser and navigate to: *http://localhost:5173*
 
 ---
 
@@ -179,7 +179,7 @@ Open your browser and navigate to: **http://localhost:5173**
 
 ### System Overview
 
-```
+
 ┌─────────────────────────────────────────────────────────────────────┐
 │                         Client Layer                                 │
 │  ┌───────────────────────────────────────────────────────────────┐ │
@@ -217,37 +217,37 @@ Open your browser and navigate to: **http://localhost:5173**
 │  │                   └─────────┘    └─────────┘                   │ │
 │  └───────────────────────────────────────────────────────────────┘ │
 └─────────────────────────────────────────────────────────────────────┘
-```
+
 
 ### Streaming Pipeline
 
 VCAI uses a sentence-level streaming architecture for low perceived latency:
 
-```
+
 User speaks → STT (0.3s) → Emotion (0.06s) → RAG → LLM starts generating
   → Sentence 1 complete → TTS chunk 1 → Send to browser → PLAY immediately
   → Sentence 2 complete → TTS chunk 2 → Send to browser → PLAY next
   → ...
 User hears first audio at ~2.5s instead of ~5.5s (55% faster perceived latency)
-```
+
 
 ### Conversation Turn Pipeline
 
 | Step | Component | Technology | Latency |
 |------|-----------|------------|---------|
-| 1 | **Memory Load** | PostgreSQL + checkpoints | ~5ms |
-| 2 | **STT** | Faster-Whisper large-v3-turbo | ~300-450ms |
-| 3 | **Emotion** | emotion2vec + AraBERT fusion | ~55-60ms |
-| 4 | **RAG** | ChromaDB + sentence-transformers | ~100ms |
-| 5 | **LLM** | Qwen 2.5-7B (4-bit NF4) | ~1-3s (streamed) |
-| 6 | **TTS** | Chatterbox Multilingual (Egyptian fine-tuned) | ~1.5-3s per chunk |
-| 7 | **Memory Save** | PostgreSQL + LLM summarization | ~5ms (8s on checkpoint) |
+| 1 | *Memory Load* | PostgreSQL + checkpoints | ~5ms |
+| 2 | *STT* | Faster-Whisper large-v3-turbo | ~300-450ms |
+| 3 | *Emotion* | emotion2vec + AraBERT fusion | ~55-60ms |
+| 4 | *RAG* | ChromaDB + sentence-transformers | ~100ms |
+| 5 | *LLM* | Qwen 2.5-7B (4-bit NF4) | ~1-3s (streamed) |
+| 6 | *TTS* | Chatterbox Multilingual (Egyptian fine-tuned) | ~1.5-3s per chunk |
+| 7 | *Memory Save* | PostgreSQL + LLM summarization | ~5ms (8s on checkpoint) |
 
 ---
 
 ## 📁 Project Structure
 
-```
+
 VCAI/
 ├── backend/                    # FastAPI Backend
 │   ├── main.py                # Entry point + ML model preloading
@@ -320,7 +320,7 @@ VCAI/
 │
 ├── requirements.txt            # Python dependencies
 └── README.md
-```
+
 
 ---
 
@@ -329,52 +329,52 @@ VCAI/
 ### Interactive Documentation
 
 When the backend is running, access the interactive API docs at:
-- **Swagger UI:** http://localhost:8000/docs
-- **ReDoc:** http://localhost:8000/redoc
+- *Swagger UI:* http://localhost:8000/docs
+- *ReDoc:* http://localhost:8000/redoc
 
 ### REST Endpoints
 
 | Method | Endpoint | Description |
 |--------|----------|-------------|
-| `POST` | `/api/auth/register` | Register new user |
-| `POST` | `/api/auth/login` | Authenticate user |
-| `GET` | `/api/auth/me` | Get current user profile |
-| `GET` | `/api/personas` | List available personas |
-| `GET` | `/api/personas/{id}` | Get persona details |
-| `POST` | `/api/sessions` | Create training session |
-| `GET` | `/api/sessions` | List user sessions |
-| `GET` | `/api/sessions/{id}` | Get session details |
+| POST | /api/auth/register | Register new user |
+| POST | /api/auth/login | Authenticate user |
+| GET | /api/auth/me | Get current user profile |
+| GET | /api/personas | List available personas |
+| GET | /api/personas/{id} | Get persona details |
+| POST | /api/sessions | Create training session |
+| GET | /api/sessions | List user sessions |
+| GET | /api/sessions/{id} | Get session details |
 
 ### WebSocket Protocol
 
-**Endpoint:** `ws://localhost:8000/ws/{session_id}?token={jwt_token}`
+*Endpoint:* ws://localhost:8000/ws/{session_id}?token={jwt_token}
 
 #### Client → Server
 
-```json
+json
 { "type": "audio_complete", "data": { "audio_base64": "...", "format": "webm" } }
-```
-```json
+
+json
 { "type": "end_session" }
-```
+
 
 #### Server → Client
 
-```json
+json
 { "type": "transcription", "data": { "text": "السلام عليكم" } }
-```
-```json
+
+json
 { "type": "audio_chunk", "data": { "audio_base64": "...", "sample_rate": 24000, "chunk_index": 1, "text": "وعليكم السلام", "is_final": false } }
-```
-```json
+
+json
 { "type": "audio_chunk", "data": { "is_final": true, "total_chunks": 2 } }
-```
-```json
+
+json
 { "type": "response", "data": { "text": "Full response text" } }
-```
-```json
+
+json
 { "type": "emotion", "data": { "emotion": "interested", "mood_score": 65, "risk_level": "low", "tip": "..." } }
-```
+
 
 ---
 
@@ -382,9 +382,9 @@ When the backend is running, access the interactive API docs at:
 
 ### Environment Variables
 
-Create a `.env` file in the project root:
+Create a .env file in the project root:
 
-```env
+env
 # Database (PostgreSQL required)
 DATABASE_URL=postgresql://postgres:yourpassword@localhost:5432/vcai
 
@@ -396,18 +396,18 @@ JWT_EXPIRATION_HOURS=24
 # Feature Flags
 USE_MOCKS=false
 DEBUG=false
-```
 
-> ⚠️ **PostgreSQL is required.** Install [PostgreSQL](https://www.postgresql.org/download/) and create a database named `vcai` before running the app. The SQL schema is in `scripts/setup_db.sql`.
+
+> ⚠️ *PostgreSQL is required.* Install [PostgreSQL](https://www.postgresql.org/download/) and create a database named vcai before running the app. The SQL schema is in scripts/setup_db.sql.
 
 ### TTS Fine-tuned Checkpoint
 
-The TTS uses an Egyptian Arabic fine-tuned checkpoint. Configure the path in `tts/agent.py`:
+The TTS uses an Egyptian Arabic fine-tuned checkpoint. Configure the path in tts/agent.py:
 
-```python
+python
 EGYPTIAN_CHECKPOINT = r"C:\path\to\checkpoint-2000\model.safetensors"
 # Set to None to use base Chatterbox model
-```
+
 
 ---
 
@@ -417,40 +417,40 @@ EGYPTIAN_CHECKPOINT = r"C:\path\to\checkpoint-2000\model.safetensors"
 <summary><b>🔴 Chatterbox install fails (pkuseg error)</b></summary>
 
 This is a known issue with chatterbox-tts >= 0.1.3. Fix:
-```bash
+bash
 pip install --upgrade pip setuptools wheel cython
 pip install numpy
 pip install --no-build-isolation pkuseg
 pip install chatterbox-tts
-```
+
 </details>
 
 <details>
 <summary><b>🔴 CUDA not detected after install</b></summary>
 
 Chatterbox may install CPU-only PyTorch. Reinstall:
-```bash
+bash
 pip install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu121
-```
+
 </details>
 
 <details>
 <summary><b>🔴 bcrypt / chromadb dependency conflict</b></summary>
 
 Install bcrypt before chromadb:
-```bash
+bash
 pip install bcrypt==4.0.1
 pip install chromadb
-```
+
 </details>
 
 <details>
 <summary><b>🔴 bitsandbytes CUDA errors on Windows</b></summary>
 
 Use the latest version which has native Windows support:
-```bash
+bash
 pip install bitsandbytes>=0.45.0
-```
+
 </details>
 
 <details>
@@ -472,8 +472,8 @@ Increase microphone volume and enable boost in Windows sound settings. The syste
 | LLM Response | 2-3s | 1-3s |
 | TTS per Chunk | 1.5-3s | 1.2-2.5s |
 | Memory Load/Save | 50ms / 5ms | 3-5ms / 5ms |
-| **First Audio Heard** | **~4s** | **~2.5s** |
-| **Total Turn Time** | ~6.5s | 2.5-5s |
+| *First Audio Heard* | *~4s* | *~2.5s* |
+| *Total Turn Time* | ~6.5s | 2.5-5s |
 
 ---
 
@@ -513,6 +513,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 <div align="center">
 
-**Built with ❤️ for sales excellence**
+*Built with ❤️ for sales excellence*
 
 </div>
