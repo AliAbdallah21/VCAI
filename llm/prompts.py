@@ -47,6 +47,41 @@ EGYPTIAN_EXAMPLES = [
 ]
 
 
+def _extract_already_mentioned(memory: dict) -> list:
+    """
+    Extract topics/information already mentioned in the conversation.
+    This helps prevent the LLM from asking about things already discussed.
+    """
+    mentioned = []
+    recent_messages = memory.get("recent_messages", [])
+    
+    # Keywords to detect what info was already given
+    price_keywords = ["سعر", "مليون", "ألف", "جنيه", "تمن", "بكام", "كام"]
+    size_keywords = ["متر", "مساحة", "قد إيه", "حجم"]
+    location_keywords = ["فين", "مكان", "منطقة", "عنوان", "مدينة نصر", "التجمع", "الشيخ زايد"]
+    floor_keywords = ["دور", "طابق", "أرضي"]
+    payment_keywords = ["مقدم", "تقسيط", "قسط", "دفع"]
+    
+    for msg in recent_messages:
+        text = msg.get("text", "").lower()
+        speaker = msg.get("speaker", "")
+        
+        # Only check salesperson messages for information given
+        if speaker == "salesperson":
+            if any(kw in text for kw in price_keywords):
+                mentioned.append("السعر")
+            if any(kw in text for kw in size_keywords):
+                mentioned.append("المساحة")
+            if any(kw in text for kw in location_keywords):
+                mentioned.append("المكان")
+            if any(kw in text for kw in floor_keywords):
+                mentioned.append("الدور/الطابق")
+            if any(kw in text for kw in payment_keywords):
+                mentioned.append("المقدم/التقسيط")
+    
+    return list(set(mentioned))  # Remove duplicates
+
+
 def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, rag_context: dict) -> str:
     """Build system prompt for the LLM."""
     
@@ -83,6 +118,14 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
     
     return f"""انت عميل مصري من القاهرة اسمك {persona_name}. بتدور على شقة تشتريها.
 
+## ⚠️ قاعدة مهمة جداً - ممنوع التكرار:
+لو البائع قالك معلومة قبل كده (السعر، المساحة، المكان، الدور)، متسألش عنها تاني!
+بدل ما تسأل نفس السؤال، اعمل واحدة من دول:
+- علّق على المعلومة ("ده غالي أوي!" أو "حلو" أو "طيب")
+- اسأل سؤال جديد مختلف
+- اطلب تفاصيل أكتر عن حاجة تانية
+- قول رأيك
+
 ## مهم جداً - اللهجة:
 انت لازم ترد بالعامية المصرية بتاعت القاهرة!
 - قول "إيه" مش "ما" أو "ماذا"
@@ -101,12 +144,6 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
 - البياع هو اللي بيكلمك
 - رد عليه كعميل مصري
 
-## قواعد:
-1. رد بالمصري بس - ممنوع الفصحى خالص!
-2. ردك يكون جملة أو اتنين بس
-3. متكررش أسئلة سألتها قبل كده
-4. لو البياع قالك السعر، متسألش عنه تاني
-
 ## شخصيتك:
 {personality}
 {emotion_guidance}
@@ -123,9 +160,8 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
 - "أين الموقع؟" ❌ (قول: "فين المكان ده؟")
 - "هل يوجد تقسيط؟" ❌ (قول: "فيه تقسيط؟")
 - "أريد أن أرى الشقة" ❌ (قول: "عايز أشوفها")
-- "كم المساحة؟" ❌ (قول: "المساحة قد إيه؟")
 
-رد على البياع بالمصري:"""
+رد بجملة أو اتنين بس. متكررش أسئلة اتسألت قبل كده."""
 
 
 def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> list:
@@ -163,19 +199,20 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
             # Add as context about what happened before
             messages.append({
                 "role": "user", 
-                "content": f"[اللي فات في المحادثة: {checkpoint_context}]\n\nكمّل المحادثة:"
+                "content": f"[ملخص اللي فات: {checkpoint_context}]"
             })
             messages.append({
                 "role": "assistant",
-                "content": "تمام، فاكر كل حاجة. كمّل."
+                "content": "تمام، فاكر."
             })
     
     # ══════════════════════════════════════════════════════════════════════════
-    # 2. ADD RECENT MESSAGES (Last 8 messages for immediate context)
+    # 2. ADD RECENT MESSAGES (Last 10 messages for immediate context)
     # ══════════════════════════════════════════════════════════════════════════
     recent_messages = memory.get("recent_messages", [])
     
-    for msg in recent_messages[-8:]:
+    # Take last 10 instead of 8 for better context
+    for msg in recent_messages[-10:]:
         speaker = msg.get("speaker", "")
         text = msg.get("text", "")
         
@@ -188,9 +225,21 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
             messages.append({"role": "assistant", "content": text})
     
     # ══════════════════════════════════════════════════════════════════════════
-    # 3. ADD CURRENT SALESPERSON MESSAGE
+    # 3. ADD REMINDER ABOUT WHAT WAS ALREADY MENTIONED
     # ══════════════════════════════════════════════════════════════════════════
-    messages.append({"role": "user", "content": f"البياع: {salesperson_text}"})
+    already_mentioned = _extract_already_mentioned(memory)
+    
+    # ══════════════════════════════════════════════════════════════════════════
+    # 4. ADD CURRENT SALESPERSON MESSAGE WITH CONTEXT
+    # ══════════════════════════════════════════════════════════════════════════
+    if already_mentioned:
+        mentioned_str = "، ".join(already_mentioned)
+        messages.append({
+            "role": "user", 
+            "content": f"[تنبيه: البياع قالك قبل كده عن: {mentioned_str}. متسألش عنهم تاني!]\n\nالبياع: {salesperson_text}"
+        })
+    else:
+        messages.append({"role": "user", "content": f"البياع: {salesperson_text}"})
     
     return messages
 

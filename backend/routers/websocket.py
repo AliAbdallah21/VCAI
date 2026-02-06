@@ -41,6 +41,8 @@ from orchestration.config import OrchestrationConfig
 from orchestration.nodes.llm_node import llm_node_streaming
 from orchestration.nodes.tts_node import tts_chunk
 from orchestration.state import reset_turn_state
+import asyncio  # Should already be there
+from orchestration.config import get_config  # Add this if not present
 router = APIRouter()
 
 
@@ -95,14 +97,13 @@ class ConversationHandler:
         # ══════════════════════════════════════════════════════════════════
         # INITIALIZE ORCHESTRATION AGENT
         # ══════════════════════════════════════════════════════════════════
+
         self.agent = OrchestrationAgent(
-            use_mocks=False,  # Use REAL agents (STT, LLM, Memory)
-            verbose=True,
-            # These will use mocks since modules aren't ready:
-            # - Emotion detection (mock)
-            # - RAG retrieval (mock)
-            # - TTS synthesis (mock)
+        use_mocks=False,
+        verbose=True,
+        enable_streaming=False
         )
+
         
         # Start the orchestration session
         self._start_orchestration_session()
@@ -822,7 +823,13 @@ async def websocket_endpoint(
                     # ══════════════════════════════════════════════════════
                     # PROCESS WITH LANGGRAPH ORCHESTRATION
                     # ══════════════════════════════════════════════════════
-                    results = await process_turn_streaming(handler, db, websocket)
+                    if handler.agent.config.enable_streaming:
+                        results = await process_turn_streaming(handler, db, websocket)
+                    else:
+                        results = await asyncio.get_event_loop().run_in_executor(
+                            None,
+                            lambda: process_turn_with_orchestration_sync(handler, db)
+                        )
                     
                     # Send results to client
                     await _send_turn_results(websocket, results)
@@ -855,7 +862,13 @@ async def websocket_endpoint(
                     # ══════════════════════════════════════════════════════
                     # PROCESS WITH LANGGRAPH ORCHESTRATION
                     # ══════════════════════════════════════════════════════
-                    results = await process_turn_streaming(handler, db, websocket) 
+                    if handler.agent.config.enable_streaming:
+                        results = await process_turn_streaming(handler, db, websocket)
+                    else:
+                        results = await asyncio.get_event_loop().run_in_executor(
+                            None,
+                            lambda: process_turn_with_orchestration_sync(handler, db)
+                        ) 
                     
                     
                     # Send results to client

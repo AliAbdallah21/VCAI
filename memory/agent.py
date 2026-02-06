@@ -3,7 +3,7 @@
 # IMPORTANT: This file should only expose the required functions.
 # Actual DB logic lives in memory/store.py
 
-from _future_ import annotations
+from __future__ import annotations
 from shared.types import Message, MemoryCheckpoint, SessionMemory
 
 # Import internal storage functions (you will implement these in store.py next)

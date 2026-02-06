@@ -5,6 +5,7 @@ LLM Agent using Qwen 2.5 with BitsAndBytes 4-bit quantization.
 
 import torch
 import re
+import random
 from typing import Optional, Generator, List
 from threading import Thread
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer
@@ -18,6 +19,9 @@ from llm.prompts import build_system_prompt, build_messages
 
 _model = None
 _tokenizer = None
+
+# Debug flag - set to True to see what's being sent to LLM
+DEBUG_PROMPTS = False
 
 
 def _load_model():
@@ -48,6 +52,29 @@ def _load_model():
     return _model, _tokenizer
 
 
+# ══════════════════════════════════════════════════════════════════════════════
+# FALLBACK RESPONSES (varied, not repetitive)
+# ══════════════════════════════════════════════════════════════════════════════
+
+FALLBACK_RESPONSES = [
+    "ممكن توضحلي أكتر؟",
+    "طيب كمّل",
+    "وبعدين؟",
+    "ماشي، وإيه كمان؟",
+    "أوك، فهمت",
+    "طيب",
+    "تمام",
+    "ماشي يعني",
+    "أيوه",
+    "وإيه تاني؟",
+]
+
+
+def _get_fallback_response() -> str:
+    """Get a random fallback response to avoid repetition."""
+    return random.choice(FALLBACK_RESPONSES)
+
+
 def _clean_response(text: str) -> str:
     """Clean response - remove non-Arabic text and keep only Arabic."""
     
@@ -56,6 +83,9 @@ def _clean_response(text: str) -> str:
     # Remove leading question marks
     if text.startswith("؟"):
         text = text[1:].strip()
+    
+    # Remove common LLM artifacts
+    text = re.sub(r'^(العميل:|الزبون:|أنا:|Response:|Customer:)\s*', '', text, flags=re.IGNORECASE)
     
     # Remove words that contain non-Arabic characters
     words = text.split()
@@ -67,10 +97,18 @@ def _clean_response(text: str) -> str:
         has_cyrillic = bool(re.search(r'[\u0400-\u04FF]', word))
         has_chinese = bool(re.search(r'[\u4e00-\u9fff]', word))
         has_hebrew = bool(re.search(r'[\u0590-\u05FF]', word))
-        has_other = bool(re.search(r'[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF0-9\s.,،؟!؛:\-()]', word))
         
-        if has_latin or has_cyrillic or has_chinese or has_hebrew or has_other:
+        # Allow Arabic, numbers, and common punctuation
+        has_invalid = bool(re.search(r'[^\u0600-\u06FF\u0750-\u077F\uFB50-\uFDFF\uFE70-\uFEFF0-9\s.,،؟!؛:\-()٠-٩]', word))
+        
+        if has_latin or has_cyrillic or has_chinese or has_hebrew:
             continue
+        
+        # Skip if mostly invalid characters
+        if has_invalid:
+            arabic_chars = len(re.findall(r'[\u0600-\u06FF]', word))
+            if arabic_chars < len(word) / 2:
+                continue
         
         clean_words.append(word)
     
@@ -83,18 +121,19 @@ def _clean_response(text: str) -> str:
     text = text.replace('"', '').replace("'", '').replace('"', '').replace('"', '')
     
     # If too short after cleaning, return fallback
-    if len(text) < 5:
-        return "طيب، والسعر كام؟"  # Customer-like fallback
+    if len(text) < 3:
+        return _get_fallback_response()
     
-    # Limit length
-    if len(text) > 200:
-        for sep in ['،', '.', '؟', '!']:
-            idx = text[:200].rfind(sep)
+    # Limit length - but be smarter about it
+    if len(text) > 250:
+        # Try to cut at a natural break
+        for sep in ['؟', '.', '!', '،']:
+            idx = text[:250].rfind(sep)
             if idx > 50:
                 text = text[:idx+1]
                 break
         else:
-            text = text[:200]
+            text = text[:250]
     
     return text.strip()
 
@@ -152,6 +191,16 @@ def generate_response(
     system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
     messages = build_messages(system_prompt, memory, customer_text)
     
+    # Debug: Print what we're sending to the LLM
+    if DEBUG_PROMPTS:
+        print("\n" + "="*60)
+        print("[DEBUG] MESSAGES BEING SENT TO LLM:")
+        for i, msg in enumerate(messages):
+            role = msg['role']
+            content = msg['content'][:100] + "..." if len(msg['content']) > 100 else msg['content']
+            print(f"  {i+1}. [{role}]: {content}")
+        print("="*60 + "\n")
+    
     # Tokenize
     text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs = tokenizer(text, return_tensors="pt").to(model.device)
@@ -159,12 +208,12 @@ def generate_response(
     try:
         outputs = model.generate(
             **inputs,
-            max_new_tokens=60,
-            temperature=0.7,
+            max_new_tokens=150,  # Increased from 60
+            temperature=0.6,     # Slightly lower for more consistency
             top_p=0.9,
             do_sample=True,
             pad_token_id=tokenizer.eos_token_id,
-            repetition_penalty=1.15
+            repetition_penalty=1.2  # Increased to reduce repetition
         )
         
         response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
@@ -174,13 +223,8 @@ def generate_response(
         
     except Exception as e:
         print(f"[LLM] Error: {e}")
-        return "ممكن تكرر تاني؟"
+        return _get_fallback_response()
 
-
-# ══════════════════════════════════════════════════════════════════════════════
-# PATCH: Replace generate_response_streaming() in C:\VCAI\llm\agent.py
-# Find the existing generate_response_streaming function and replace it with this
-# ══════════════════════════════════════════════════════════════════════════════
 
 def generate_response_streaming(
     customer_text: str,
@@ -199,6 +243,17 @@ def generate_response_streaming(
     # Build prompt (same as non-streaming)
     system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
     messages = build_messages(system_prompt, memory, customer_text)
+    
+    # Debug: Print what we're sending to the LLM
+    if DEBUG_PROMPTS:
+        print("\n" + "="*60)
+        print("[DEBUG] STREAMING - MESSAGES BEING SENT TO LLM:")
+        for i, msg in enumerate(messages):
+            role = msg['role']
+            content = msg['content'][:100] + "..." if len(msg['content']) > 100 else msg['content']
+            print(f"  {i+1}. [{role}]: {content}")
+        print("="*60 + "\n")
+    
     text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
     inputs = tokenizer(text, return_tensors="pt").to(model.device)
 
@@ -209,15 +264,15 @@ def generate_response_streaming(
         skip_special_tokens=True
     )
 
-    # Generation kwargs
+    # Generation kwargs - UPDATED PARAMS
     gen_kwargs = {
         **inputs,
-        "max_new_tokens": 60,
-        "temperature": 0.7,
+        "max_new_tokens": 150,       # Increased from 60
+        "temperature": 0.6,          # Slightly lower
         "top_p": 0.9,
         "do_sample": True,
         "pad_token_id": tokenizer.eos_token_id,
-        "repetition_penalty": 1.15,
+        "repetition_penalty": 1.2,   # Increased
         "streamer": streamer,
     }
 
@@ -228,6 +283,7 @@ def generate_response_streaming(
     # Buffer tokens and yield at sentence boundaries
     buffer = ""
     sentence_endings = ('.', '،', '؟', '!', '؛', '?', ',')
+    yielded_count = 0
 
     try:
         for token_text in streamer:
@@ -242,6 +298,7 @@ def generate_response_streaming(
                     if sentence and len(sentence) > 3:
                         cleaned = _clean_response(sentence)
                         if cleaned and len(cleaned) > 3:
+                            yielded_count += 1
                             yield cleaned
                     break
 
@@ -249,11 +306,16 @@ def generate_response_streaming(
         if buffer.strip():
             cleaned = _clean_response(buffer.strip())
             if cleaned and len(cleaned) > 3:
+                yielded_count += 1
                 yield cleaned
+        
+        # If nothing was yielded, yield a fallback
+        if yielded_count == 0:
+            yield _get_fallback_response()
 
     except Exception as e:
         print(f"[LLM] Streaming error: {e}")
-        yield "ممكن تكرر تاني؟"
+        yield _get_fallback_response()
 
     thread.join(timeout=10)
 
@@ -265,14 +327,6 @@ def generate_response_streaming(
 def summarize_conversation(messages: list) -> str:
     """
     Summarize conversation for memory checkpoints.
-    
-    Called by memory_node when creating checkpoints every N turns.
-    
-    Args:
-        messages: List of message dicts with 'speaker' and 'text' keys
-    
-    Returns:
-        str: Arabic summary of the conversation
     """
     model, tokenizer = _load_model()
     
@@ -310,14 +364,6 @@ def summarize_conversation(messages: list) -> str:
 def extract_key_points(messages: list) -> List[str]:
     """
     Extract key points from conversation for memory checkpoints.
-    
-    Called by memory_node when creating checkpoints.
-    
-    Args:
-        messages: List of message dicts with 'speaker' and 'text' keys
-    
-    Returns:
-        List[str]: List of key points in Arabic
     """
     model, tokenizer = _load_model()
     
@@ -360,67 +406,48 @@ def extract_key_points(messages: list) -> List[str]:
 if __name__ == "__main__":
     import time
     
+    # Enable debug for testing
+    DEBUG_PROMPTS = True
+    
     print("Testing LLM Agent with BitsAndBytes...")
     
-    test_emotion = {"primary_emotion": "frustrated", "confidence": 0.8, "intensity": "medium", "scores": {}}
-    test_context = {"current": test_emotion, "trend": "stable", "recommendation": "be_firm", "risk_level": "medium"}
+    test_emotion = {"primary_emotion": "neutral", "confidence": 0.8, "intensity": "medium", "scores": {}}
+    test_context = {"current": test_emotion, "trend": "stable", "recommendation": "be_professional", "risk_level": "medium"}
     test_persona = {
         "id": "difficult_customer", "name": "عميل صعب", "name_en": "Difficult Customer",
         "personality_prompt": "أنت عميل مصري متشكك وبتفاصل كتير في السعر", "difficulty": "hard",
         "traits": ["متشكك", "بيفاصل"], "default_emotion": "frustrated"
     }
-    test_memory = {"session_id": "test", "checkpoints": [], "recent_messages": [], "total_turns": 0}
-    test_rag = {"query": "", "documents": [{"content": "شقة 120 متر في التجمع الخامس بسعر 2,500,000 جنيه، تشطيب سوبر لوكس", "source": "properties.pdf", "score": 0.9}], "total_found": 1}
     
-    # Test generate_response
-    test_inputs = [
-        "السلام عليكم",
-        "عندنا شقة حلوة في التجمع",
-        "السعر 2 مليون ونص",
-    ]
+    # Simulate a conversation with memory
+    test_memory = {
+        "session_id": "test",
+        "checkpoints": [],
+        "recent_messages": [
+            {"speaker": "salesperson", "text": "السلام عليكم، معاك أحمد من شركة العقارات"},
+            {"speaker": "vc", "text": "وعليكم السلام، أنا بدور على شقة"},
+            {"speaker": "salesperson", "text": "عندنا شقة 100 متر في مدينة نصر"},
+            {"speaker": "vc", "text": "طيب والسعر كام؟"},
+            {"speaker": "salesperson", "text": "السعر مليون جنيه"},
+            {"speaker": "vc", "text": "والمقدم كام؟"},
+        ],
+        "total_turns": 3
+    }
+    
+    test_rag = {"query": "", "documents": [], "total_found": 0}
     
     print("\n" + "="*60)
-    print("Testing generate_response()")
+    print("Testing with conversation history (should NOT ask about price again)")
     print("="*60)
     
-    for text in test_inputs:
-        print(f"\nالبائع: {text}")
-        start = time.time()
-        response = generate_response(text, test_emotion, test_context, test_persona, test_memory, test_rag)
-        elapsed = time.time() - start
-        print(f"العميل: {response}")
-        print(f"⏱️ Time: {elapsed:.2f}s")
+    # Salesperson already told price, LLM should NOT ask about it
+    test_input = "المقدم 100 ألف جنيه والباقي تقسيط"
     
-    # Test summarize_conversation
-    print("\n" + "="*60)
-    print("Testing summarize_conversation()")
-    print("="*60)
-    
-    test_messages = [
-        {"speaker": "salesperson", "text": "السلام عليكم، معاك أحمد من شركة العقارات"},
-        {"speaker": "vc", "text": "وعليكم السلام، أنا بدور على شقة في التجمع"},
-        {"speaker": "salesperson", "text": "عندنا شقة 120 متر بسعر 2 مليون ونص"},
-        {"speaker": "vc", "text": "ده غالي أوي، فيه أرخص؟"},
-        {"speaker": "salesperson", "text": "ممكن نتكلم في السعر لو جاد"},
-    ]
-    
+    print(f"\nالبائع: {test_input}")
     start = time.time()
-    summary = summarize_conversation(test_messages)
+    response = generate_response(test_input, test_emotion, test_context, test_persona, test_memory, test_rag)
     elapsed = time.time() - start
-    print(f"Summary: {summary}")
+    print(f"العميل: {response}")
     print(f"⏱️ Time: {elapsed:.2f}s")
     
-    # Test extract_key_points
-    print("\n" + "="*60)
-    print("Testing extract_key_points()")
-    print("="*60)
-    
-    start = time.time()
-    key_points = extract_key_points(test_messages)
-    elapsed = time.time() - start
-    print(f"Key Points:")
-    for i, point in enumerate(key_points, 1):
-        print(f"  {i}. {point}")
-    print(f"⏱️ Time: {elapsed:.2f}s")
-    
-    print("\n✅ All tests completed!")
+    print("\n✅ Test completed!")

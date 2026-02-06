@@ -32,6 +32,7 @@ class OrchestrationConfig:
     enable_emotion: bool = True                         # Enable emotion detection
     enable_rag: bool = True                             # Enable RAG retrieval
     enable_checkpoints: bool = True                     # Enable memory checkpoints
+    enable_streaming: bool = True                       # Enable streaming LLM+TTS (sentence-by-sentence)
     
     # Logging
     verbose: bool = True                                # Print debug logs
@@ -50,6 +51,7 @@ DEFAULT_CONFIG = OrchestrationConfig()
 def get_config(
     use_mocks: bool = False,    # Default: use real agents
     verbose: bool = True,
+    enable_streaming: bool = True,  # Default: streaming enabled
     **kwargs
 ) -> OrchestrationConfig:
     """
@@ -58,6 +60,7 @@ def get_config(
     Args:
         use_mocks: Whether to use mock functions (default: False = real agents)
         verbose: Whether to print debug logs
+        enable_streaming: Whether to use streaming LLM+TTS (default: True)
         **kwargs: Additional config overrides
     
     Returns:
@@ -66,6 +69,7 @@ def get_config(
     return OrchestrationConfig(
         use_mocks=use_mocks,
         verbose=verbose,
+        enable_streaming=enable_streaming,
         **kwargs
     )
 
@@ -76,7 +80,8 @@ def get_development_config() -> OrchestrationConfig:
     return OrchestrationConfig(
         use_mocks=True,
         verbose=True,
-        enable_checkpoints=False  # Faster without checkpoints
+        enable_checkpoints=False,  # Faster without checkpoints
+        enable_streaming=True       # Can test streaming with mocks
     )
 
 
@@ -86,6 +91,7 @@ def get_production_config() -> OrchestrationConfig:
         use_mocks=False,
         verbose=False,
         enable_checkpoints=True,
+        enable_streaming=True,      # Streaming enabled in production
         log_timings=True
     )
 
@@ -96,5 +102,6 @@ def get_testing_config() -> OrchestrationConfig:
         use_mocks=True,
         verbose=True,
         enable_checkpoints=True,
-        checkpoint_interval=2  # More frequent checkpoints for testing
+        enable_streaming=False,     # Disable streaming for faster tests
+        checkpoint_interval=2       # More frequent checkpoints for testing
     )

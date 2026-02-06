@@ -33,6 +33,16 @@ def _gather_context(state):
     rag_context = state.get("rag_context") or {
         "query": state.get("transcription", ""), "documents": [], "total_found": 0
     }
+    print("\n" + "="*60)
+    print("[DEBUG] MEMORY CONTENT:")
+    print(f"  Checkpoints: {len(memory.get('checkpoints', []))}")
+    print(f"  Recent messages: {len(memory.get('recent_messages', []))}")
+    for i, msg in enumerate(memory.get('recent_messages', [])[-6:]):  # Last 6
+        role = msg.get('role', 'unknown')
+        content = msg.get('content', '')[:50]
+        print(f"    {i+1}. [{role}]: {content}...")
+    print("="*60 + "\n")
+    
     return emotion, emotional_context, persona, memory, rag_context
 
 

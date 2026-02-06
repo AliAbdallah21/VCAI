@@ -22,22 +22,28 @@ export default function TrainingSession() {
   const audioContextRef = useRef(null);
   const audioQueueRef = useRef([]);
   const isPlayingRef = useRef(false);
-  const hasReceivedChunksRef = useRef(false);  // Track if we got streaming chunks this turn
+  const hasReceivedChunksRef = useRef(false);
+  
+  // ══════════════════════════════════════════════════════════════════════
+  // PREVENT DUPLICATE CONNECTIONS
+  // ══════════════════════════════════════════════════════════════════════
+  const isConnectingRef = useRef(false);
+  const hasConnectedRef = useRef(false);
 
   // Get or create AudioContext (reuse across chunks for gapless playback)
   const getAudioContext = useCallback(() => {
     if (!audioContextRef.current || audioContextRef.current.state === 'closed') {
       audioContextRef.current = new (window.AudioContext || window.webkitAudioContext)();
     }
-    // Resume if suspended (browser autoplay policy)
     if (audioContextRef.current.state === 'suspended') {
       audioContextRef.current.resume();
     }
     return audioContextRef.current;
   }, []);
 
-  // Play next chunk from queue
-  const playNextChunk = useCallback(() => {
+  // Play next chunk from queue - using ref to avoid dependency issues
+  const playNextChunkRef = useRef(null);
+  playNextChunkRef.current = () => {
     if (audioQueueRef.current.length === 0) {
       isPlayingRef.current = false;
       return;
@@ -54,22 +60,21 @@ export default function TrainingSession() {
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.connect(ctx.destination);
-
-      // When this chunk finishes, play the next one
+      
       source.onended = () => {
-        playNextChunk();
+        playNextChunkRef.current();
       };
 
       source.start();
     } catch (err) {
       console.error('Chunk playback error:', err);
-      // Try next chunk even if this one failed
-      playNextChunk();
+      playNextChunkRef.current();
     }
-  }, [getAudioContext]);
+  };
 
-  // Add chunk to queue and start playback if not already playing
-  const queueAudioChunk = useCallback((base64Audio, sampleRate) => {
+  // Queue audio chunk - stable function using refs
+  const queueAudioChunkRef = useRef(null);
+  queueAudioChunkRef.current = (base64Audio, sampleRate) => {
     try {
       const binaryString = atob(base64Audio);
       const bytes = new Uint8Array(binaryString.length);
@@ -83,26 +88,86 @@ export default function TrainingSession() {
         sampleRate: sampleRate || 24000
       });
 
-      // Start playing if not already
       if (!isPlayingRef.current) {
-        playNextChunk();
+        playNextChunkRef.current();
       }
     } catch (err) {
       console.error('Audio chunk decode error:', err);
     }
-  }, [playNextChunk]);
+  };
+
+  // Play full audio - stable function using refs
+  const playAudioRef = useRef(null);
+  playAudioRef.current = async (base64Audio, sampleRate = 24000) => {
+    try {
+      const binaryString = atob(base64Audio);
+      const bytes = new Uint8Array(binaryString.length);
+      for (let i = 0; i < binaryString.length; i++) {
+        bytes[i] = binaryString.charCodeAt(i);
+      }
+      
+      const float32Array = new Float32Array(bytes.buffer);
+      const ctx = getAudioContext();
+      const audioBuffer = ctx.createBuffer(1, float32Array.length, sampleRate);
+      audioBuffer.getChannelData(0).set(float32Array);
+      
+      const source = ctx.createBufferSource();
+      source.buffer = audioBuffer;
+      source.connect(ctx.destination);
+      source.start();
+    } catch (err) {
+      console.error('Audio playback error:', err);
+    }
+  };
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  // ══════════════════════════════════════════════════════════════════════
+  // WEBSOCKET CONNECTION - with duplicate prevention
+  // ══════════════════════════════════════════════════════════════════════
   useEffect(() => {
+    // Prevent duplicate connections (React StrictMode calls useEffect twice)
+    if (isConnectingRef.current || hasConnectedRef.current) {
+      console.log('[WS] Skipping duplicate connection attempt');
+      return;
+    }
+    
+    // Check if we already have an open connection
+    if (wsRef.current && wsRef.current.readyState === WebSocket.OPEN) {
+      console.log('[WS] Already connected, skipping');
+      return;
+    }
+
+    isConnectingRef.current = true;
+    console.log('[WS] Creating new WebSocket connection...');
+    
     const ws = createWebSocket(sessionId);
     wsRef.current = ws;
 
-    ws.onopen = () => setConnected(true);
-    ws.onclose = () => setConnected(false);
-    ws.onerror = () => setConnected(false);
+    ws.onopen = () => {
+      console.log('[WS] Connected successfully');
+      setConnected(true);
+      hasConnectedRef.current = true;
+      isConnectingRef.current = false;
+    };
+
+    ws.onclose = (event) => {
+      console.log('[WS] Connection closed:', event.code, event.reason);
+      setConnected(false);
+      isConnectingRef.current = false;
+      // Only reset hasConnected if this was a normal close (user ended session)
+      if (event.code === 1000) {
+        hasConnectedRef.current = false;
+      }
+    };
+
+    ws.onerror = (error) => {
+      console.error('[WS] Connection error:', error);
+      setConnected(false);
+      isConnectingRef.current = false;
+    };
 
     ws.onmessage = (e) => {
       const data = JSON.parse(e.data);
@@ -119,8 +184,6 @@ export default function TrainingSession() {
           break;
 
         case 'response':
-          // Only add customer message if we haven't received it yet
-          // (streaming sends transcription early, response comes at the end)
           setMessages(m => [...m, { speaker: 'customer', text: data.data.text }]);
           break;
 
@@ -135,7 +198,6 @@ export default function TrainingSession() {
         case 'processing':
           if (data.data.status === 'started') {
             setIsProcessing(true);
-            // Reset streaming state for new turn
             hasReceivedChunksRef.current = false;
             audioQueueRef.current = [];
           } else {
@@ -147,67 +209,43 @@ export default function TrainingSession() {
           navigate(`/evaluation/${sessionId}`);
           break;
 
-        // ══════════════════════════════════════════════════════════════
-        // NEW: Handle streaming audio chunks
-        // ══════════════════════════════════════════════════════════════
         case 'audio_chunk':
           if (data.data.is_final) {
-            // All chunks received
             console.log(`🔊 Streaming complete: ${data.data.total_chunks} chunks`);
           } else {
-            // Queue this chunk for immediate playback
             hasReceivedChunksRef.current = true;
-            queueAudioChunk(data.data.audio_base64, data.data.sample_rate);
+            queueAudioChunkRef.current(data.data.audio_base64, data.data.sample_rate);
             console.log(`🔊 Chunk ${data.data.chunk_index}: "${data.data.text?.substring(0, 30)}..."`);
           }
           break;
 
         case 'audio':
-          // Full audio fallback - only play if we didn't get streaming chunks
           if (!hasReceivedChunksRef.current) {
-            playAudio(data.data.audio_base64, data.data.sample_rate);
+            playAudioRef.current(data.data.audio_base64, data.data.sample_rate);
           }
           break;
       }
     };
 
+    // Cleanup function
     return () => {
-      if (ws.readyState === WebSocket.OPEN) {
-        ws.close();
+      console.log('[WS] Cleanup - closing connection');
+      if (ws.readyState === WebSocket.OPEN || ws.readyState === WebSocket.CONNECTING) {
+        ws.close(1000, 'Component unmounting');
       }
-      // Clean up AudioContext on unmount
+      // Reset refs on unmount
+      isConnectingRef.current = false;
+      hasConnectedRef.current = false;
+      
+      // Clean up AudioContext
       if (audioContextRef.current && audioContextRef.current.state !== 'closed') {
         audioContextRef.current.close();
       }
     };
-  }, [sessionId, navigate, queueAudioChunk]);
-
-  // Original full-audio playback (kept as fallback)
-  const playAudio = async (base64Audio, sampleRate = 24000) => {
-    try {
-      const binaryString = atob(base64Audio);
-      const bytes = new Uint8Array(binaryString.length);
-      for (let i = 0; i < binaryString.length; i++) {
-        bytes[i] = binaryString.charCodeAt(i);
-      }
-
-      const float32Array = new Float32Array(bytes.buffer);
-      const ctx = getAudioContext();
-      const audioBuffer = ctx.createBuffer(1, float32Array.length, sampleRate);
-      audioBuffer.getChannelData(0).set(float32Array);
-
-      const source = ctx.createBufferSource();
-      source.buffer = audioBuffer;
-      source.connect(ctx.destination);
-      source.start();
-    } catch (err) {
-      console.error('Audio playback error:', err);
-    }
-  };
+  }, [sessionId, navigate]); // Removed queueAudioChunk from dependencies!
 
   const startRecording = async () => {
     try {
-      // Resume AudioContext on user gesture (browser autoplay policy)
       getAudioContext();
 
       const stream = await navigator.mediaDevices.getUserMedia({

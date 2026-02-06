@@ -179,7 +179,7 @@ def load_chunks() -> List[RawChunk]:
 
 
 # For testing
-if _name_ == "_main_":
+if __name__ == "__main__":
     chunks = load_chunks()
     for c in chunks[:5]:
         print(f"\n{'='*50}")
