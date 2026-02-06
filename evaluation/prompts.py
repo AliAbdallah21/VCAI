@@ -3,11 +3,17 @@
 VCAI Evaluation Module - LLM Prompts + JSON validation helpers (Pydantic v2)
 
 This module provides:
-- Pydantic models for AnalysisReport + FinalReport
-- JSON parsing/validation helpers for LLM outputs
+- JSON parsing/validation helpers for LLM outputs  
 - Prompt builders for:
-  - Analyzer: conversation -> AnalysisReport JSON
-  - Synthesizer: analysis + mode -> FinalReport JSON
+  - Analyzer: conversation -> AnalysisReport JSON (from schemas/analysis_schema.py)
+  - Synthesizer: analysis + mode -> FinalReport JSON (from schemas/report_schema.py)
+
+NOTE: This file does NOT define the Pydantic models (AnalysisReport, FinalReport).
+Those are defined in:
+- evaluation/schemas/analysis_schema.py (by Ali)
+- evaluation/schemas/report_schema.py (by Ali)
+
+This separation allows Ismail to use the prompts without circular dependencies.
 
 Modes:
 - training: encouraging tone + suggestions + turn-by-turn feedback
@@ -16,187 +22,19 @@ Modes:
 
 from __future__ import annotations
 
-from enum import Enum
-from typing import Any, Dict, List, Literal, Optional, Tuple, Type, TypeVar
+from typing import Any, Dict, List, Optional, Tuple, Type, TypeVar
 
 import json
 import re
 
-from pydantic import BaseModel, Field, ValidationError
+from pydantic import BaseModel, ValidationError
 
 
 # =============================================================================
-# Modes
+# Constants
 # =============================================================================
-
-class EvaluationMode(str, Enum):
-    training = "training"
-    testing = "testing"
-
 
 PASS_THRESHOLD: float = 75.0
-
-
-# =============================================================================
-# Pydantic Models (v2)
-# =============================================================================
-
-class ConversationTurn(BaseModel):
-    """
-    Minimal turn representation expected by the evaluator.
-    You can pass richer turn objects upstream; the evaluator only needs these fields.
-    """
-    turn_index: int = Field(..., description="0-based index of the turn in the conversation.")
-    speaker: Literal["customer", "agent", "system"] = Field(
-        ..., description="Who produced this turn."
-    )
-    text: str = Field(..., description="Raw text content of the turn.")
-
-
-class RubricDimensionScore(BaseModel):
-    name: str = Field(..., description="Dimension name, e.g., 'Empathy', 'Accuracy', 'Policy Compliance'.")
-    score: float = Field(..., ge=0, le=100, description="0-100 score for this dimension.")
-    weight: float = Field(..., ge=0, le=1, description="Weight of the dimension (0-1).")
-    justification: str = Field(..., description="Concise justification referencing observable evidence.")
-
-
-class PolicyFlags(BaseModel):
-    safety_or_policy_violation: bool = Field(
-        ..., description="True if agent content violates policy/safety or disallowed behavior."
-    )
-    privacy_risk: bool = Field(
-        ..., description="True if agent requests/shares sensitive personal data unnecessarily."
-    )
-    hallucination_risk: bool = Field(
-        ..., description="True if agent makes claims not supported by conversation/context."
-    )
-    other_flags: List[str] = Field(
-        default_factory=list, description="Any additional flags, short strings."
-    )
-
-
-class EvidenceItem(BaseModel):
-    """
-    Evidence grounded in the conversation.
-    Keep quotes short.
-    """
-    turn_index: int = Field(..., description="Turn index where evidence appears.")
-    speaker: Literal["customer", "agent", "system"] = Field(..., description="Speaker of the evidence turn.")
-    quote: str = Field(
-        ..., description="Short direct quote (<= 25 words) that supports the evaluator claim."
-    )
-    note: str = Field(..., description="Why this quote matters.")
-
-
-class TurnByTurnFeedback(BaseModel):
-    turn_index: int = Field(..., description="Turn index being assessed.")
-    agent_action_quality: Literal["excellent", "good", "okay", "poor"] = Field(
-        ..., description="Qualitative rating of the agent's action at this turn."
-    )
-    what_went_well: List[str] = Field(
-        default_factory=list, description="Positive observations for this specific turn."
-    )
-    what_to_improve: List[str] = Field(
-        default_factory=list, description="Improvements for this specific turn."
-    )
-    suggested_rewrite: Optional[str] = Field(
-        default=None, description="Optional improved rewrite of the agent message for this turn."
-    )
-
-
-class AnalysisReport(BaseModel):
-    """
-    Output of the Analyzer prompt.
-
-    This is an intermediate structured analysis that the Synthesizer will use to
-    generate the mode-specific FinalReport.
-    """
-    conversation_summary: str = Field(
-        ..., description="Brief factual summary of the customer issue and agent actions."
-    )
-    customer_intent: str = Field(
-        ..., description="Best-guess of the customer's intent / goal."
-    )
-    outcome: Literal["resolved", "partially_resolved", "unresolved", "escalated"] = Field(
-        ..., description="Outcome status by end of conversation."
-    )
-
-    dimension_scores: List[RubricDimensionScore] = Field(
-        ..., description="Per-dimension scores (0-100) with weights summing ~1."
-    )
-    overall_score: float = Field(..., ge=0, le=100, description="Weighted overall score (0-100).")
-
-    strengths: List[str] = Field(
-        default_factory=list, description="Top strengths based on evidence."
-    )
-    improvement_areas: List[str] = Field(
-        default_factory=list, description="Top improvement areas based on evidence."
-    )
-
-    policy_flags: PolicyFlags = Field(
-        ..., description="Any safety/policy risks detected."
-    )
-    evidence: List[EvidenceItem] = Field(
-        default_factory=list, description="Evidence items grounding the evaluation."
-    )
-
-    turn_feedback: List[TurnByTurnFeedback] = Field(
-        default_factory=list,
-        description="Turn-by-turn feedback. In training mode this will be used heavily."
-    )
-
-    missing_info_questions: List[str] = Field(
-        default_factory=list,
-        description="Questions the agent should have asked to resolve the issue faster."
-    )
-
-
-class FinalReport(BaseModel):
-    """
-    Output of the Synthesizer prompt.
-
-    In training mode: encouraging, actionable coaching + turn-by-turn feedback.
-    In testing mode: objective assessment with pass/fail at 75% threshold.
-    """
-    mode: EvaluationMode = Field(..., description="Evaluation mode used to produce this report.")
-    overall_score: float = Field(..., ge=0, le=100, description="Overall score (0-100).")
-
-    passed: Optional[bool] = Field(
-        default=None,
-        description="Testing mode only: pass/fail based on 75% threshold. Null in training mode."
-    )
-    pass_threshold: Optional[float] = Field(
-        default=None,
-        description="Testing mode only: the threshold used (typically 75). Null in training mode."
-    )
-
-    headline: str = Field(
-        ..., description="One-line summary of performance."
-    )
-    strengths: List[str] = Field(
-        default_factory=list, description="Key strengths (concise bullets)."
-    )
-    improvements: List[str] = Field(
-        default_factory=list, description="Key improvements (concise bullets)."
-    )
-
-    coaching_plan: Optional[List[str]] = Field(
-        default=None,
-        description="Training mode only: step-by-step improvement plan. Null in testing mode."
-    )
-    turn_by_turn_feedback: Optional[List[TurnByTurnFeedback]] = Field(
-        default=None,
-        description="Training mode only: detailed turn-by-turn feedback. Null in testing mode."
-    )
-
-    testing_notes: Optional[List[str]] = Field(
-        default=None,
-        description="Testing mode only: objective notes, rubric alignment, and reasons for pass/fail."
-    )
-
-    policy_flags: PolicyFlags = Field(
-        ..., description="Same policy flags, carried forward from analysis."
-    )
 
 
 # =============================================================================
@@ -254,6 +92,14 @@ def parse_json(text: str) -> Any:
     return json.loads(candidate)
 
 
+def extract_json_from_response(text: str) -> Any:
+    """
+    Alias for parse_json() - used by pipeline nodes.
+    Extracts and parses JSON from LLM response.
+    """
+    return parse_json(text)
+
+
 def validate_llm_json(text: str, model: Type[T]) -> Tuple[Optional[T], Optional[str]]:
     """
     Validate LLM output JSON against a Pydantic model.
@@ -270,6 +116,22 @@ def validate_llm_json(text: str, model: Type[T]) -> Tuple[Optional[T], Optional[
         return None, str(e)
 
 
+def validate_analysis_json(text: str, AnalysisReport: Type[T]) -> Tuple[Optional[T], Optional[str]]:
+    """
+    Validate analyzer output against AnalysisReport model.
+    Convenience wrapper for validate_llm_json.
+    """
+    return validate_llm_json(text, AnalysisReport)
+
+
+def validate_report_json(text: str, FinalReport: Type[T]) -> Tuple[Optional[T], Optional[str]]:
+    """
+    Validate synthesizer output against FinalReport model.
+    Convenience wrapper for validate_llm_json.
+    """
+    return validate_llm_json(text, FinalReport)
+
+
 def strict_dump(instance: BaseModel) -> str:
     """
     Dumps a Pydantic model to compact JSON (no trailing commentary).
@@ -284,151 +146,333 @@ def strict_dump(instance: BaseModel) -> str:
 def _system_style_guardrails() -> str:
     """System instructions to ensure clean JSON output from the LLM."""
     return (
-        "You are an evaluation engine for a Virtual Customer AI training platform (VCAI).\n"
-        "You MUST follow these rules:\n"
+        "You are an evaluation engine for VCAI (Virtual Customer AI) - a sales training platform.\n"
+        "You evaluate real estate salespeople on their conversations with virtual customers.\n\n"
+        "OUTPUT RULES - CRITICAL:\n"
         "1) Output MUST be valid JSON only (no markdown, no code fences, no extra text).\n"
         "2) JSON MUST match the provided schema exactly (all required keys, correct types).\n"
         "3) Use only evidence from the provided conversation.\n"
         "4) Quotes must be short (<= 25 words) and attributable to a specific turn.\n"
         "5) If unsure, be conservative and note uncertainty in justifications.\n"
         "6) Do not add any preamble or postamble - just output the JSON.\n"
+        "7) All Arabic text must use proper UTF-8 encoding.\n"
     )
 
 
-def build_analyzer_prompt(rubric: List[Dict[str, Any]]) -> str:
+def build_analyzer_prompt(
+    transcript: List[Dict[str, Any]],
+    emotion_log: List[Dict[str, Any]],
+    rag_context: List[Dict[str, Any]],
+    skill_configs: List[Dict[str, Any]],
+    checkpoint_configs: List[Dict[str, Any]],
+    AnalysisReport: Type[BaseModel]
+) -> str:
     """
-    Analyzer Prompt:
-    Input: conversation turns + rubric
-    Output: AnalysisReport JSON
+    Build the complete analyzer prompt.
+    
+    The analyzer performs Pass 1: deep analysis of what happened in the conversation.
     
     Args:
-        rubric: List of rubric dimensions with name, weight, and description
+        transcript: List of conversation turns with turn_number, speaker, text
+        emotion_log: List of emotion detections with turn_number, emotion, confidence
+        rag_context: List of RAG retrievals with query, documents, sources
+        skill_configs: The 8 skills with name, name_ar, weight, description
+        checkpoint_configs: The 6 checkpoints with name, name_ar, criteria
+        AnalysisReport: Pydantic model class for schema generation
     
     Returns:
-        System prompt string for the analyzer
+        Complete system + user prompt for the analyzer
     """
     schema = json.dumps(json_schema_for_model(AnalysisReport), ensure_ascii=False, indent=2)
-
-    rubric_text = json.dumps(
-        rubric,
-        ensure_ascii=False,
-        indent=2,
-    )
+    
+    transcript_json = json.dumps(transcript, ensure_ascii=False, indent=2)
+    emotion_json = json.dumps(emotion_log, ensure_ascii=False, indent=2)
+    rag_json = json.dumps(rag_context, ensure_ascii=False, indent=2)
+    skills_json = json.dumps(skill_configs, ensure_ascii=False, indent=2)
+    checkpoints_json = json.dumps(checkpoint_configs, ensure_ascii=False, indent=2)
 
     return (
         f"{_system_style_guardrails()}\n\n"
-        "TASK: Analyze the conversation and produce an AnalysisReport JSON.\n\n"
-        "RUBRIC:\n"
-        f"{rubric_text}\n\n"
-        "SCHEMA (AnalysisReport JSON Schema):\n"
+        "═══════════════════════════════════════════════════════════════════\n"
+        "TASK: CONVERSATION ANALYSIS (Pass 1)\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        "You will analyze a real estate sales conversation and produce a detailed AnalysisReport.\n"
+        "This is Pass 1 of a 2-pass evaluation system.\n\n"
+        
+        "CONTEXT - The VCAI System:\n"
+        "- This is a training platform for real estate salespeople\n"
+        "- Salespeople practice with AI virtual customers (personas)\n"
+        "- Conversations are in Arabic (Egyptian dialect) or Arabic/English mix\n"
+        "- Your job: analyze what happened and score the salesperson's performance\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "THE 8 SALES SKILLS (What You're Evaluating):\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        f"{skills_json}\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "THE 6 CHECKPOINTS (Milestones to Track):\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        f"{checkpoints_json}\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "CONVERSATION DATA:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        "TRANSCRIPT (Complete conversation):\n"
+        f"{transcript_json}\n\n"
+        
+        "EMOTION LOG (Customer emotions detected at each turn):\n"
+        f"{emotion_json}\n\n"
+        
+        "RAG CONTEXT (Knowledge base documents retrieved during conversation):\n"
+        f"{rag_json}\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "YOUR ANALYSIS TASKS:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        "1. UNDERSTAND THE CONVERSATION:\n"
+        "   - What was the customer looking for?\n"
+        "   - What stages did the conversation go through? (greeting, discovery, presentation, objection, closing)\n"
+        "   - What topics were discussed? (price, location, features, payment, etc.)\n"
+        "   - Were there objections? What were they? How were they handled?\n"
+        "   - Were there closing signals? Were they recognized?\n"
+        "   - How did emotions change throughout?\n\n"
+        
+        "2. EVALUATE EACH SKILL (0-100):\n"
+        "   - Score ONLY skills that were actually tested in this conversation\n"
+        "   - If a skill wasn't tested (e.g., no objections = can't test objection_handling), note this\n"
+        "   - Use specific evidence from turns to justify scores\n"
+        "   - Be fair: don't penalize for situations that didn't arise\n\n"
+        
+        "3. CHECK FACTS:\n"
+        "   - Did the salesperson make claims about the property?\n"
+        "   - Compare claims against the RAG context (knowledge base)\n"
+        "   - Flag any inaccuracies (CRITICAL: wrong info can lose sales)\n\n"
+        
+        "4. TRACK CHECKPOINTS:\n"
+        "   - Which of the 6 milestones were achieved?\n"
+        "   - Provide evidence (which turn, what happened)\n\n"
+        
+        "5. PROVIDE TURN-BY-TURN FEEDBACK:\n"
+        "   - For each salesperson turn, assess quality (excellent/good/okay/poor)\n"
+        "   - Note what went well and what could improve\n"
+        "   - Suggest rewrites for poor turns\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "SCORING GUIDELINES:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        "- Scores are 0-100 for each skill\n"
+        "- Use the weights from skill_configs (they sum to 1.0)\n"
+        "- overall_score = weighted average: Σ(skill_score × skill_weight)\n"
+        "- Be evidence-based: every score must be justified with specific quotes/observations\n"
+        "- Short quotes only: <= 25 words\n\n"
+        
+        "DYNAMIC EVALUATION (Important!):\n"
+        "- Only evaluate what was ACTUALLY TESTED\n"
+        "- If no objections arose, set objection_handling weight to 0 (or very low)\n"
+        "- If no closing opportunity, set closing_skills weight to 0 (or very low)\n"
+        "- This makes evaluation FAIR\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "OUTPUT SCHEMA:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
         f"{schema}\n\n"
-        "SCORING INSTRUCTIONS:\n"
-        "- Score each rubric dimension 0-100 based on observable evidence.\n"
-        "- Use the given weights (0-1). Weights should sum to 1.0 (or very close).\n"
-        "- overall_score MUST be the weighted average: sum(score * weight) for all dimensions.\n"
-        "- Set policy_flags appropriately if any safety/policy/privacy risks are present.\n"
-        "- Provide evidence items grounded in specific turns with short quotes.\n"
-        "- Provide turn_feedback for each agent turn (one TurnByTurnFeedback per agent turn).\n"
-        "- List missing_info_questions that could have helped resolve the issue faster.\n\n"
-        "INPUT FORMAT YOU WILL RECEIVE:\n"
-        "{\n"
-        '  "conversation": [\n'
-        '    { "turn_index": 0, "speaker": "customer|agent|system", "text": "..." },\n'
-        '    ...\n'
-        '  ]\n'
-        "}\n\n"
-        "OUTPUT:\n"
-        "- Return ONLY the AnalysisReport as valid JSON.\n"
-        "- No preamble, no code fences, no explanations.\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "CRITICAL REMINDERS:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        "✓ Output ONLY valid JSON (no preamble, no code fences)\n"
+        "✓ Match the schema exactly\n"
+        "✓ Use evidence from actual turns\n"
+        "✓ Be fair: only evaluate what was tested\n"
+        "✓ Verify facts against RAG context\n"
+        "✓ Track all 6 checkpoints\n"
+        "✓ Provide turn-by-turn feedback\n\n"
+        
+        "BEGIN YOUR ANALYSIS NOW.\n"
     )
 
 
-def build_synthesizer_prompt() -> str:
+# Separate system prompts for training vs testing mode
+ANALYZER_SYSTEM_PROMPT = _system_style_guardrails()
+
+SYNTHESIZER_SYSTEM_PROMPT_TRAINING = (
+    f"{_system_style_guardrails()}\n\n"
+    "═══════════════════════════════════════════════════════════════════\n"
+    "MODE: TRAINING (Coaching & Development)\n"
+    "═══════════════════════════════════════════════════════════════════\n\n"
+    "Your tone must be:\n"
+    "✓ Encouraging and supportive\n"
+    "✓ Focused on growth and learning\n"
+    "✓ Constructive (highlight strengths BEFORE improvements)\n"
+    "✓ Actionable (give specific tips, not vague advice)\n"
+    "✓ Patient (this is training, not testing)\n\n"
+    
+    "Example Training Feedback:\n"
+    "\"Great job building rapport in turns 1-2! Your friendly greeting made the customer comfortable.\n"
+    "When the customer mentioned budget concerns in turn 6, you could strengthen your response by \n"
+    "acknowledging their concern first before offering solutions. Try: 'أنا فاهم إن الميزانية مهمة...' \n"
+    "This shows empathy before problem-solving.\"\n\n"
+)
+
+SYNTHESIZER_SYSTEM_PROMPT_TESTING = (
+    f"{_system_style_guardrails()}\n\n"
+    "═══════════════════════════════════════════════════════════════════\n"
+    "MODE: TESTING (Professional Assessment)\n"
+    "═══════════════════════════════════════════════════════════════════\n\n"
+    "Your tone must be:\n"
+    "✓ Professional and objective\n"
+    "✓ Fact-based and rubric-aligned\n"
+    "✓ Clear about pass/fail criteria (75% threshold)\n"
+    "✓ Specific about strengths and weaknesses\n"
+    "✓ No coaching suggestions (just assessment)\n\n"
+    
+    "Example Testing Feedback:\n"
+    "\"Overall Score: 72/100 — FAILED (below 75% threshold)\n\n"
+    "Strengths:\n"
+    "- Rapport building: 85% - Excellent friendly greeting and tone\n"
+    "- Product knowledge: 90% - Accurate information provided\n\n"
+    "Weaknesses:\n"
+    "- Closing skills: 60% - Missed closing signal in turn 8 when customer asked about availability\n"
+    "- Objection handling: 65% - Addressed concern but delayed response reduced effectiveness\n\n"
+    "Result: Not ready for certification. Retake after practicing closing signal recognition.\"\n\n"
+)
+
+
+def build_synthesizer_prompt(
+    analysis_report: Dict[str, Any],
+    quick_stats: Dict[str, Any],
+    mode: str,
+    FinalReport: Type[BaseModel]
+) -> Tuple[str, str]:
     """
-    Synthesizer Prompt:
-    Input: AnalysisReport + mode
-    Output: FinalReport JSON (tone and fields differ by mode)
+    Build the complete synthesizer prompt.
+    
+    The synthesizer performs Pass 2: generate the final report based on analysis.
+    
+    Args:
+        analysis_report: The AnalysisReport from Pass 1 (as dict)
+        quick_stats: Quick statistics (duration, turns, final emotion)
+        mode: "training" or "testing"
+        FinalReport: Pydantic model class for schema generation
     
     Returns:
-        System prompt string for the synthesizer
+        Tuple of (system_prompt, user_prompt)
     """
     schema = json.dumps(json_schema_for_model(FinalReport), ensure_ascii=False, indent=2)
-
-    return (
-        f"{_system_style_guardrails()}\n\n"
-        "TASK: Produce a FinalReport JSON using the given AnalysisReport and evaluation mode.\n\n"
-        "SCHEMA (FinalReport JSON Schema):\n"
-        f"{schema}\n\n"
-        "MODE RULES:\n\n"
-        "A) TRAINING MODE:\n"
-        "- Tone: encouraging, coaching, supportive, and constructive.\n"
-        "- MUST include: coaching_plan (list of actionable improvement steps).\n"
-        "- MUST include: turn_by_turn_feedback (detailed feedback from AnalysisReport).\n"
-        "- MUST set: passed = null, pass_threshold = null.\n"
-        "- Focus on growth and learning opportunities.\n\n"
-        "B) TESTING MODE:\n"
-        "- Tone: professional, objective, rubric-aligned, factual.\n"
-        "- MUST include: passed (boolean) using 75% threshold.\n"
-        "- MUST include: pass_threshold = 75.0.\n"
-        "- MUST include: testing_notes (objective reasons for the score and pass/fail decision).\n"
-        "- MUST set: coaching_plan = null, turn_by_turn_feedback = null.\n"
-        "- Focus on objective assessment against standards.\n\n"
-        "PASS/FAIL LOGIC:\n"
-        f"- PASS_THRESHOLD = {PASS_THRESHOLD}\n"
-        f"- passed = true if overall_score >= {PASS_THRESHOLD}, else false\n"
-        "- This applies ONLY in testing mode.\n\n"
-        "INPUT FORMAT YOU WILL RECEIVE:\n"
-        "{\n"
-        '  "mode": "training" or "testing",\n'
-        '  "analysis": { ...AnalysisReport JSON... }\n'
-        "}\n\n"
-        "OUTPUT:\n"
-        "- Return ONLY the FinalReport as valid JSON.\n"
-        "- No preamble, no code fences, no explanations.\n"
+    
+    analysis_json = json.dumps(analysis_report, ensure_ascii=False, indent=2)
+    stats_json = json.dumps(quick_stats, ensure_ascii=False, indent=2)
+    
+    # Choose system prompt based on mode
+    if mode == "training":
+        system_prompt = SYNTHESIZER_SYSTEM_PROMPT_TRAINING
+    else:
+        system_prompt = SYNTHESIZER_SYSTEM_PROMPT_TESTING
+    
+    user_prompt = (
+        "═══════════════════════════════════════════════════════════════════\n"
+        "TASK: GENERATE FINAL REPORT (Pass 2)\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        f"EVALUATION MODE: {mode.upper()}\n\n"
+        
+        "You have received a detailed AnalysisReport from Pass 1.\n"
+        "Your job: Generate a mode-appropriate FinalReport.\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "INPUT DATA:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        "ANALYSIS REPORT (from Pass 1):\n"
+        f"{analysis_json}\n\n"
+        
+        "QUICK STATS:\n"
+        f"{stats_json}\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "MODE-SPECIFIC REQUIREMENTS:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
     )
+    
+    if mode == "training":
+        user_prompt += (
+            "TRAINING MODE Requirements:\n\n"
+            "MUST INCLUDE:\n"
+            "✓ coaching_plan: List of 3-5 actionable improvement steps\n"
+            "✓ turn_by_turn_feedback: Detailed feedback for each agent turn (from analysis)\n"
+            "✓ headline: Encouraging summary (e.g., 'Strong start with room to grow!')\n"
+            "✓ strengths: Top 3 things done well\n"
+            "✓ improvements: Top 3 areas to practice\n\n"
+            
+            "MUST SET TO NULL:\n"
+            "✗ passed: null (no pass/fail in training)\n"
+            "✗ pass_threshold: null\n"
+            "✗ testing_notes: null\n\n"
+            
+            "TONE: Encouraging, coaching, growth-focused\n\n"
+        )
+    else:  # testing
+        user_prompt += (
+            "TESTING MODE Requirements:\n\n"
+            "MUST INCLUDE:\n"
+            f"✓ passed: boolean (true if overall_score >= {PASS_THRESHOLD}, else false)\n"
+            f"✓ pass_threshold: {PASS_THRESHOLD}\n"
+            "✓ testing_notes: List of objective reasons for score and pass/fail decision\n"
+            "✓ headline: Professional summary (e.g., 'Competent performance with minor gaps')\n"
+            "✓ strengths: Top 3 objective strengths\n"
+            "✓ improvements: Top 3 objective weaknesses\n\n"
+            
+            "MUST SET TO NULL:\n"
+            "✗ coaching_plan: null (no coaching in testing)\n"
+            "✗ turn_by_turn_feedback: null\n\n"
+            
+            "TONE: Professional, objective, rubric-aligned\n\n"
+            
+            "PASS/FAIL LOGIC:\n"
+            f"- If overall_score >= {PASS_THRESHOLD}: PASSED (ready for certification)\n"
+            f"- If overall_score < {PASS_THRESHOLD}: FAILED (needs more practice)\n\n"
+        )
+    
+    user_prompt += (
+        "═══════════════════════════════════════════════════════════════════\n"
+        "OUTPUT SCHEMA:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        f"{schema}\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
+        "CRITICAL REMINDERS:\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        "✓ Output ONLY valid JSON (no preamble, no code fences)\n"
+        "✓ Match the schema exactly for this mode\n"
+        "✓ Use appropriate tone for the mode\n"
+        "✓ Carry forward policy_flags from analysis\n"
+        "✓ Reference the analysis but synthesize (don't just copy)\n\n"
+        
+        "BEGIN GENERATING THE FINAL REPORT NOW.\n"
+    )
+    
+    return system_prompt, user_prompt
 
 
 # =============================================================================
-# Convenience: Prompt Constants
+# Export constants
 # =============================================================================
 
-# NOTE: Analyzer prompt depends on rubric; use function-based builder.
-SYNTHESIZER_PROMPT: str = build_synthesizer_prompt()
-
-
-# =============================================================================
-# Default rubric template (example)
-# =============================================================================
-
-DEFAULT_RUBRIC: List[Dict[str, Any]] = [
-    {
-        "name": "Problem Understanding",
-        "weight": 0.20,
-        "description": "Accurately understands the customer's intent, asks clarifying questions when needed, and avoids making assumptions."
-    },
-    {
-        "name": "Accuracy & Helpfulness",
-        "weight": 0.25,
-        "description": "Provides correct, relevant information and clear next steps that address the customer's needs."
-    },
-    {
-        "name": "Empathy & Tone",
-        "weight": 0.20,
-        "description": "Communicates in a polite, empathetic manner with tone appropriate for the situation and customer emotions."
-    },
-    {
-        "name": "Efficiency",
-        "weight": 0.15,
-        "description": "Resolves issues efficiently, avoids unnecessary back-and-forth, and keeps responses concise and on-point."
-    },
-    {
-        "name": "Policy & Safety",
-        "weight": 0.20,
-        "description": "Avoids disallowed content, protects customer privacy, follows safety guidelines, and adheres to company policies."
-    },
+__all__ = [
+    "PASS_THRESHOLD",
+    "extract_json_from_response",
+    "parse_json",
+    "validate_llm_json",
+    "validate_analysis_json",
+    "validate_report_json",
+    "strict_dump",
+    "build_analyzer_prompt",
+    "build_synthesizer_prompt",
+    "ANALYZER_SYSTEM_PROMPT",
+    "SYNTHESIZER_SYSTEM_PROMPT_TRAINING",
+    "SYNTHESIZER_SYSTEM_PROMPT_TESTING",
 ]
-
-
-# Validate that default rubric weights sum to 1.0
-_total_weight = sum(dim["weight"] for dim in DEFAULT_RUBRIC)
-assert abs(_total_weight - 1.0) < 0.01, f"DEFAULT_RUBRIC weights must sum to 1.0, got {_total_weight}"
