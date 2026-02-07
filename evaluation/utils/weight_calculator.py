@@ -1,339 +1,284 @@
+# evaluation/utils/weight_calculator.py
 """
-Weight Calculator for VCAI Evaluation System
-Author: Mena Khaled
+Dynamic Weight Calculator for VCAI Evaluation System
+Author: Menna Khaled
 
 This module calculates dynamic weights based on conversation analysis.
 The weights are adjusted based on what actually happened in the conversation.
 """
 
-from typing import Dict, Any
-from .models import DynamicWeights, ConversationAnalysis
-from .config import EvaluationConfig
+from typing import Dict, Optional
+import logging
+
+from evaluation.schemas.analysis_schema import ConversationProfile
+from evaluation.config import (
+    SKILL_CONFIGS,
+    WeightMultipliers,
+    get_all_skill_keys
+)
 
 
-class WeightCalculator:
+logger = logging.getLogger(__name__)
+
+
+def calculate_dynamic_weights(
+    profile: ConversationProfile,
+    multipliers: Optional[WeightMultipliers] = None
+) -> Dict[str, float]:
     """
-    Calculates dynamic weights based on conversation analysis
-    This is a key part of Menna's responsibility
+    Calculate dynamic weights based on conversation profile.
+    
+    This is Menna's core responsibility: adjusting skill weights based on
+    what was actually tested in the conversation.
+    
+    Args:
+        profile: ConversationProfile from the analyzer
+        multipliers: Weight multipliers (uses defaults if None)
+        
+    Returns:
+        Dictionary mapping skill keys to weights (normalized to sum to 1.0)
+        
+    Example:
+        >>> profile = ConversationProfile(
+        ...     objections=[...],  # 2 objections
+        ...     closing_signals=[...],  # 0 signals
+        ... )
+        >>> weights = calculate_dynamic_weights(profile)
+        >>> # objection_handling will have high weight
+        >>> # closing_skills will have low weight
     """
+    if multipliers is None:
+        from evaluation.config import settings
+        multipliers = settings.weight_multipliers
     
-    def __init__(self, config: EvaluationConfig = None):
-        """
-        Initialize weight calculator
+    # Start with default weights from config
+    weights = {}
+    for skill_key, config in SKILL_CONFIGS.items():
+        weights[skill_key] = config.default_weight
+    
+    logger.info(f"[WEIGHT_CALC] Starting with base weights")
+    
+    # Apply multipliers based on conversation profile
+    
+    # 1. Objection Handling
+    if profile.objections and len(profile.objections) > 0:
+        logger.info(f"[WEIGHT_CALC] Found {len(profile.objections)} objections - boosting objection_handling")
+        weights["objection_handling"] *= multipliers.objection_raised_boost
+    else:
+        # Reduce weight if not tested
+        logger.info(f"[WEIGHT_CALC] No objections - reducing objection_handling weight")
+        weights["objection_handling"] *= multipliers.short_conversation_penalty
+    
+    # 2. Closing Skills
+    if profile.closing_signals and len(profile.closing_signals) > 0:
+        logger.info(f"[WEIGHT_CALC] Found {len(profile.closing_signals)} closing signals - boosting closing_skills")
+        weights["closing_skills"] *= multipliers.closing_signal_boost
+    else:
+        logger.info(f"[WEIGHT_CALC] No closing signals - reducing closing_skills weight")
+        weights["closing_skills"] *= multipliers.short_conversation_penalty
+    
+    # 3. Product Knowledge (based on RAG usage and factual claims)
+    if profile.rag_retrievals and len(profile.rag_retrievals) > 0:
+        logger.info(f"[WEIGHT_CALC] Found {len(profile.rag_retrievals)} RAG retrievals - boosting product_knowledge")
+        weights["product_knowledge"] *= multipliers.rag_needed_boost
+    
+    # 4. Emotional Intelligence (based on emotion volatility)
+    if profile.emotion_transitions and len(profile.emotion_transitions) > 3:
+        logger.info(f"[WEIGHT_CALC] Found {len(profile.emotion_transitions)} emotion changes - boosting emotional_intelligence")
+        weights["emotional_intelligence"] *= multipliers.emotion_volatility_boost
+    
+    # 5. Needs Discovery (based on discovery stage presence)
+    has_discovery = any(
+        stage.stage_type == "discovery" 
+        for stage in (profile.stages or [])
+    )
+    if not has_discovery:
+        logger.info(f"[WEIGHT_CALC] No discovery stage - reducing needs_discovery weight")
+        weights["needs_discovery"] *= multipliers.short_conversation_penalty
+    
+    # 6. Short conversations get reduced weights for complex skills
+    if profile.total_turns < 5:
+        logger.info(f"[WEIGHT_CALC] Short conversation ({profile.total_turns} turns) - reducing complex skills")
+        weights["objection_handling"] *= multipliers.short_conversation_penalty
+        weights["closing_skills"] *= multipliers.short_conversation_penalty
+        weights["needs_discovery"] *= multipliers.short_conversation_penalty
+    
+    # Normalize weights to sum to 1.0
+    normalized_weights = _normalize_weights(weights)
+    
+    logger.info(f"[WEIGHT_CALC] Final weights calculated and normalized")
+    _log_weights(normalized_weights)
+    
+    return normalized_weights
+
+
+def _normalize_weights(weights: Dict[str, float]) -> Dict[str, float]:
+    """
+    Normalize weights so they sum to 1.0.
+    
+    Args:
+        weights: Dictionary of weights
         
-        Args:
-            config: Configuration object (optional, uses defaults if None)
-        """
-        self.config = config or EvaluationConfig()
-        self.base_weight = self.config.DEFAULT_BASE_WEIGHT
+    Returns:
+        Normalized weights
+    """
+    total = sum(weights.values())
+    
+    if total == 0:
+        # Fallback to equal weights
+        logger.warning("[WEIGHT_CALC] Total weight is 0, using equal weights")
+        skill_keys = get_all_skill_keys()
+        equal_weight = 1.0 / len(skill_keys)
+        return {key: equal_weight for key in skill_keys}
+    
+    # Normalize
+    normalized = {key: value / total for key, value in weights.items()}
+    
+    # Verify sum is close to 1.0
+    final_sum = sum(normalized.values())
+    if abs(final_sum - 1.0) > 0.01:
+        logger.warning(f"[WEIGHT_CALC] Weight sum is {final_sum}, expected 1.0")
+    
+    return normalized
+
+
+def _log_weights(weights: Dict[str, float]) -> None:
+    """
+    Log the calculated weights for debugging.
+    
+    Args:
+        weights: Dictionary of weights
+    """
+    logger.info("[WEIGHT_CALC] Final weight distribution:")
+    for skill_key, weight in sorted(weights.items(), key=lambda x: -x[1]):
+        percentage = weight * 100
+        logger.info(f"  {skill_key:30s}: {percentage:5.1f}%")
+
+
+def get_weight_explanation(
+    weights: Dict[str, float],
+    profile: ConversationProfile
+) -> Dict[str, str]:
+    """
+    Generate human-readable explanation for why weights were assigned.
+    
+    This is useful for training mode feedback.
+    
+    Args:
+        weights: Calculated weights
+        profile: ConversationProfile that was analyzed
         
-    def calculate_weights(self, conversation_analysis: Dict[str, Any]) -> DynamicWeights:
-        """
-        Calculate dynamic weights based on what actually happened in the conversation
-        
-        Args:
-            conversation_analysis: Analysis from Ismail's AI pipeline containing:
-                - topics_discussed: List of topics
-                - objections_count: Number of objections raised
-                - closing_signals_count: Number of closing signals
-                - rapport_moments: Number of rapport-building moments
-                - questions_asked: Number of discovery questions
-                - factual_claims_count: Number of factual statements made
-                - emotional_moments_count: Number of emotional moments
-                - total_turns: Total conversation turns
-                
-        Returns:
-            DynamicWeights object with adjusted weights
-        """
-        # Extract conversation characteristics
-        topics = conversation_analysis.get('topics_discussed', [])
-        objections_count = conversation_analysis.get('objections_count', 0)
-        closing_signals = conversation_analysis.get('closing_signals_count', 0)
-        questions_asked = conversation_analysis.get('questions_asked', 0)
-        factual_claims = conversation_analysis.get('factual_claims_count', 0)
-        emotional_moments = conversation_analysis.get('emotional_moments_count', 0)
-        total_turns = conversation_analysis.get('total_turns', 0)
-        
-        # Initialize weights with base values
-        weights = DynamicWeights()
-        base = self.base_weight
-        
-        # Calculate each skill weight
-        weights.objection_handling = self._calculate_objection_weight(
-            objections_count, base
+    Returns:
+        Dictionary mapping skill names to explanations
+    """
+    explanations = {}
+    
+    # Objection handling
+    obj_count = len(profile.objections) if profile.objections else 0
+    if obj_count > 0:
+        explanations['objection_handling'] = (
+            f"High weight ({weights['objection_handling']:.1%}) because "
+            f"{obj_count} objection(s) were raised and needed to be handled"
         )
-        
-        weights.closing_skills = self._calculate_closing_weight(
-            closing_signals, base
+    else:
+        explanations['objection_handling'] = (
+            f"Low weight ({weights['objection_handling']:.1%}) because "
+            "no objections were raised in this conversation"
         )
-        
-        weights.product_knowledge = self._calculate_knowledge_weight(
-            factual_claims, base
+    
+    # Closing skills
+    closing_count = len(profile.closing_signals) if profile.closing_signals else 0
+    if closing_count > 0:
+        explanations['closing_skills'] = (
+            f"High weight ({weights['closing_skills']:.1%}) because "
+            f"{closing_count} closing signal(s) were detected"
         )
-        
-        weights.needs_discovery = self._calculate_discovery_weight(
-            questions_asked, base
+    else:
+        explanations['closing_skills'] = (
+            f"Low weight ({weights['closing_skills']:.1%}) because "
+            "no closing signals were detected"
         )
-        
-        weights.emotional_intelligence = self._calculate_emotion_weight(
-            emotional_moments, base
-        )
-        
-        weights.rapport_building = self._calculate_rapport_weight(
-            total_turns, base
-        )
-        
-        # Active listening and communication clarity get standard weights
-        # These are always evaluated
-        weights.active_listening = base * self.config.ACTIVE_LISTENING_MULTIPLIER
-        weights.communication_clarity = base * self.config.COMMUNICATION_CLARITY_MULTIPLIER
-        
-        # Normalize weights to sum to 1.0
-        weights = self._normalize_weights(weights)
-        
-        return weights
     
-    def _calculate_objection_weight(self, objections_count: int, base: float) -> float:
-        """
-        Calculate weight for objection handling skill
-        
-        Args:
-            objections_count: Number of objections in conversation
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for objection handling
-        """
-        if objections_count > 0:
-            # High objections = important skill
-            multiplier = min(
-                1 + (objections_count * self.config.OBJECTION_BOOST_MULTIPLIER),
-                self.config.OBJECTION_MAX_MULTIPLIER
-            )
-            return base * multiplier
-        else:
-            # No objections = minimal weight
-            return base * self.config.OBJECTION_NO_OCCURRENCE_MULTIPLIER
-    
-    def _calculate_closing_weight(self, closing_signals: int, base: float) -> float:
-        """
-        Calculate weight for closing skills
-        
-        Args:
-            closing_signals: Number of closing signals detected
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for closing skills
-        """
-        if closing_signals > 0:
-            # Closing signals present = important skill
-            multiplier = min(
-                1 + (closing_signals * self.config.CLOSING_BOOST_MULTIPLIER),
-                self.config.CLOSING_MAX_MULTIPLIER
-            )
-            return base * multiplier
-        else:
-            # No signals = minimal weight
-            return base * self.config.CLOSING_NO_OCCURRENCE_MULTIPLIER
-    
-    def _calculate_knowledge_weight(self, factual_claims: int, base: float) -> float:
-        """
-        Calculate weight for product knowledge skill
-        
-        Args:
-            factual_claims: Number of factual claims made
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for product knowledge
-        """
-        if factual_claims > 0:
-            # Many factual claims = knowledge was important
-            multiplier = min(
-                1 + (factual_claims * self.config.KNOWLEDGE_BOOST_MULTIPLIER),
-                self.config.KNOWLEDGE_MAX_MULTIPLIER
-            )
-            return base * multiplier
-        else:
-            return base * self.config.KNOWLEDGE_NO_OCCURRENCE_MULTIPLIER
-    
-    def _calculate_discovery_weight(self, questions_asked: int, base: float) -> float:
-        """
-        Calculate weight for needs discovery skill
-        
-        Args:
-            questions_asked: Number of discovery questions asked
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for needs discovery
-        """
-        if questions_asked > 0:
-            # Many questions = discovery was important
-            multiplier = min(
-                1 + (questions_asked * self.config.DISCOVERY_BOOST_MULTIPLIER),
-                self.config.DISCOVERY_MAX_MULTIPLIER
-            )
-            return base * multiplier
-        else:
-            return base * self.config.DISCOVERY_NO_OCCURRENCE_MULTIPLIER
-    
-    def _calculate_emotion_weight(self, emotional_moments: int, base: float) -> float:
-        """
-        Calculate weight for emotional intelligence skill
-        
-        Args:
-            emotional_moments: Number of emotional moments detected
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for emotional intelligence
-        """
-        if emotional_moments > 0:
-            # Emotional moments present = EI was important
-            multiplier = min(
-                1 + (emotional_moments * self.config.EMOTION_BOOST_MULTIPLIER),
-                self.config.EMOTION_MAX_MULTIPLIER
-            )
-            return base * multiplier
-        else:
-            return base * self.config.EMOTION_NO_OCCURRENCE_MULTIPLIER
-    
-    def _calculate_rapport_weight(self, total_turns: int, base: float) -> float:
-        """
-        Calculate weight for rapport building skill
-        
-        Args:
-            total_turns: Total number of conversation turns
-            base: Base weight value
-            
-        Returns:
-            Calculated weight for rapport building
-        """
-        if total_turns < self.config.RAPPORT_SHORT_CONVERSATION_THRESHOLD:
-            # Quick conversation = less rapport time
-            return base * self.config.RAPPORT_SHORT_MULTIPLIER
-        else:
-            # Normal conversation = standard importance
-            return base * self.config.RAPPORT_NORMAL_MULTIPLIER
-    
-    def _normalize_weights(self, weights: DynamicWeights) -> DynamicWeights:
-        """
-        Normalize weights so they sum to 1.0
-        
-        Args:
-            weights: DynamicWeights object to normalize
-            
-        Returns:
-            Normalized DynamicWeights object
-        """
-        total = sum([
-            weights.rapport_building,
-            weights.active_listening,
-            weights.needs_discovery,
-            weights.product_knowledge,
-            weights.objection_handling,
-            weights.emotional_intelligence,
-            weights.closing_skills,
-            weights.communication_clarity
-        ])
-        
-        if total == 0:
-            # Fallback to equal weights
-            return DynamicWeights()
-        
-        # Normalize each weight
-        weights.rapport_building /= total
-        weights.active_listening /= total
-        weights.needs_discovery /= total
-        weights.product_knowledge /= total
-        weights.objection_handling /= total
-        weights.emotional_intelligence /= total
-        weights.closing_skills /= total
-        weights.communication_clarity /= total
-        
-        return weights
-    
-    def get_weight_explanation(
-        self,
-        weights: DynamicWeights,
-        conversation_analysis: Dict[str, Any]
-    ) -> Dict[str, str]:
-        """
-        Generate human-readable explanation for why weights were assigned
-        
-        Args:
-            weights: Calculated weights
-            conversation_analysis: Original conversation analysis
-            
-        Returns:
-            Dictionary mapping skill names to explanations
-        """
-        explanations = {}
-        
-        # Objection handling
-        obj_count = conversation_analysis.get('objections_count', 0)
-        if obj_count > 0:
-            explanations['objection_handling'] = (
-                f"High weight ({weights.objection_handling:.1%}) because "
-                f"{obj_count} objection(s) were raised"
-            )
-        else:
-            explanations['objection_handling'] = (
-                f"Low weight ({weights.objection_handling:.1%}) because "
-                "no objections were raised"
-            )
-        
-        # Closing skills
-        closing_count = conversation_analysis.get('closing_signals_count', 0)
-        if closing_count > 0:
-            explanations['closing_skills'] = (
-                f"High weight ({weights.closing_skills:.1%}) because "
-                f"{closing_count} closing signal(s) detected"
-            )
-        else:
-            explanations['closing_skills'] = (
-                f"Low weight ({weights.closing_skills:.1%}) because "
-                "no closing signals detected"
-            )
-        
-        # Product knowledge
-        claims_count = conversation_analysis.get('factual_claims_count', 0)
+    # Product knowledge
+    rag_count = len(profile.rag_retrievals) if profile.rag_retrievals else 0
+    if rag_count > 0:
         explanations['product_knowledge'] = (
-            f"Weight ({weights.product_knowledge:.1%}) based on "
-            f"{claims_count} factual claim(s) made"
+            f"Weight ({weights['product_knowledge']:.1%}) based on "
+            f"{rag_count} factual claims requiring product knowledge"
         )
-        
-        # Needs discovery
-        questions_count = conversation_analysis.get('questions_asked', 0)
-        explanations['needs_discovery'] = (
-            f"Weight ({weights.needs_discovery:.1%}) based on "
-            f"{questions_count} discovery question(s) asked"
+    else:
+        explanations['product_knowledge'] = (
+            f"Standard weight ({weights['product_knowledge']:.1%}) - "
+            "some product knowledge always required"
         )
-        
-        # Emotional intelligence
-        emotion_count = conversation_analysis.get('emotional_moments_count', 0)
+    
+    # Emotional intelligence
+    emotion_count = len(profile.emotion_transitions) if profile.emotion_transitions else 0
+    if emotion_count > 3:
         explanations['emotional_intelligence'] = (
-            f"Weight ({weights.emotional_intelligence:.1%}) based on "
-            f"{emotion_count} emotional moment(s)"
+            f"High weight ({weights['emotional_intelligence']:.1%}) because "
+            f"{emotion_count} emotional transitions were detected"
         )
+    else:
+        explanations['emotional_intelligence'] = (
+            f"Standard weight ({weights['emotional_intelligence']:.1%}) based on "
+            f"{emotion_count} emotional transitions"
+        )
+    
+    # Needs discovery
+    has_discovery = any(
+        stage.stage_type == "discovery" 
+        for stage in (profile.stages or [])
+    )
+    explanations['needs_discovery'] = (
+        f"Weight ({weights['needs_discovery']:.1%}) - "
+        f"{'discovery stage present' if has_discovery else 'minimal discovery detected'}"
+    )
+    
+    # Rapport building
+    explanations['rapport_building'] = (
+        f"Weight ({weights['rapport_building']:.1%}) based on "
+        f"{profile.total_turns} conversation turns"
+    )
+    
+    # Always-evaluated skills
+    explanations['active_listening'] = (
+        f"Standard weight ({weights['active_listening']:.1%}) - "
+        "always evaluated in every conversation"
+    )
+    explanations['communication_clarity'] = (
+        f"Standard weight ({weights['communication_clarity']:.1%}) - "
+        "always evaluated in every conversation"
+    )
+    
+    return explanations
+
+
+def validate_weights(weights: Dict[str, float]) -> bool:
+    """
+    Validate that weights are properly normalized.
+    
+    Args:
+        weights: Dictionary of weights
         
-        # Rapport building
-        turns = conversation_analysis.get('total_turns', 0)
-        explanations['rapport_building'] = (
-            f"Weight ({weights.rapport_building:.1%}) based on "
-            f"{turns} conversation turns"
-        )
-        
-        # Standard weights
-        explanations['active_listening'] = (
-            f"Standard weight ({weights.active_listening:.1%}) - "
-            "always evaluated"
-        )
-        explanations['communication_clarity'] = (
-            f"Standard weight ({weights.communication_clarity:.1%}) - "
-            "always evaluated"
-        )
-        
-        return explanations
+    Returns:
+        True if valid, False otherwise
+    """
+    # Check all skills are present
+    skill_keys = get_all_skill_keys()
+    if set(weights.keys()) != set(skill_keys):
+        logger.error("[WEIGHT_CALC] Missing or extra skills in weights")
+        return False
+    
+    # Check sum is close to 1.0
+    total = sum(weights.values())
+    if abs(total - 1.0) > 0.01:
+        logger.error(f"[WEIGHT_CALC] Weights sum to {total}, expected 1.0")
+        return False
+    
+    # Check all weights are positive
+    if any(w < 0 for w in weights.values()):
+        logger.error("[WEIGHT_CALC] Negative weights detected")
+        return False
+    
+    return True

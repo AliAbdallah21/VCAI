@@ -1,331 +1,407 @@
+# evaluation/utils/report_formatter.py
 """
 Report Formatter for VCAI Evaluation System
-Author: Mena Khaled
+Author: Menna Khaled
 
-This module formats AI-generated reports into the final structure.
+This module formats evaluation reports for different outputs.
 """
 
-from typing import Dict, Any, List
-from .models import (
-    EvaluationReport,
-    ConversationData,
-    DynamicWeights,
-    EvaluationMode
-)
-from .config import EvaluationConfig
+from typing import Dict, Any, List, Optional
+import logging
+from datetime import datetime
+
+from evaluation.schemas.report_schema import FinalReport, QuickStats
+from evaluation.schemas.analysis_schema import AnalysisReport
+from evaluation.config import SKILL_CONFIGS, CHECKPOINT_CONFIGS
 
 
-class ReportFormatter:
+logger = logging.getLogger(__name__)
+
+
+def format_for_database(report: FinalReport) -> Dict[str, Any]:
     """
-    Formats the AI-generated report into the final structure
-    This is part of Menna's responsibility
+    Convert FinalReport to JSON-serializable dict for database storage.
+    
+    Args:
+        report: FinalReport from the evaluation pipeline
+        
+    Returns:
+        Dictionary ready for JSON storage in database
+        
+    Example:
+        >>> report = FinalReport(...)
+        >>> db_data = format_for_database(report)
+        >>> # Save to database: db.evaluations.insert(db_data)
     """
+    logger.info("[FORMATTER] Converting report to database format")
     
-    def __init__(
-        self,
-        mode: EvaluationMode,
-        config: EvaluationConfig = None
-    ):
-        """
-        Initialize report formatter
-        
-        Args:
-            mode: Evaluation mode (TRAINING or TESTING)
-            config: Configuration object (optional)
-        """
-        self.mode = mode
-        self.config = config or EvaluationConfig()
-        
-        # Set pass threshold based on mode
-        if mode == EvaluationMode.TRAINING:
-            self.pass_threshold = self.config.TRAINING_MODE_PASS_THRESHOLD
-        else:
-            self.pass_threshold = self.config.TESTING_MODE_PASS_THRESHOLD
-        
-    def format_report(
-        self,
-        conversation_data: ConversationData,
-        ai_analysis: Dict[str, Any],
-        ai_report: Dict[str, Any],
-        weights: DynamicWeights
-    ) -> EvaluationReport:
-        """
-        Format the AI output into the final report structure
-        
-        Args:
-            conversation_data: Original conversation data
-            ai_analysis: Analysis from first AI pass
-            ai_report: Report from second AI pass
-            weights: The dynamic weights used
-            
-        Returns:
-            EvaluationReport ready for database storage and display
-        """
-        
-        # Extract skill scores from AI report
-        skill_scores = ai_report.get('skill_scores', {})
-        
-        # Calculate overall score using dynamic weights
-        overall_score = self._calculate_overall_score(skill_scores, weights)
-        
-        # Determine pass/fail
-        passed = self._determine_pass_fail(overall_score)
-        
-        # Extract checkpoints
-        checkpoints = self._extract_checkpoints(ai_report)
-        
-        # Format feedback based on mode
-        top_strengths, areas_to_improve, turn_feedback, recommended_practice = (
-            self._format_feedback(ai_report, passed)
-        )
-        
-        # Get final emotion
-        final_emotion = self._get_final_emotion(conversation_data)
-        
-        # Create and return report
-        report = EvaluationReport(
-            session_id=conversation_data.session_id,
-            overall_score=round(overall_score, self.config.SCORE_DECIMAL_PLACES),
-            passed=passed,
-            mode=self.mode.value,
-            skill_scores=self._round_skill_scores(skill_scores),
-            checkpoints=checkpoints,
-            top_strengths=top_strengths,
-            areas_to_improve=areas_to_improve,
-            turn_feedback=turn_feedback,
-            recommended_practice=recommended_practice,
-            timestamp=conversation_data.end_time,
-            duration_seconds=conversation_data.duration_seconds,
-            total_turns=len(conversation_data.transcript),
-            final_emotion=final_emotion
-        )
-        
-        return report
+    # Use Pydantic's model_dump to get JSON-serializable dict
+    data = report.model_dump(mode='json')
     
-    def _calculate_overall_score(
-        self,
-        skill_scores: Dict[str, float],
-        weights: DynamicWeights
-    ) -> float:
-        """
-        Calculate weighted overall score
-        
-        Args:
-            skill_scores: Dictionary of skill scores (0-100)
-            weights: DynamicWeights object
-            
-        Returns:
-            Overall score (0-100)
-        """
-        overall = (
-            skill_scores.get('rapport_building', 0) * weights.rapport_building +
-            skill_scores.get('active_listening', 0) * weights.active_listening +
-            skill_scores.get('needs_discovery', 0) * weights.needs_discovery +
-            skill_scores.get('product_knowledge', 0) * weights.product_knowledge +
-            skill_scores.get('objection_handling', 0) * weights.objection_handling +
-            skill_scores.get('emotional_intelligence', 0) * weights.emotional_intelligence +
-            skill_scores.get('closing_skills', 0) * weights.closing_skills +
-            skill_scores.get('communication_clarity', 0) * weights.communication_clarity
-        )
-        
-        return overall
+    # Add metadata
+    data['formatted_at'] = datetime.utcnow().isoformat()
+    data['version'] = '1.0'
     
-    def _determine_pass_fail(self, overall_score: float) -> bool:
-        """
-        Determine if the evaluation passed or failed
-        
-        Args:
-            overall_score: Overall score (0-100)
-            
-        Returns:
-            True if passed, False otherwise
-        """
-        if self.mode == EvaluationMode.TRAINING:
-            # Always pass in training mode
-            return True
-        else:
-            # Check against threshold in testing mode
-            return overall_score >= self.pass_threshold
+    return data
+
+
+def format_executive_summary(report: FinalReport) -> str:
+    """
+    Generate a concise text summary of the evaluation report.
     
-    def _extract_checkpoints(self, ai_report: Dict[str, Any]) -> Dict[str, bool]:
-        """
-        Extract and validate checkpoints from AI report
+    Args:
+        report: FinalReport from the evaluation pipeline
         
-        Args:
-            ai_report: AI-generated report
-            
-        Returns:
-            Dictionary of checkpoint names to boolean values
-        """
-        checkpoints = ai_report.get('checkpoints', {})
+    Returns:
+        Human-readable summary text
         
-        # Ensure all required checkpoints are present
-        required_checkpoints = {
-            'rapport_established': False,
-            'needs_identified': False,
-            'value_demonstrated': False,
-            'objection_handled': False,
-            'closing_signal_recognized': False,
-            'commitment_achieved': False,
+    Example:
+        >>> summary = format_executive_summary(report)
+        >>> print(summary)
+        Overall Score: 78/100
+        Status: PASSED
+        Top Strengths: Excellent rapport building...
+    """
+    logger.info("[FORMATTER] Generating executive summary")
+    
+    lines = []
+    
+    # Header
+    lines.append("EVALUATION SUMMARY")
+    lines.append("=" * 60)
+    
+    # Overall results
+    lines.append(f"Overall Score: {report.overall_score}/100")
+    
+    if report.mode == "testing":
+        status = "PASSED ✓" if report.passed else "NEEDS IMPROVEMENT ✗"
+        lines.append(f"Status: {status}")
+        if report.pass_threshold:
+            lines.append(f"Pass Threshold: {report.pass_threshold}")
+    
+    lines.append("")
+    
+    # Headline
+    lines.append(f"Summary: {report.headline}")
+    lines.append("")
+    
+    # Top strengths
+    if report.strengths:
+        lines.append("Top Strengths:")
+        for i, strength in enumerate(report.strengths[:3], 1):
+            lines.append(f"  {i}. {strength}")
+        lines.append("")
+    
+    # Areas to improve
+    if report.improvements:
+        lines.append("Areas to Improve:")
+        for i, improvement in enumerate(report.improvements[:3], 1):
+            lines.append(f"  {i}. {improvement}")
+        lines.append("")
+    
+    # Coaching plan (training mode)
+    if report.coaching_plan:
+        lines.append("Recommended Actions:")
+        for i, action in enumerate(report.coaching_plan[:3], 1):
+            lines.append(f"  {i}. {action}")
+        lines.append("")
+    
+    lines.append("=" * 60)
+    
+    return "\n".join(lines)
+
+
+def format_quick_stats_display(stats: QuickStats) -> Dict[str, Any]:
+    """
+    Format quick stats for immediate display after call ends.
+    
+    Args:
+        stats: QuickStats object
+        
+    Returns:
+        Dictionary formatted for UI display
+        
+    Example:
+        >>> stats = QuickStats(...)
+        >>> display_data = format_quick_stats_display(stats)
+        >>> # Send to frontend for immediate feedback
+    """
+    logger.info("[FORMATTER] Formatting quick stats for display")
+    
+    return {
+        'duration': stats.duration_formatted,
+        'total_turns': stats.total_turns,
+        'final_emotion': stats.final_customer_emotion,
+        'status': 'ready_for_evaluation',
+        'message': 'Call completed. Click "Get Evaluation" for detailed analysis.'
+    }
+
+
+def calculate_quick_stats(
+    transcript: List[Dict[str, Any]],
+    emotion_log: List[Dict[str, Any]],
+    session_info: Dict[str, Any]
+) -> QuickStats:
+    """
+    Calculate quick stats without LLM (for immediate feedback).
+    
+    This is called right after the conversation ends, before the
+    full evaluation pipeline runs.
+    
+    Args:
+        transcript: List of conversation turns
+        emotion_log: List of emotion detections
+        session_info: Basic session information
+        
+    Returns:
+        QuickStats object with immediate feedback
+        
+    Example:
+        >>> stats = calculate_quick_stats(transcript, emotion_log, session_info)
+        >>> print(f"Call lasted {stats.duration_formatted}")
+    """
+    logger.info("[FORMATTER] Calculating quick stats")
+    
+    # Calculate duration
+    duration_seconds = session_info.get('duration_seconds', 0)
+    duration_formatted = _format_duration(duration_seconds)
+    
+    # Count turns
+    total_turns = len(transcript)
+    
+    # Get final emotion
+    final_emotion = "neutral"
+    if emotion_log and len(emotion_log) > 0:
+        final_emotion = emotion_log[-1].get('emotion', 'neutral')
+    
+    return QuickStats(
+        duration_formatted=duration_formatted,
+        total_turns=total_turns,
+        final_customer_emotion=final_emotion
+    )
+
+
+def format_skill_breakdown(
+    report: FinalReport,
+    include_descriptions: bool = True
+) -> List[Dict[str, Any]]:
+    """
+    Format skill scores with metadata for display.
+    
+    Args:
+        report: FinalReport from evaluation
+        include_descriptions: Include skill descriptions
+        
+    Returns:
+        List of skill data for UI rendering
+        
+    Example:
+        >>> breakdown = format_skill_breakdown(report)
+        >>> for skill in breakdown:
+        ...     print(f"{skill['name_en']}: {skill['score']}/100")
+    """
+    logger.info("[FORMATTER] Formatting skill breakdown")
+    
+    breakdown = []
+    
+    # Get scores from report (this will be in the FinalReport.scores field)
+    # For now, assume scores are in a ScoreBreakdown object
+    if hasattr(report, 'scores') and hasattr(report.scores, 'skills'):
+        skill_scores = {s.skill_key: s.score for s in report.scores.skills}
+    else:
+        # Fallback if structure is different
+        skill_scores = {}
+    
+    for skill_key, config in SKILL_CONFIGS.items():
+        skill_data = {
+            'key': skill_key,
+            'name_en': config.name_en,
+            'name_ar': config.name_ar,
+            'score': skill_scores.get(skill_key, 0),
+            'weight': config.default_weight,
         }
         
-        # Update with actual values from AI
-        for checkpoint_name in required_checkpoints:
-            if checkpoint_name in checkpoints:
-                required_checkpoints[checkpoint_name] = checkpoints[checkpoint_name]
+        if include_descriptions:
+            skill_data['description'] = config.description
         
-        return required_checkpoints
+        breakdown.append(skill_data)
     
-    def _format_feedback(
-        self,
-        ai_report: Dict[str, Any],
-        passed: bool
-    ) -> tuple:
-        """
-        Format feedback based on evaluation mode
-        
-        Args:
-            ai_report: AI-generated report
-            passed: Whether the evaluation passed
-            
-        Returns:
-            Tuple of (top_strengths, areas_to_improve, turn_feedback, recommended_practice)
-        """
-        if self.mode == EvaluationMode.TRAINING:
-            # Training mode: Full feedback
-            top_strengths = ai_report.get('strengths', [])[:self.config.MAX_STRENGTHS_DISPLAY]
-            areas_to_improve = ai_report.get('areas_to_improve', [])[:self.config.MAX_IMPROVEMENTS_DISPLAY]
-            turn_feedback = ai_report.get('turn_feedback', [])
-            recommended_practice = ai_report.get('recommended_practice', [])
-            
-        else:
-            # Testing mode: Limited feedback
-            top_strengths = ai_report.get('strengths', [])[:self.config.MAX_STRENGTHS_DISPLAY]
-            areas_to_improve = ai_report.get('areas_to_improve', [])[:self.config.MAX_IMPROVEMENTS_DISPLAY]
-            turn_feedback = []  # No detailed turn-by-turn feedback in testing
-            
-            # Only show practice recommendations if failed
-            if not passed:
-                recommended_practice = ai_report.get('recommended_practice', [])
-            else:
-                recommended_practice = []
-        
-        return top_strengths, areas_to_improve, turn_feedback, recommended_practice
+    return breakdown
+
+
+def format_checkpoint_summary(report: FinalReport) -> List[Dict[str, Any]]:
+    """
+    Format checkpoint achievements for display.
     
-    def _round_skill_scores(self, skill_scores: Dict[str, float]) -> Dict[str, float]:
-        """
-        Round all skill scores to specified decimal places
+    Args:
+        report: FinalReport from evaluation
         
-        Args:
-            skill_scores: Dictionary of skill scores
-            
-        Returns:
-            Dictionary with rounded scores
-        """
-        rounded_scores = {}
+    Returns:
+        List of checkpoint data for UI rendering
         
-        for skill_name in self.config.SKILL_NAMES:
-            score = skill_scores.get(skill_name, 0)
-            rounded_scores[skill_name] = round(score, self.config.SCORE_DECIMAL_PLACES)
-        
-        return rounded_scores
+    Example:
+        >>> checkpoints = format_checkpoint_summary(report)
+        >>> for cp in checkpoints:
+        ...     icon = "✅" if cp['achieved'] else "❌"
+        ...     print(f"{icon} {cp['name_en']}")
+    """
+    logger.info("[FORMATTER] Formatting checkpoint summary")
     
-    def _get_final_emotion(self, conversation_data: ConversationData) -> str:
-        """
-        Extract the final emotion from conversation data
-        
-        Args:
-            conversation_data: Conversation data
-            
-        Returns:
-            Final emotion string
-        """
-        if conversation_data.emotion_log and len(conversation_data.emotion_log) > 0:
-            return conversation_data.emotion_log[-1].get('emotion', 'neutral')
-        return 'neutral'
+    summary = []
     
-    def generate_summary_text(self, report: EvaluationReport) -> str:
-        """
-        Generate a human-readable summary of the evaluation report
+    # Get checkpoint achievements from report
+    # Assume they're in report.checkpoints or similar
+    checkpoint_achievements = {}
+    if hasattr(report, 'checkpoints'):
+        checkpoint_achievements = report.checkpoints
+    
+    for checkpoint_key, config in CHECKPOINT_CONFIGS.items():
+        achieved = checkpoint_achievements.get(checkpoint_key, False)
         
-        Args:
-            report: EvaluationReport object
-            
-        Returns:
-            Formatted summary text
-        """
-        lines = []
-        lines.append("=" * 60)
-        lines.append(f"EVALUATION REPORT - Session {report.session_id}")
-        lines.append("=" * 60)
-        lines.append(f"Mode: {report.mode.upper()}")
-        lines.append(f"Overall Score: {report.overall_score}/100")
-        lines.append(f"Result: {'PASSED ✓' if report.passed else 'NEEDS IMPROVEMENT ✗'}")
-        lines.append(f"Duration: {report.duration_seconds}s ({report.total_turns} turns)")
-        lines.append(f"Final Emotion: {report.final_emotion}")
+        summary.append({
+            'key': checkpoint_key,
+            'name_en': config.name_en,
+            'name_ar': config.name_ar,
+            'description': config.description,
+            'achieved': achieved,
+            'icon': config.icon_achieved if achieved else config.icon_missed,
+            'is_critical': config.is_critical,
+            'order': config.order
+        })
+    
+    # Sort by order
+    summary.sort(key=lambda x: x['order'])
+    
+    return summary
+
+
+def create_score_bar(score: float, width: int = 20) -> str:
+    """
+    Create a visual bar representation of a score.
+    
+    Args:
+        score: Score value (0-100)
+        width: Width of the bar in characters
+        
+    Returns:
+        String representation of the score bar
+        
+    Example:
+        >>> bar = create_score_bar(75)
+        >>> print(f"Score: {bar}")
+        Score: [███████████████░░░░░]
+    """
+    filled = int((score / 100) * width)
+    empty = width - filled
+    
+    bar = "█" * filled + "░" * empty
+    
+    return f"[{bar}]"
+
+
+def format_detailed_report(report: FinalReport) -> str:
+    """
+    Generate a comprehensive text report with all details.
+    
+    Args:
+        report: FinalReport from evaluation
+        
+    Returns:
+        Detailed formatted text report
+    """
+    logger.info("[FORMATTER] Generating detailed text report")
+    
+    lines = []
+    
+    # Header
+    lines.append("=" * 80)
+    lines.append("VCAI EVALUATION REPORT")
+    lines.append("=" * 80)
+    lines.append(f"Mode: {report.mode.upper()}")
+    lines.append(f"Overall Score: {report.overall_score}/100")
+    
+    if report.mode == "testing":
+        status = "PASSED ✓" if report.passed else "NEEDS IMPROVEMENT ✗"
+        lines.append(f"Result: {status} (Threshold: {report.pass_threshold})")
+    
+    lines.append("")
+    lines.append(f"Summary: {report.headline}")
+    lines.append("")
+    
+    # Skill breakdown
+    lines.append("SKILL SCORES:")
+    lines.append("-" * 80)
+    
+    skill_breakdown = format_skill_breakdown(report, include_descriptions=False)
+    for skill in skill_breakdown:
+        bar = create_score_bar(skill['score'])
+        lines.append(f"{skill['name_en']:30s} {skill['score']:5.1f}/100 {bar}")
+    
+    lines.append("")
+    
+    # Checkpoints
+    lines.append("CHECKPOINTS:")
+    lines.append("-" * 80)
+    
+    checkpoint_summary = format_checkpoint_summary(report)
+    achieved_count = sum(1 for cp in checkpoint_summary if cp['achieved'])
+    lines.append(f"Achieved: {achieved_count}/{len(checkpoint_summary)}")
+    lines.append("")
+    
+    for cp in checkpoint_summary:
+        lines.append(f"{cp['icon']} {cp['name_en']}")
+        if cp['achieved']:
+            lines.append(f"   {cp['description']}")
+    
+    lines.append("")
+    
+    # Strengths
+    if report.strengths:
+        lines.append("TOP STRENGTHS:")
+        lines.append("-" * 80)
+        for i, strength in enumerate(report.strengths, 1):
+            lines.append(f"{i}. {strength}")
         lines.append("")
-        
-        # Checkpoints
-        lines.append("CHECKPOINTS:")
-        checkpoint_count = sum(1 for v in report.checkpoints.values() if v)
-        lines.append(f"  Completed: {checkpoint_count}/{len(report.checkpoints)}")
-        for checkpoint, achieved in report.checkpoints.items():
-            status = "✓" if achieved else "✗"
-            lines.append(f"  {status} {checkpoint.replace('_', ' ').title()}")
-        lines.append("")
-        
-        # Skill Scores
-        lines.append("SKILL SCORES:")
-        for skill, score in report.skill_scores.items():
-            bar = self._create_score_bar(score)
-            lines.append(f"  {skill.replace('_', ' ').title():30s} {score:5.1f}/100 {bar}")
-        lines.append("")
-        
-        # Strengths
-        if report.top_strengths:
-            lines.append("TOP STRENGTHS:")
-            for i, strength in enumerate(report.top_strengths, 1):
-                lines.append(f"  {i}. {strength}")
-            lines.append("")
-        
-        # Areas to improve
-        if report.areas_to_improve:
-            lines.append("AREAS TO IMPROVE:")
-            for i, area in enumerate(report.areas_to_improve, 1):
-                lines.append(f"  {i}. {area}")
-            lines.append("")
-        
-        # Recommendations
-        if report.recommended_practice:
-            lines.append("RECOMMENDED PRACTICE:")
-            for i, practice in enumerate(report.recommended_practice, 1):
-                lines.append(f"  {i}. {practice}")
-            lines.append("")
-        
-        lines.append("=" * 60)
-        
-        return "\n".join(lines)
     
-    def _create_score_bar(self, score: float, width: int = 20) -> str:
-        """
-        Create a visual bar representation of a score
+    # Improvements
+    if report.improvements:
+        lines.append("AREAS TO IMPROVE:")
+        lines.append("-" * 80)
+        for i, improvement in enumerate(report.improvements, 1):
+            lines.append(f"{i}. {improvement}")
+        lines.append("")
+    
+    # Coaching plan (training mode)
+    if report.coaching_plan:
+        lines.append("COACHING PLAN:")
+        lines.append("-" * 80)
+        for i, step in enumerate(report.coaching_plan, 1):
+            lines.append(f"{i}. {step}")
+        lines.append("")
+    
+    # Testing notes (testing mode)
+    if report.testing_notes:
+        lines.append("ASSESSMENT NOTES:")
+        lines.append("-" * 80)
+        for note in report.testing_notes:
+            lines.append(f"• {note}")
+        lines.append("")
+    
+    lines.append("=" * 80)
+    
+    return "\n".join(lines)
+
+
+def _format_duration(seconds: int) -> str:
+    """
+    Format duration in seconds to MM:SS format.
+    
+    Args:
+        seconds: Duration in seconds
         
-        Args:
-            score: Score value (0-100)
-            width: Width of the bar in characters
-            
-        Returns:
-            String representation of the score bar
-        """
-        filled = int((score / 100) * width)
-        empty = width - filled
-        
-        bar = "█" * filled + "░" * empty
-        
-        # Add color indicators (for terminals that support it)
-        if score >= 80:
-            return f"[{bar}]"  # Green zone
-        elif score >= 60:
-            return f"[{bar}]"  # Yellow zone
-        else:
-            return f"[{bar}]"  # Red zone
+    Returns:
+        Formatted string (e.g., "4:32")
+    """
+    minutes = seconds // 60
+    secs = seconds % 60
+    return f"{minutes}:{secs:02d}"
