@@ -80,6 +80,11 @@ def synthesizer_node(state: EvaluationState) -> EvaluationState:
             system_prompt=system_prompt,
             user_prompt=user_prompt,
         )
+        # ADD THIS DEBUG LOGGING:
+        print("=" * 80)
+        print("[DEBUG] SYNTHESIZER RAW LLM OUTPUT:")
+        print(llm_response_text[:2000])  # First 2000 chars
+        print("=" * 80)
 
         # Validate JSON against FinalReport schema
         report, error = validate_report_json(llm_response_text, FinalReport)

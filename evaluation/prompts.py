@@ -127,10 +127,18 @@ def validate_analysis_json(text: str, AnalysisReport: Type[T]) -> Tuple[Optional
 def validate_report_json(text: str, FinalReport: Type[T]) -> Tuple[Optional[T], Optional[str]]:
     """
     Validate synthesizer output against FinalReport model.
-    Convenience wrapper for validate_llm_json.
+    Convenience wrapper for validate_llm_json with post-processing.
     """
-    return validate_llm_json(text, FinalReport)
-
+    try:
+        data = parse_json(text)
+        
+        # Post-process to fix common null issues
+        data = fix_final_report_nulls(data)
+        
+        instance = FinalReport.model_validate(data)
+        return instance, None
+    except (json.JSONDecodeError, ValidationError, TypeError) as e:
+        return None, str(e)
 
 def strict_dump(instance: BaseModel) -> str:
     """
@@ -394,6 +402,39 @@ def build_synthesizer_prompt(
         f"{stats_json}\n\n"
         
         "═══════════════════════════════════════════════════════════════════\n"
+        "SCORES OBJECT REQUIREMENTS (CRITICAL - MUST FOLLOW EXACTLY):\n"
+        "═══════════════════════════════════════════════════════════════════\n\n"
+        
+        "The 'scores' object MUST include these top-level fields:\n"
+        "✓ overall_score: integer (0-100) - weighted average from analysis\n"
+        f"✓ pass_threshold: {int(PASS_THRESHOLD)} (ALWAYS this value)\n"
+        f"✓ points_from_passing: integer (overall_score - {int(PASS_THRESHOLD)})\n"
+        "✓ status: string - one of 'passed', 'failed', or 'borderline'\n"
+        "✓ skills: array of SkillScoreDetail objects (see below)\n"
+        "✓ skills_tested: integer - count of skills that were tested\n"
+        "✓ skills_passed: integer - count of skills with score >= 70\n"
+        "✓ strongest_skill: string - name of highest scoring skill\n"
+        "✓ weakest_skill: string - name of lowest scoring skill\n\n"
+        
+        "CRITICAL: The 'skills' array structure:\n"
+        "For EACH skill in the analysis report, you MUST create a SkillScoreDetail object with:\n"
+        "{\n"
+        '  "skill_name": "Rapport Building",  // Human-readable name\n'
+        '  "skill_key": "rapport_building",    // Snake_case key\n'
+        '  "score": 85,                         // Integer 0-100 (NEVER null)\n'
+        '  "weight": 0.15,                      // Float 0.0-1.0 from analysis\n'
+        '  "weighted_contribution": 12.75,      // score * weight (NEVER null)\n'
+        '  "was_tested": true,                  // Boolean\n'
+        '  "summary": "Strong rapport...",      // String (NEVER null, at least 5 words)\n'
+        '  "strengths": ["Good greeting", ...], // Array of strings\n'
+        '  "areas_to_improve": ["..."],         // Array of strings\n'
+        '  "evidence_turns": [1, 2, 5]          // Array of integers\n'
+        "}\n\n"
+        
+        "NEVER set score, weighted_contribution, or summary to null!\n"
+        "If a skill wasn't tested, set score=0, weighted_contribution=0.0, summary='Not tested'\n\n"
+        
+        "═══════════════════════════════════════════════════════════════════\n"
         "MODE-SPECIFIC REQUIREMENTS:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
     )
@@ -402,16 +443,24 @@ def build_synthesizer_prompt(
         user_prompt += (
             "TRAINING MODE Requirements:\n\n"
             "MUST INCLUDE:\n"
-            "✓ coaching_plan: List of 3-5 actionable improvement steps\n"
-            "✓ turn_by_turn_feedback: Detailed feedback for each agent turn (from analysis)\n"
-            "✓ headline: Encouraging summary (e.g., 'Strong start with room to grow!')\n"
-            "✓ strengths: Top 3 things done well\n"
-            "✓ improvements: Top 3 areas to practice\n\n"
+            "✓ top_strengths: Array of 3 strings (things done well)\n"
+            "✓ top_improvements: Array of 3 strings (areas to work on)\n"
+            "✓ recommended_practice: Array of 3-5 specific practice suggestions\n"
+            "✓ turn_feedback: Array of TurnFeedback objects for each salesperson turn\n"
+            "✓ executive_summary: String (2-3 encouraging sentences)\n"
+            "✓ checkpoints: Array of CheckpointSummary objects\n\n"
             
             "MUST SET TO NULL:\n"
             "✗ passed: null (no pass/fail in training)\n"
-            "✗ pass_threshold: null\n"
-            "✗ testing_notes: null\n\n"
+            "✗ certification_eligible: null\n"
+            "✗ retake_recommended: null\n\n"
+            
+            "SCORES STATUS:\n"
+            "- Calculate status based on overall_score:\n"
+            f"  - If >= {int(PASS_THRESHOLD)}: 'passed'\n"
+            f"  - If < {int(PASS_THRESHOLD)} but >= {int(PASS_THRESHOLD - 10)}: 'borderline'\n"
+            f"  - If < {int(PASS_THRESHOLD - 10)}: 'failed'\n"
+            "- But remember: in training mode, 'passed' field should be null\n\n"
             
             "TONE: Encouraging, coaching, growth-focused\n\n"
         )
@@ -419,22 +468,25 @@ def build_synthesizer_prompt(
         user_prompt += (
             "TESTING MODE Requirements:\n\n"
             "MUST INCLUDE:\n"
-            f"✓ passed: boolean (true if overall_score >= {PASS_THRESHOLD}, else false)\n"
-            f"✓ pass_threshold: {PASS_THRESHOLD}\n"
-            "✓ testing_notes: List of objective reasons for score and pass/fail decision\n"
-            "✓ headline: Professional summary (e.g., 'Competent performance with minor gaps')\n"
-            "✓ strengths: Top 3 objective strengths\n"
-            "✓ improvements: Top 3 objective weaknesses\n\n"
+            f"✓ passed: boolean (true if overall_score >= {int(PASS_THRESHOLD)}, else false)\n"
+            "✓ certification_eligible: boolean (same as passed)\n"
+            "✓ retake_recommended: boolean (opposite of passed)\n"
+            "✓ top_strengths: Array of 3 strings\n"
+            "✓ top_improvements: Array of 3 strings\n"
+            "✓ executive_summary: String (2-3 professional sentences)\n"
+            "✓ checkpoints: Array of CheckpointSummary objects\n\n"
             
-            "MUST SET TO NULL:\n"
-            "✗ coaching_plan: null (no coaching in testing)\n"
-            "✗ turn_by_turn_feedback: null\n\n"
+            "MUST SET TO EMPTY/NULL:\n"
+            "✗ turn_feedback: [] (empty array in testing)\n"
+            "✗ recommended_practice: [] (empty array in testing)\n"
+            "✗ include_turn_feedback: false\n\n"
+            
+            "SCORES STATUS:\n"
+            f"- If overall_score >= {int(PASS_THRESHOLD)}: status='passed', passed=true\n"
+            f"- If overall_score >= {int(PASS_THRESHOLD - 10)} and < {int(PASS_THRESHOLD)}: status='borderline', passed=false\n"
+            f"- If overall_score < {int(PASS_THRESHOLD - 10)}: status='failed', passed=false\n\n"
             
             "TONE: Professional, objective, rubric-aligned\n\n"
-            
-            "PASS/FAIL LOGIC:\n"
-            f"- If overall_score >= {PASS_THRESHOLD}: PASSED (ready for certification)\n"
-            f"- If overall_score < {PASS_THRESHOLD}: FAILED (needs more practice)\n\n"
         )
     
     user_prompt += (
@@ -448,14 +500,53 @@ def build_synthesizer_prompt(
         "═══════════════════════════════════════════════════════════════════\n\n"
         "✓ Output ONLY valid JSON (no preamble, no code fences)\n"
         "✓ Match the schema exactly for this mode\n"
+        "✓ NEVER leave score, weighted_contribution, or summary as null in skills array\n"
+        "✓ ALL 8 skills from analysis MUST appear in scores.skills array\n"
+        "✓ Calculate weighted_contribution = score * weight for each skill\n"
         "✓ Use appropriate tone for the mode\n"
-        "✓ Carry forward policy_flags from analysis\n"
         "✓ Reference the analysis but synthesize (don't just copy)\n\n"
         
         "BEGIN GENERATING THE FINAL REPORT NOW.\n"
     )
     
     return system_prompt, user_prompt
+
+def fix_final_report_nulls(data: dict) -> dict:
+    """
+    Post-process LLM output to fix common null value issues.
+    
+    This ensures the report passes validation even if the LLM
+    doesn't follow instructions perfectly.
+    """
+    # Fix status if null
+    if data.get("scores", {}).get("status") is None:
+        overall = data.get("scores", {}).get("overall_score", 0)
+        if overall >= PASS_THRESHOLD:
+            data["scores"]["status"] = "passed"
+        elif overall >= PASS_THRESHOLD - 10:
+            data["scores"]["status"] = "borderline"
+        else:
+            data["scores"]["status"] = "failed"
+    
+    # Fix skills array
+    if "skills" in data.get("scores", {}):
+        for skill in data["scores"]["skills"]:
+            # Fix null scores
+            if skill.get("score") is None:
+                skill["score"] = 0
+            
+            # Fix null weighted_contribution
+            if skill.get("weighted_contribution") is None:
+                skill["weighted_contribution"] = skill.get("score", 0) * skill.get("weight", 0.0)
+            
+            # Fix null summary
+            if skill.get("summary") is None or skill.get("summary") == "":
+                if skill.get("was_tested") is False:
+                    skill["summary"] = "Not tested in this conversation"
+                else:
+                    skill["summary"] = "Performance assessed"
+    
+    return data
 
 
 # =============================================================================

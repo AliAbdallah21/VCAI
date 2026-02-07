@@ -398,9 +398,11 @@ class EvaluationSettings(BaseSettings):
         description="Run evaluation as background task (vs synchronous)"
     )
     
-    class Config:
-        env_prefix = "EVAL_"
-        env_file = ".env"
+    model_config = {
+        "env_prefix": "EVAL_",
+        "env_file": ".env",
+        "extra": "ignore"  # ← ADD THIS: Ignore extra env vars
+    }
 
 
 # ═══════════════════════════════════════════════════════════════════════════════

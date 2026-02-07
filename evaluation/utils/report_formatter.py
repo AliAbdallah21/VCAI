@@ -142,24 +142,7 @@ def calculate_quick_stats(
     emotion_log: List[Dict[str, Any]],
     session_info: Dict[str, Any]
 ) -> QuickStats:
-    """
-    Calculate quick stats without LLM (for immediate feedback).
-    
-    This is called right after the conversation ends, before the
-    full evaluation pipeline runs.
-    
-    Args:
-        transcript: List of conversation turns
-        emotion_log: List of emotion detections
-        session_info: Basic session information
-        
-    Returns:
-        QuickStats object with immediate feedback
-        
-    Example:
-        >>> stats = calculate_quick_stats(transcript, emotion_log, session_info)
-        >>> print(f"Call lasted {stats.duration_formatted}")
-    """
+    """Calculate quick stats without LLM (for immediate feedback)."""
     logger.info("[FORMATTER] Calculating quick stats")
     
     # Calculate duration
@@ -168,6 +151,8 @@ def calculate_quick_stats(
     
     # Count turns
     total_turns = len(transcript)
+    salesperson_turns = len([t for t in transcript if t.get('speaker') == 'salesperson'])
+    customer_turns = len([t for t in transcript if t.get('speaker') == 'customer'])
     
     # Get final emotion
     final_emotion = "neutral"
@@ -175,8 +160,11 @@ def calculate_quick_stats(
         final_emotion = emotion_log[-1].get('emotion', 'neutral')
     
     return QuickStats(
+        duration_seconds=duration_seconds,
         duration_formatted=duration_formatted,
         total_turns=total_turns,
+        salesperson_turns=salesperson_turns,
+        customer_turns=customer_turns,
         final_customer_emotion=final_emotion
     )
 
@@ -405,3 +393,54 @@ def _format_duration(seconds: int) -> str:
     minutes = seconds // 60
     secs = seconds % 60
     return f"{minutes}:{secs:02d}"
+
+
+
+# PATCH: Add this function to the END of evaluation/utils/report_formatter.py
+# This is the LangGraph node that the graph imports
+
+def compute_quick_stats_node(state: dict) -> dict:
+    """
+    LangGraph node that computes quick stats (no LLM needed).
+    
+    This is the first node in the evaluation pipeline.
+    Reads: transcript, emotion_log, session_info
+    Writes: quick_stats
+    """
+    from evaluation.state import update_state_status, record_node_timing, EvaluationProgress
+    from evaluation.schemas import QuickStats
+    import time
+    
+    t0 = time.perf_counter()
+    
+    logger.info("[QUICK_STATS_NODE] Computing quick stats...")
+    
+    try:
+        state = update_state_status(state, "computing_quick_stats", EvaluationProgress.COMPUTING_QUICK_STATS)
+        
+        transcript = state.get("transcript", [])
+        emotion_log = state.get("emotion_log", [])
+        session_info = state.get("session_info") or {}
+        
+        # Calculate quick stats using existing function
+        quick_stats = calculate_quick_stats(transcript, emotion_log, session_info)
+        state["quick_stats"] = quick_stats
+        
+        state = update_state_status(state, "quick_stats_ready", EvaluationProgress.QUICK_STATS_READY)
+        
+        logger.info(f"[QUICK_STATS_NODE] Done: {quick_stats.total_turns} turns, {quick_stats.duration_formatted}")
+        
+    except Exception as e:
+        logger.error(f"[QUICK_STATS_NODE] Error: {e}")
+        import traceback
+        traceback.print_exc()
+        
+        # Create minimal stats on error so pipeline can continue
+        state["quick_stats"] = QuickStats(
+            duration_formatted="0:00",
+            total_turns=len(state.get("transcript", [])),
+            final_customer_emotion="neutral"
+        )
+    
+    state = record_node_timing(state, "compute_quick_stats", time.perf_counter() - t0)
+    return state

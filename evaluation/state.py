@@ -92,6 +92,8 @@ class EvaluationState(TypedDict):
     
     # Evaluation mode
     mode: EvaluationMode  # "training" or "testing"
+
+    llm: Optional[Any]
     
     # ─── Input Data (gathered in step 1) ──────────────────────────────────────
     
@@ -170,6 +172,7 @@ def create_initial_state(
         # Request
         session_id=session_id,
         mode=EvaluationMode(mode),
+        llm=None,
         
         # Inputs (to be filled by gather_inputs)
         session_info=None,

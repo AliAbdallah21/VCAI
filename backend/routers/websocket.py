@@ -752,7 +752,8 @@ async def websocket_endpoint(
         while True:
             data = await websocket.receive_json()
             msg_type = data.get("type")
-            
+            print(f"[WS] Received message type: {msg_type}")  # ← ADD THIS
+
             # ──────────────────────────────────────────────────────────────
             # AUDIO CHUNK (streaming)
             # ──────────────────────────────────────────────────────────────
@@ -956,10 +957,24 @@ def process_turn_with_orchestration_sync(handler: ConversationHandler, db: Sessi
 # Skips transcription since streaming already sent it
 # ══════════════════════════════════════════════════════════════════════════════
 
-async def _send_turn_results(websocket, results: dict):
-    """Send remaining turn results. Transcription + audio chunks already sent."""
+# PATCH for backend/routers/websocket.py
+# Replace the existing _send_turn_results function with this one
 
-    # Send emotion state
+async def _send_turn_results(websocket, results: dict):
+    """Send turn results to frontend."""
+    
+    # ══════════════════════════════════════════════════════════════════
+    # 1. SEND TRANSCRIPTION (what the salesperson said)
+    # ══════════════════════════════════════════════════════════════════
+    if results.get("transcription"):
+        await websocket.send_json({
+            "type": "transcription",
+            "data": {"text": results["transcription"]}
+        })
+
+    # ══════════════════════════════════════════════════════════════════
+    # 2. SEND EMOTION STATE
+    # ══════════════════════════════════════════════════════════════════
     if results.get("emotion_state"):
         await websocket.send_json({
             "type": "emotion",
@@ -972,20 +987,25 @@ async def _send_turn_results(websocket, results: dict):
             }
         })
 
-    # Send evaluation
+    # ══════════════════════════════════════════════════════════════════
+    # 3. SEND EVALUATION
+    # ══════════════════════════════════════════════════════════════════
     await websocket.send_json({
         "type": "evaluation",
         "data": results["evaluation"]
     })
 
-    # Send full response text (for chat display)
+    # ══════════════════════════════════════════════════════════════════
+    # 4. SEND RESPONSE TEXT (what the customer said)
+    # ══════════════════════════════════════════════════════════════════
     await websocket.send_json({
         "type": "response",
         "data": {"text": results["response"]}
     })
 
-    # Send full combined audio as fallback
-    # Frontend will ignore this if it already played chunks
+    # ══════════════════════════════════════════════════════════════════
+    # 5. SEND AUDIO
+    # ══════════════════════════════════════════════════════════════════
     if results.get("audio_base64"):
         await websocket.send_json({
             "type": "audio",

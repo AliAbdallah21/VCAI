@@ -31,10 +31,12 @@ class Settings(BaseSettings):
     
     # CORS
     cors_origins: list = ["http://localhost:3000", "http://localhost:5173"]
+    openrouter_api_key: str = ""
     
     class Config:
         env_file = ".env"
         env_file_encoding = "utf-8"
+        extra = "ignore"  # ← ADD THIS
 
 
 @lru_cache()

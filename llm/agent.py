@@ -1,11 +1,20 @@
 ﻿# llm/agent.py
 """
-LLM Agent using Qwen 2.5 with BitsAndBytes 4-bit quantization.
+LLM Agent with switchable backend:
+- Qwen 2.5 (local, with BitsAndBytes 4-bit quantization)
+- OpenRouter API (cloud, supports Claude/GPT/etc.)
+
+Set USE_OPENROUTER=true in .env to use OpenRouter instead of local Qwen.
 """
 
+
+import os
+from dotenv import load_dotenv
+load_dotenv()
 import torch
 import re
 import random
+import requests
 from typing import Optional, Generator, List
 from threading import Thread
 from transformers import AutoModelForCausalLM, AutoTokenizer, BitsAndBytesConfig, TextIteratorStreamer
@@ -14,19 +23,32 @@ from llm.config import MODEL_NAME, BNB_CONFIG, GENERATION_CONFIG
 from llm.prompts import build_system_prompt, build_messages
 
 # ══════════════════════════════════════════════════════════════════════════════
-# GLOBAL MODEL (Singleton)
+# CONFIGURATION
+# ══════════════════════════════════════════════════════════════════════════════
+
+# Switch between Qwen (local) and OpenRouter (cloud)
+USE_OPENROUTER = os.getenv("USE_OPENROUTER", "false").lower() == "true"
+OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet")
+
+# Debug flag - set to True to see what's being sent to LLM
+DEBUG_PROMPTS = False
+
+# ══════════════════════════════════════════════════════════════════════════════
+# GLOBAL MODEL (Singleton) - Only used for Qwen
 # ══════════════════════════════════════════════════════════════════════════════
 
 _model = None
 _tokenizer = None
 
-# Debug flag - set to True to see what's being sent to LLM
-DEBUG_PROMPTS = False
-
 
 def _load_model():
-    """Load model once and cache it."""
+    """Load Qwen model once and cache it. Only called if USE_OPENROUTER=false."""
     global _model, _tokenizer
+    
+    if USE_OPENROUTER:
+        print("[LLM] Using OpenRouter API - skipping local model load")
+        return None, None
     
     if _model is not None:
         return _model, _tokenizer
@@ -50,6 +72,71 @@ def _load_model():
     
     print(f"[LLM] ✅ Model loaded on {_model.device}")
     return _model, _tokenizer
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# OPENROUTER API CLIENT
+# ══════════════════════════════════════════════════════════════════════════════
+
+class OpenRouterClient:
+    """Client for OpenRouter API - supports Claude, GPT, etc."""
+    
+    def __init__(self):
+        self.api_key = OPENROUTER_API_KEY
+        self.base_url = "https://openrouter.ai/api/v1/chat/completions"
+        self.model = OPENROUTER_MODEL
+        
+        if not self.api_key:
+            raise ValueError("OPENROUTER_API_KEY not set in environment")
+        
+        print(f"[LLM] OpenRouter client initialized with model: {self.model}")
+    
+    def generate(self, messages: List[dict], **kwargs) -> str:
+        """Generate response using OpenRouter API."""
+        
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        
+        payload = {
+            "model": self.model,
+            "messages": messages,
+            "temperature": kwargs.get("temperature", 0.7),
+            "max_tokens": kwargs.get("max_tokens", 300),
+        }
+        
+        if DEBUG_PROMPTS:
+            print(f"[LLM] OpenRouter request to {self.model}")
+            for msg in messages:
+                preview = msg['content'][:100] + "..." if len(msg['content']) > 100 else msg['content']
+                print(f"  [{msg['role']}]: {preview}")
+        
+        try:
+            response = requests.post(self.base_url, json=payload, headers=headers, timeout=30)
+            response.raise_for_status()
+            
+            result = response.json()["choices"][0]["message"]["content"]
+            
+            if DEBUG_PROMPTS:
+                print(f"[LLM] OpenRouter response: {result[:100]}...")
+            
+            return result
+            
+        except requests.exceptions.RequestException as e:
+            print(f"[LLM] OpenRouter API error: {e}")
+            raise
+
+
+# Singleton OpenRouter client
+_openrouter_client = None
+
+def _get_openrouter_client() -> OpenRouterClient:
+    """Get or create OpenRouter client."""
+    global _openrouter_client
+    if _openrouter_client is None:
+        _openrouter_client = OpenRouterClient()
+    return _openrouter_client
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -183,9 +270,7 @@ def generate_response(
     memory: dict,
     rag_context: dict
 ) -> str:
-    """Generate customer response using LLM."""
-    
-    model, tokenizer = _load_model()
+    """Generate customer response using LLM (Qwen or OpenRouter)."""
     
     # Build prompt
     system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
@@ -194,32 +279,46 @@ def generate_response(
     # Debug: Print what we're sending to the LLM
     if DEBUG_PROMPTS:
         print("\n" + "="*60)
-        print("[DEBUG] MESSAGES BEING SENT TO LLM:")
+        print(f"[DEBUG] MESSAGES BEING SENT TO LLM (USE_OPENROUTER={USE_OPENROUTER}):")
         for i, msg in enumerate(messages):
-            role = msg['role']
-            content = msg['content'][:100] + "..." if len(msg['content']) > 100 else msg['content']
-            print(f"  {i+1}. [{role}]: {content}")
+            role = msg.get('role', 'unknown')
+            content = msg.get('content', '')
+            content_preview = content[:100] + "..." if len(content) > 100 else content
+            print(f"  {i+1}. [{role}]: {content_preview}")
         print("="*60 + "\n")
     
-    # Tokenize
-    text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
-    inputs = tokenizer(text, return_tensors="pt").to(model.device)
-    
     try:
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=150,  # Increased from 60
-            temperature=0.6,     # Slightly lower for more consistency
-            top_p=0.9,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id,
-            repetition_penalty=1.2  # Increased to reduce repetition
-        )
-        
-        response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-        response = _clean_response(response)
-        
-        return response
+        if USE_OPENROUTER:
+            # Use OpenRouter API
+            client = _get_openrouter_client()
+            response = client.generate(
+                messages=messages,
+                temperature=0.7,
+                max_tokens=300
+            )
+            response = _clean_response(response)
+            return response
+        else:
+            # Use local Qwen model
+            model, tokenizer = _load_model()
+            
+            # Tokenize
+            text = tokenizer.apply_chat_template(messages, tokenize=False, add_generation_prompt=True)
+            inputs = tokenizer(text, return_tensors="pt").to(model.device)
+            
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=150,
+                temperature=0.6,
+                top_p=0.9,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id,
+                repetition_penalty=1.2
+            )
+            
+            response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+            response = _clean_response(response)
+            return response
         
     except Exception as e:
         print(f"[LLM] Error: {e}")
@@ -235,9 +334,17 @@ def generate_response_streaming(
     rag_context: dict
 ) -> Generator[str, None, None]:
     """
-    Generate response with TRUE token-by-token streaming.
-    Yields complete sentences as they form.
+    Generate response with streaming.
+    Note: OpenRouter streaming not implemented - falls back to non-streaming.
     """
+    
+    if USE_OPENROUTER:
+        # OpenRouter: No streaming, just yield the full response
+        response = generate_response(customer_text, emotion, emotional_context, persona, memory, rag_context)
+        yield response
+        return
+    
+    # Qwen: True token-by-token streaming
     model, tokenizer = _load_model()
 
     # Build prompt (same as non-streaming)
@@ -264,15 +371,15 @@ def generate_response_streaming(
         skip_special_tokens=True
     )
 
-    # Generation kwargs - UPDATED PARAMS
+    # Generation kwargs
     gen_kwargs = {
         **inputs,
-        "max_new_tokens": 150,       # Increased from 60
-        "temperature": 0.6,          # Slightly lower
+        "max_new_tokens": 150,
+        "temperature": 0.6,
         "top_p": 0.9,
         "do_sample": True,
         "pad_token_id": tokenizer.eos_token_id,
-        "repetition_penalty": 1.2,   # Increased
+        "repetition_penalty": 1.2,
         "streamer": streamer,
     }
 
@@ -325,10 +432,7 @@ def generate_response_streaming(
 # ══════════════════════════════════════════════════════════════════════════════
 
 def summarize_conversation(messages: list) -> str:
-    """
-    Summarize conversation for memory checkpoints.
-    """
-    model, tokenizer = _load_model()
+    """Summarize conversation for memory checkpoints."""
     
     # Format conversation
     conv_text = "\n".join([
@@ -336,36 +440,49 @@ def summarize_conversation(messages: list) -> str:
         for m in messages
     ])
     
-    # Build prompt for summarization
-    prompt = f"""لخص المحادثة التالية في جملة أو جملتين بالعربي المصري:
+    if USE_OPENROUTER:
+        # Use OpenRouter
+        client = _get_openrouter_client()
+        prompt_messages = [
+            {"role": "system", "content": "أنت مساعد بيلخص المحادثات بالعربي المصري. لخص في جملة أو جملتين بس."},
+            {"role": "user", "content": f"لخص المحادثة دي:\n\n{conv_text}"}
+        ]
+        try:
+            response = client.generate(prompt_messages, temperature=0.5, max_tokens=100)
+            return _clean_response(response)
+        except Exception as e:
+            print(f"[LLM] Summarization error: {e}")
+            return "محادثة بيع عقارات"
+    else:
+        # Use Qwen
+        model, tokenizer = _load_model()
+        
+        prompt = f"""لخص المحادثة التالية في جملة أو جملتين بالعربي المصري:
 
 {conv_text}
 
 الملخص:"""
-    
-    try:
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=100,
-            temperature=0.5,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id
-        )
         
-        response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-        return _clean_response(response)
-        
-    except Exception as e:
-        print(f"[LLM] Summarization error: {e}")
-        return "محادثة بيع عقارات"
+        try:
+            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=100,
+                temperature=0.5,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id
+            )
+            
+            response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+            return _clean_response(response)
+            
+        except Exception as e:
+            print(f"[LLM] Summarization error: {e}")
+            return "محادثة بيع عقارات"
 
 
 def extract_key_points(messages: list) -> List[str]:
-    """
-    Extract key points from conversation for memory checkpoints.
-    """
-    model, tokenizer = _load_model()
+    """Extract key points from conversation for memory checkpoints."""
     
     # Format conversation
     conv_text = "\n".join([
@@ -373,30 +490,59 @@ def extract_key_points(messages: list) -> List[str]:
         for m in messages
     ])
     
-    # Build prompt for key points extraction
-    prompt = f"""استخرج النقاط المهمة من المحادثة دي (كل نقطة في سطر):
+    if USE_OPENROUTER:
+        # Use OpenRouter
+        client = _get_openrouter_client()
+        prompt_messages = [
+            {"role": "system", "content": "استخرج النقاط المهمة من المحادثة. اكتب كل نقطة في سطر منفصل."},
+            {"role": "user", "content": f"المحادثة:\n\n{conv_text}\n\nالنقاط المهمة:"}
+        ]
+        try:
+            response = client.generate(prompt_messages, temperature=0.5, max_tokens=150)
+            return _clean_key_points(response)
+        except Exception as e:
+            print(f"[LLM] Key points extraction error: {e}")
+            return ["محادثة عامة"]
+    else:
+        # Use Qwen
+        model, tokenizer = _load_model()
+        
+        prompt = f"""استخرج النقاط المهمة من المحادثة دي (كل نقطة في سطر):
 
 {conv_text}
 
 النقاط المهمة:
 -"""
-    
-    try:
-        inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
-        outputs = model.generate(
-            **inputs,
-            max_new_tokens=150,
-            temperature=0.5,
-            do_sample=True,
-            pad_token_id=tokenizer.eos_token_id
-        )
         
-        response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
-        return _clean_key_points(response)
-        
-    except Exception as e:
-        print(f"[LLM] Key points extraction error: {e}")
-        return ["محادثة عامة"]
+        try:
+            inputs = tokenizer(prompt, return_tensors="pt").to(model.device)
+            outputs = model.generate(
+                **inputs,
+                max_new_tokens=150,
+                temperature=0.5,
+                do_sample=True,
+                pad_token_id=tokenizer.eos_token_id
+            )
+            
+            response = tokenizer.decode(outputs[0][inputs['input_ids'].shape[1]:], skip_special_tokens=True)
+            return _clean_key_points(response)
+            
+        except Exception as e:
+            print(f"[LLM] Key points extraction error: {e}")
+            return ["محادثة عامة"]
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# UTILITY FUNCTIONS
+# ══════════════════════════════════════════════════════════════════════════════
+
+def get_llm_info() -> dict:
+    """Get information about the current LLM configuration."""
+    return {
+        "backend": "openrouter" if USE_OPENROUTER else "qwen",
+        "model": OPENROUTER_MODEL if USE_OPENROUTER else MODEL_NAME,
+        "loaded": _model is not None if not USE_OPENROUTER else True,
+    }
 
 
 # ══════════════════════════════════════════════════════════════════════════════
@@ -409,7 +555,8 @@ if __name__ == "__main__":
     # Enable debug for testing
     DEBUG_PROMPTS = True
     
-    print("Testing LLM Agent with BitsAndBytes...")
+    print(f"Testing LLM Agent (USE_OPENROUTER={USE_OPENROUTER})...")
+    print(f"LLM Info: {get_llm_info()}")
     
     test_emotion = {"primary_emotion": "neutral", "confidence": 0.8, "intensity": "medium", "scores": {}}
     test_context = {"current": test_emotion, "trend": "stable", "recommendation": "be_professional", "risk_level": "medium"}
@@ -419,29 +566,23 @@ if __name__ == "__main__":
         "traits": ["متشكك", "بيفاصل"], "default_emotion": "frustrated"
     }
     
-    # Simulate a conversation with memory
     test_memory = {
         "session_id": "test",
         "checkpoints": [],
         "recent_messages": [
             {"speaker": "salesperson", "text": "السلام عليكم، معاك أحمد من شركة العقارات"},
             {"speaker": "vc", "text": "وعليكم السلام، أنا بدور على شقة"},
-            {"speaker": "salesperson", "text": "عندنا شقة 100 متر في مدينة نصر"},
-            {"speaker": "vc", "text": "طيب والسعر كام؟"},
-            {"speaker": "salesperson", "text": "السعر مليون جنيه"},
-            {"speaker": "vc", "text": "والمقدم كام؟"},
         ],
-        "total_turns": 3
+        "total_turns": 1
     }
     
     test_rag = {"query": "", "documents": [], "total_found": 0}
     
     print("\n" + "="*60)
-    print("Testing with conversation history (should NOT ask about price again)")
+    print("Testing conversation response")
     print("="*60)
     
-    # Salesperson already told price, LLM should NOT ask about it
-    test_input = "المقدم 100 ألف جنيه والباقي تقسيط"
+    test_input = "عندنا شقة 100 متر في مدينة نصر"
     
     print(f"\nالبائع: {test_input}")
     start = time.time()

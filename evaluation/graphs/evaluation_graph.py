@@ -1,3 +1,12 @@
+# evaluation/graphs/evaluation_graph.py
+"""
+LangGraph Evaluation Pipeline
+Author: Ismail
+
+This creates and runs the evaluation graph:
+    compute_quick_stats → analyzer → synthesizer → END
+"""
+
 from __future__ import annotations
 
 from langgraph.graph import END, StateGraph
@@ -5,14 +14,16 @@ from langgraph.graph import END, StateGraph
 from evaluation.state import EvaluationState
 from evaluation.pipeline.analyzer import analyzer_node
 from evaluation.pipeline.synthesizer import synthesizer_node
-
-# ✅ Quick stats node comes from utils 
 from evaluation.utils.report_formatter import compute_quick_stats_node
+
+
+# Compiled graph (singleton)
+_compiled_graph = None
 
 
 def create_evaluation_graph():
     """
-    LangGraph Pipeline :
+    Create the LangGraph Pipeline:
 
         compute_quick_stats (no LLM)
             ↓
@@ -35,3 +46,49 @@ def create_evaluation_graph():
     graph.add_edge("synthesizer", END)
 
     return graph.compile()
+
+
+def get_graph():
+    """Get or create the compiled graph (singleton pattern)."""
+    global _compiled_graph
+    if _compiled_graph is None:
+        _compiled_graph = create_evaluation_graph()
+    return _compiled_graph
+
+
+def run_evaluation(state: EvaluationState) -> EvaluationState:
+    """
+    Run the evaluation pipeline synchronously.
+    
+    This is what Menna's EvaluationManager calls.
+    
+    Args:
+        state: Initial EvaluationState with session_id and mode
+        
+    Returns:
+        Final EvaluationState with analysis_report and final_report
+    """
+    graph = get_graph()
+    
+    # Run the graph
+    final_state = graph.invoke(state)
+    
+    return final_state
+
+
+async def run_evaluation_async(state: EvaluationState) -> EvaluationState:
+    """
+    Run the evaluation pipeline asynchronously.
+    
+    Args:
+        state: Initial EvaluationState with session_id and mode
+        
+    Returns:
+        Final EvaluationState with analysis_report and final_report
+    """
+    graph = get_graph()
+    
+    # Run the graph asynchronously
+    final_state = await graph.ainvoke(state)
+    
+    return final_state

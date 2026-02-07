@@ -78,7 +78,8 @@ def calculate_dynamic_weights(
         weights["closing_skills"] *= multipliers.short_conversation_penalty
     
     # 3. Product Knowledge (based on RAG usage and factual claims)
-    if profile.rag_retrievals and len(profile.rag_retrievals) > 0:
+    if profile.rag_was_needed or (profile.rag_topics_relevant and len(profile.rag_topics_relevant) > 0):
+
         logger.info(f"[WEIGHT_CALC] Found {len(profile.rag_retrievals)} RAG retrievals - boosting product_knowledge")
         weights["product_knowledge"] *= multipliers.rag_needed_boost
     
@@ -88,10 +89,9 @@ def calculate_dynamic_weights(
         weights["emotional_intelligence"] *= multipliers.emotion_volatility_boost
     
     # 5. Needs Discovery (based on discovery stage presence)
-    has_discovery = any(
-        stage.stage_type == "discovery" 
-        for stage in (profile.stages or [])
-    )
+    from evaluation.schemas.analysis_schema import ConversationStage
+    has_discovery = ConversationStage.NEEDS_DISCOVERY in (profile.stages_present or [])
+
     if not has_discovery:
         logger.info(f"[WEIGHT_CALC] No discovery stage - reducing needs_discovery weight")
         weights["needs_discovery"] *= multipliers.short_conversation_penalty
@@ -200,7 +200,7 @@ def get_weight_explanation(
         )
     
     # Product knowledge
-    rag_count = len(profile.rag_retrievals) if profile.rag_retrievals else 0
+    rag_count = len(profile.rag_topics_relevant) if profile.rag_topics_relevant else 0
     if rag_count > 0:
         explanations['product_knowledge'] = (
             f"Weight ({weights['product_knowledge']:.1%}) based on "
@@ -226,10 +226,9 @@ def get_weight_explanation(
         )
     
     # Needs discovery
-    has_discovery = any(
-        stage.stage_type == "discovery" 
-        for stage in (profile.stages or [])
-    )
+    from evaluation.schemas.analysis_schema import ConversationStage
+    has_discovery = ConversationStage.NEEDS_DISCOVERY in (profile.stages_present or [])
+    
     explanations['needs_discovery'] = (
         f"Weight ({weights['needs_discovery']:.1%}) - "
         f"{'discovery stage present' if has_discovery else 'minimal discovery detected'}"
