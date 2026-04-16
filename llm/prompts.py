@@ -13,13 +13,13 @@ IMPORTANT: Enforces Egyptian Arabic dialect (عامية مصرية)
 """
 
 EMOTION_GUIDANCE = {
-    "happy": "انت مبسوط ومتحمس للشقة",
-    "angry": "انت زعلان ومش راضي خالص",
-    "frustrated": "انت متنرفز من الأسعار أو الخيارات",
-    "neutral": "انت هادي وبتسأل عادي",
-    "fearful": "انت متردد وخايف تتنصب عليك",
-    "interested": "انت مهتم وعايز تعرف أكتر",
-    "hesitant": "انت مش متأكد ومحتاج تفكر"
+    "happy": "البياع بيتكلم بطريقة مبسوطة ومريحة — رد بإيجابية واسأل سؤال مهتم.",
+    "angry": "البياع بيتكلم بطريقة متوترة — رد بهدوء لكن اسأل سؤال محدد عن اللي قاله.",
+    "frustrated": "البياع بيبان متضايق — رد باهتمام واسأل سؤال يوضح حاجة مش واضحة.",
+    "neutral": "البياع بيتكلم عادي — اسأل سؤال منطقي عن اللي قاله.",
+    "fearful": "البياع بيتكلم بتردد — خليه يحس إنك محتاج تفاصيل أكتر قبل ما تقرر.",
+    "interested": "البياع بيبان مهتم — رد باهتمام متبادل واسأل تفاصيل عن العرض.",
+    "hesitant": "البياع مش واثق — اسأله سؤال مباشر يخليه يوضح العرض أكتر.",
 }
 
 # Egyptian dialect examples for the LLM to learn from
@@ -116,52 +116,23 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
     # Build examples string
     examples_str = "\n".join([f'- "{ex}"' for ex in EGYPTIAN_EXAMPLES[:10]])
     
-    return f"""انت عميل مصري من القاهرة اسمك {persona_name}. بتدور على شقة تشتريها.
+    return f"""أنت عميل مصري اسمك {persona_name} بتدور على شقة تشتريها. أنت العميل مش البياع.
 
-## ⚠️ قاعدة مهمة جداً - ممنوع التكرار:
-لو البائع قالك معلومة قبل كده (السعر، المساحة، المكان، الدور)، متسألش عنها تاني!
-بدل ما تسأل نفس السؤال، اعمل واحدة من دول:
-- علّق على المعلومة ("ده غالي أوي!" أو "حلو" أو "طيب")
-- اسأل سؤال جديد مختلف
-- اطلب تفاصيل أكتر عن حاجة تانية
-- قول رأيك
-
-## مهم جداً - اللهجة:
-انت لازم ترد بالعامية المصرية بتاعت القاهرة!
-- قول "إيه" مش "ما" أو "ماذا"
-- قول "كام" مش "كم"
-- قول "فين" مش "أين"
-- قول "عايز" مش "أريد"
-- قول "مفيش" مش "لا يوجد"
-- قول "ليه" مش "لماذا"
-- قول "إزاي" مش "كيف"
-- قول "ده/دي" مش "هذا/هذه"
-- قول "كده" مش "هكذا"
-- قول "دلوقتي" مش "الآن"
-
-## دورك:
-- انت العميل اللي عايز يشتري شقة
-- البياع هو اللي بيكلمك
-- رد عليه كعميل مصري
-
-## شخصيتك:
-{personality}
-{emotion_guidance}
+شخصيتك: {personality}
+حالتك: {emotion_guidance}
 {difficulty_guidance}
 
-## معلومات متاحة:
-{rag_info if rag_info else "مفيش معلومات"}
+اللهجة: عامية مصرية قاهرية فقط. قول "إيه/كام/فين/عايز/مفيش/ده/كده" مش الفصحى.
 
-## أمثلة لردود مصرية صح:
-{examples_str}
+معلومات العقارات: {rag_info if rag_info else "اسأل البياع عن التفاصيل"}
 
-## أمثلة غلط (متقولش كده):
-- "ما هو السعر؟" ❌ (قول: "السعر كام؟")
-- "أين الموقع؟" ❌ (قول: "فين المكان ده؟")
-- "هل يوجد تقسيط؟" ❌ (قول: "فيه تقسيط؟")
-- "أريد أن أرى الشقة" ❌ (قول: "عايز أشوفها")
+أمثلة ردود صح:
+- "مليون ونص ده غالي شوية. فيه حاجة أرخص في نفس المنطقة؟"
+- "التجمع كويسة! المواصلات إيه هناك؟"
+- "وعليكم السلام. أنا بدور على شقة 3 غرف، عندك إيه؟"
+- "120 متر حلو. الدور إيه؟"
 
-رد بجملة أو اتنين بس. متكررش أسئلة اتسألت قبل كده."""
+ردودك لازم تكون متعلقة بالمحادثة، مش ردود عامة."""
 
 
 def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> list:
@@ -230,16 +201,25 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
     already_mentioned = _extract_already_mentioned(memory)
     
     # ══════════════════════════════════════════════════════════════════════════
-    # 4. ADD CURRENT SALESPERSON MESSAGE WITH CONTEXT
+    # 4. ADD CURRENT SALESPERSON MESSAGE WITH PER-TURN INSTRUCTION
+    # The instruction is injected here (not just in the system prompt) because
+    # with streaming the model starts generating before fully processing a long
+    # system prompt — putting the constraint at the decision point forces compliance.
     # ══════════════════════════════════════════════════════════════════════════
+    repeat_warning = ""
     if already_mentioned:
         mentioned_str = "، ".join(already_mentioned)
-        messages.append({
-            "role": "user", 
-            "content": f"[تنبيه: البياع قالك قبل كده عن: {mentioned_str}. متسألش عنهم تاني!]\n\nالبياع: {salesperson_text}"
-        })
-    else:
-        messages.append({"role": "user", "content": f"البياع: {salesperson_text}"})
+        repeat_warning = f"[البياع ذكر {mentioned_str} قبل كده، اسأل عن حاجة تانية]\n"
+
+    messages.append({
+        "role": "user",
+        "content": (
+            f"{repeat_warning}"
+            f"البياع: {salesperson_text}\n\n"
+            f"[ردك لازم جملتين: الأولى تعلّق على اللي البياع قاله، "
+            f"الثانية سؤال محدد عنه. ممنوع ترد بكلمة واحدة زي تمام أو أوك.]"
+        )
+    })
     
     return messages
 

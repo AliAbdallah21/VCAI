@@ -108,7 +108,10 @@ class EvaluationState(TypedDict):
     
     # RAG context that was retrieved during conversation
     rag_context: list[RAGContext]
-    
+
+    # Pre-computed structured fact-check results (from rag.agent.fact_check_transcript)
+    structured_fact_check: dict
+
     # Checkpoints that were tracked during conversation (if any)
     # This comes from the memory system if checkpoint tracking was enabled
     existing_checkpoints: list[dict]
@@ -179,6 +182,7 @@ def create_initial_state(
         transcript=[],
         emotion_log=[],
         rag_context=[],
+        structured_fact_check={},
         existing_checkpoints=[],
         
         # Quick stats (to be filled by compute_quick_stats)

@@ -179,20 +179,32 @@ class OrchestrationAgent:
             self.state["persona"] = persona_dict
     
     def _load_persona(self, persona_id: str) -> Persona:
-        """Load persona by ID."""
-        # Always use mock since persona.agent doesn't have get_persona yet
+        """Load persona by ID from the database."""
         try:
-            from orchestration.mocks import get_persona
-            return get_persona(persona_id)
-        except ImportError:
+            from persona.agent import get_persona
+            from backend.database import get_db_context
+            with get_db_context() as db:
+                return get_persona(persona_id, db)
+        except ValueError:
+            # Persona not found in DB — re-raise so the caller knows
+            raise
+        except Exception as e:
+            # DB connection failed or some other error — fall back to a
+            # minimal default so an ongoing session is not completely broken,
+            # but surface the problem clearly in the logs.
+            print(f"[AGENT] Warning: could not load persona '{persona_id}' from DB: {e}")
+            print("[AGENT] Using minimal default persona. Run scripts/seed_personas.py.")
             return {
                 "id": persona_id,
                 "name": "عميل افتراضي",
                 "name_en": "Default Customer",
-                "personality_prompt": "أنت عميل مصري بتدور على شقة",
+                "description": "",
+                "personality_prompt": "أنت عميل مصري بتدور على شقة. رد بشكل طبيعي.",
+                "voice_id": "",
+                "default_emotion": "neutral",
                 "difficulty": "medium",
                 "traits": [],
-                "default_emotion": "neutral"
+                "avatar_url": None,
             }
     
     def _load_scenario(self, scenario_id: str) -> Scenario:

@@ -40,6 +40,11 @@ class FusedEmotionResult(dict):
 
 # Weights for fusion strategies
 FUSION_WEIGHTS = {
+    "vcai": {
+        # Standard VCAI weighting: voice carries more signal for emotion
+        "audio": 0.6,
+        "text": 0.4
+    },
     "audio_primary": {
         "audio": 0.7,
         "text": 0.3
@@ -234,7 +239,15 @@ def fuse_emotions(
         text_scores = text_emotion_result["scores"]
         
         # Apply fusion strategy
-        if fusion_strategy == "audio_primary":
+        if fusion_strategy == "vcai":
+            fused_scores = _weighted_average_fusion(
+                voice_scores,
+                text_scores,
+                FUSION_WEIGHTS["vcai"]["audio"],
+                FUSION_WEIGHTS["vcai"]["text"]
+            )
+
+        elif fusion_strategy == "audio_primary":
             fused_scores = _weighted_average_fusion(
                 voice_scores,
                 text_scores,
@@ -341,6 +354,27 @@ def compare_modalities(
         "voice_confidence": voice_confidence,
         "text_confidence": text_confidence
     }
+
+
+def fuse(
+    voice_result: dict,
+    text_result: dict,
+) -> FusedEmotionResult:
+    """
+    Standard VCAI fusion: 60% voice weight + 40% text weight.
+
+    This is the canonical function for the conversation pipeline.
+    Use fuse_emotions() directly if you need a different strategy.
+
+    Args:
+        voice_result: Result from voice_emotion.detect_emotion()
+        text_result:  Result from text_emotion.detect_text_emotion()
+
+    Returns:
+        FusedEmotionResult with primary_emotion, confidence, voice_emotion,
+        text_emotion, intensity, scores, fusion_method.
+    """
+    return fuse_emotions(voice_result, text_result, fusion_strategy="vcai")
 
 
 # ══════════════════════════════════════════════════════════════════════════════

@@ -98,10 +98,14 @@ class ConversationHandler:
         # INITIALIZE ORCHESTRATION AGENT
         # ══════════════════════════════════════════════════════════════════
 
+        # Enable streaming when OpenRouter is active — sentences are yielded as
+        # they arrive from the SSE stream, so TTS starts before the full response
+        # is complete. First audio reaches the browser in ~3.5s instead of ~9-11s.
+        from llm.agent import USE_OPENROUTER as _USE_OPENROUTER
         self.agent = OrchestrationAgent(
-        use_mocks=False,
-        verbose=True,
-        enable_streaming=False
+            use_mocks=False,
+            verbose=True,
+            enable_streaming=_USE_OPENROUTER,
         )
 
         
@@ -284,7 +288,10 @@ async def process_turn_streaming(handler, db, websocket) -> dict:
                 audio = audio * (target_level / max_val)
                 print(f"[WS] Audio normalized: boosted by {target_level/max_val:.1f}x")
 
-        print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
+        if len(audio) > 0:
+            print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
+        else:
+            print(f"[WS] Audio stats: empty array — TTS returned no audio")
 
         if len(audio) < 8000:
             results["transcription"] = "[صوت قصير جداً]"
@@ -320,7 +327,6 @@ async def process_turn_streaming(handler, db, websocket) -> dict:
         from orchestration.nodes import (
             stt_node,
             emotion_node,
-            rag_node,
             memory_load_node,
             memory_save_node,
         )
@@ -330,7 +336,6 @@ async def process_turn_streaming(handler, db, websocket) -> dict:
         state = memory_load_node(state, config)
         state = stt_node(state, config)
         state = emotion_node(state, config)
-        state = rag_node(state, config)
 
         results["transcription"] = state.get("transcription", "")
 
@@ -515,8 +520,11 @@ async def process_turn_with_orchestration(
                 audio = audio * (target_level / max_val)
                 print(f"[WS] Audio normalized: boosted by {target_level/max_val:.1f}x")
         
-        print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
-        
+        if len(audio) > 0:
+            print(f"[WS] Audio stats: {len(audio)} samples, dtype: {audio.dtype}, range: [{audio.min():.3f}, {audio.max():.3f}]")
+        else:
+            print(f"[WS] Audio stats: empty array — TTS returned no audio")
+
         if len(audio) < 8000:  # Less than 0.5 seconds
             results["transcription"] = "[صوت قصير جداً]"
             return results
@@ -831,35 +839,36 @@ async def websocket_endpoint(
                             None,
                             lambda: process_turn_with_orchestration_sync(handler, db)
                         )
-                    
+
                     # Send results to client
-                    await _send_turn_results(websocket, results)
-                    
+                    # skip_transcription=True in streaming mode: already sent immediately after STT
+                    await _send_turn_results(websocket, results, skip_transcription=handler.agent.config.enable_streaming)
+
                     await websocket.send_json({
                         "type": "processing",
                         "data": {"status": "completed"}
                     })
-                    
+
                 finally:
                     handler.is_processing = False
-                
+
                 continue
-            
+
             # ──────────────────────────────────────────────────────────────
             # END SPEAKING (process buffered audio)
             # ──────────────────────────────────────────────────────────────
             elif msg_type == "end_speaking":
                 if handler.is_processing:
                     continue
-                
+
                 handler.is_processing = True
-                
+
                 try:
                     await websocket.send_json({
                         "type": "processing",
                         "data": {"status": "started"}
                     })
-                    
+
                     # ══════════════════════════════════════════════════════
                     # PROCESS WITH LANGGRAPH ORCHESTRATION
                     # ══════════════════════════════════════════════════════
@@ -869,11 +878,11 @@ async def websocket_endpoint(
                         results = await asyncio.get_event_loop().run_in_executor(
                             None,
                             lambda: process_turn_with_orchestration_sync(handler, db)
-                        ) 
-                    
-                    
+                        )
+
                     # Send results to client
-                    await _send_turn_results(websocket, results)
+                    # skip_transcription=True in streaming mode: already sent immediately after STT
+                    await _send_turn_results(websocket, results, skip_transcription=handler.agent.config.enable_streaming)
                     
                     await websocket.send_json({
                         "type": "processing",
@@ -960,13 +969,15 @@ def process_turn_with_orchestration_sync(handler: ConversationHandler, db: Sessi
 # PATCH for backend/routers/websocket.py
 # Replace the existing _send_turn_results function with this one
 
-async def _send_turn_results(websocket, results: dict):
+async def _send_turn_results(websocket, results: dict, skip_transcription: bool = False):
     """Send turn results to frontend."""
-    
+
     # ══════════════════════════════════════════════════════════════════
     # 1. SEND TRANSCRIPTION (what the salesperson said)
+    # Skipped in streaming mode — already sent immediately after STT
+    # to give the user fast feedback before LLM/TTS complete.
     # ══════════════════════════════════════════════════════════════════
-    if results.get("transcription"):
+    if not skip_transcription and results.get("transcription"):
         await websocket.send_json({
             "type": "transcription",
             "data": {"text": results["transcription"]}

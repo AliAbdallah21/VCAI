@@ -1,0 +1,664 @@
+{
+  "policies": [
+    {
+      "id": "reservation_deposit",
+      "category": "reservation",
+      "title_en": "Reservation Deposit & Booking",
+      "title_ar": "عربون الحجز والتعاقد",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Reservation fee for units under 2,000,000 EGP",
+          "description_ar": "رسوم حجز الوحدات أقل من 2 مليون جنيه",
+          "value": "20000",
+          "unit": "EGP",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Reservation fee for units between 2,000,000 and 5,000,000 EGP",
+          "description_ar": "رسوم حجز الوحدات من 2 مليون إلى 5 مليون جنيه",
+          "value": "30000",
+          "unit": "EGP",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Reservation fee for units above 5,000,000 EGP",
+          "description_ar": "رسوم حجز الوحدات أكثر من 5 مليون جنيه",
+          "value": "50000",
+          "unit": "EGP",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Reservation fee is deducted from total downpayment, not additional",
+          "description_ar": "مبلغ العربون يُخصم من المقدم وليس إضافياً",
+          "value": "deducted_from_downpayment",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Reservation holds the unit for calendar days only",
+          "description_ar": "الحجز يحجز الوحدة لعدد أيام تقويمية فقط",
+          "value": "7",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Full contract must be signed within days of reservation",
+          "description_ar": "التعاقد الكامل يجب أن يتم خلال أيام من الحجز",
+          "value": "7",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "Accepted payment methods for reservation",
+          "description_ar": "طرق الدفع المقبولة للحجز",
+          "value": "cash, bank transfer, certified check",
+          "unit": "methods",
+          "is_critical": false
+        }
+      ],
+      "keywords_ar": ["حجز", "عربون", "تعاقد", "مقدم", "وثائق"],
+      "keywords_en": ["reservation", "booking deposit", "contract", "downpayment", "documents"]
+    },
+    {
+      "id": "installment_structure",
+      "category": "payment_plans",
+      "title_en": "Installment Plan Terms",
+      "title_ar": "شروط التقسيط",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "All installment plans are equal monthly payments with no balloon payments",
+          "description_ar": "جميع خطط التقسيط أقساط شهرية متساوية بدون أقساط مضخمة",
+          "value": "equal_monthly",
+          "unit": "structure",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Interest rate on standard developer payment plans",
+          "description_ar": "نسبة الفائدة على خطط التقسيط القياسية للمطور",
+          "value": "0",
+          "unit": "percent",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Grace period for late payment before penalty applies",
+          "description_ar": "فترة السماح لتأخر السداد قبل تطبيق الغرامة",
+          "value": "10",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Late payment penalty per week after grace period",
+          "description_ar": "غرامة التأخر أسبوعياً بعد فترة السماح",
+          "value": "0.5",
+          "unit": "percent_of_installment_per_week",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Days of non-payment before formal notice is issued",
+          "description_ar": "أيام عدم السداد قبل إصدار إنذار رسمي",
+          "value": "60",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Days of non-payment before company may cancel contract",
+          "description_ar": "أيام عدم السداد قبل الشركة تلغي العقد",
+          "value": "90",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "Discount for early full settlement on remaining balance",
+          "description_ar": "خصم للتسوية المبكرة الكاملة على الرصيد المتبقي",
+          "value": "5",
+          "unit": "percent",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_008",
+          "description_en": "One-time installment deferral period allowed upon written request",
+          "description_ar": "تأجيل قسط واحد مرة مسموح به عند الطلب الكتابي",
+          "value": "3",
+          "unit": "months",
+          "is_critical": false
+        }
+      ],
+      "keywords_ar": ["تقسيط", "أقساط", "فائدة", "غرامة تأخر", "سداد مبكر", "إنذار"],
+      "keywords_en": ["installment", "payment plan", "interest", "late penalty", "early settlement", "notice"]
+    },
+    {
+      "id": "discount_schedule",
+      "category": "discounts",
+      "title_en": "Discount Schedule by Downpayment Percentage",
+      "title_ar": "جدول الخصومات حسب نسبة المقدم",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "5% downpayment with 10 years installments — discount",
+          "description_ar": "مقدم 5% مع تقسيط 10 سنوات — خصم",
+          "value": "0",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "10% downpayment with 8 years installments — discount",
+          "description_ar": "مقدم 10% مع تقسيط 8 سنوات — خصم",
+          "value": "0",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "15% downpayment with 6 years installments — discount",
+          "description_ar": "مقدم 15% مع تقسيط 6 سنوات — خصم",
+          "value": "3",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "20% downpayment with 5 years installments — discount",
+          "description_ar": "مقدم 20% مع تقسيط 5 سنوات — خصم",
+          "value": "5",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "25% downpayment with 4 years installments — discount",
+          "description_ar": "مقدم 25% مع تقسيط 4 سنوات — خصم",
+          "value": "7",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "30% downpayment with 3 years installments — discount",
+          "description_ar": "مقدم 30% مع تقسيط 3 سنوات — خصم",
+          "value": "10",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "50% downpayment with 2 years installments — discount",
+          "description_ar": "مقدم 50% مع تقسيط سنتين — خصم",
+          "value": "12",
+          "unit": "percent_discount",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_008",
+          "description_en": "100% cash payment — discount",
+          "description_ar": "دفع كاش 100% — خصم",
+          "value": "15",
+          "unit": "percent_discount",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_009",
+          "description_en": "Early booking discount during first 60 days of project launch — additional discount",
+          "description_ar": "خصم الحجز المبكر خلال أول 60 يوم من إطلاق المشروع — خصم إضافي",
+          "value": "3",
+          "unit": "percent_additional",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_010",
+          "description_en": "Multiple discounts cannot be combined — highest applicable applies",
+          "description_ar": "لا يمكن الجمع بين خصومات متعددة — يُطبق أعلى خصم ممكن",
+          "value": "highest_only",
+          "unit": "policy",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["خصم", "مقدم", "كاش", "حجز مبكر", "جدول الخصومات"],
+      "keywords_en": ["discount", "downpayment", "cash discount", "early booking", "discount schedule"]
+    },
+    {
+      "id": "cancellation_policy",
+      "category": "cancellation",
+      "title_en": "Cancellation Policy",
+      "title_ar": "سياسة الإلغاء",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Cancellation within 7 days of reservation — full refund",
+          "description_ar": "إلغاء خلال 7 أيام من الحجز — استرداد كامل",
+          "value": "full_refund",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Cancellation after 7 days but before contract signing — reservation fee forfeited",
+          "description_ar": "إلغاء بعد 7 أيام وقبل التعاقد — يُصادر جزء من العربون",
+          "value": "50",
+          "unit": "percent_of_reservation_fee_forfeited",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Cancellation within 30 days of contract signing — downpayment amount forfeited",
+          "description_ar": "إلغاء خلال 30 يوم من التعاقد — يُصادر جزء من المقدم",
+          "value": "10",
+          "unit": "percent_of_downpayment_forfeited",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Cancellation 30 days to 1 year after signing — total paid amount forfeited",
+          "description_ar": "إلغاء من 30 يوم حتى سنة من التعاقد — يُصادر من إجمالي المدفوع",
+          "value": "20",
+          "unit": "percent_of_total_paid_forfeited",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Cancellation more than 1 year after signing — total paid amount forfeited",
+          "description_ar": "إلغاء أكثر من سنة من التعاقد — يُصادر من إجمالي المدفوع",
+          "value": "30",
+          "unit": "percent_of_total_paid_forfeited",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Refund processing time after cancellation request in working days",
+          "description_ar": "مدة معالجة الاسترداد بعد طلب الإلغاء بأيام عمل",
+          "value": "30-60",
+          "unit": "working_days",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "Developer cancellation for non-payment — administrative fee from total paid",
+          "description_ar": "إلغاء المطور لعدم السداد — رسوم إدارية من إجمالي المدفوع",
+          "value": "20",
+          "unit": "percent_admin_fee",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["إلغاء", "استرداد", "مصادرة", "غرامة إلغاء", "فسخ عقد"],
+      "keywords_en": ["cancellation", "refund", "forfeit", "cancellation penalty", "contract termination"]
+    },
+    {
+      "id": "unit_transfer",
+      "category": "transfer",
+      "title_en": "Unit Transfer and Sub-Sale",
+      "title_ar": "تحويل العقد وإعادة البيع قبل الاستلام",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Contract transfer to another party requires company approval",
+          "description_ar": "تحويل العقد لطرف آخر يستلزم موافقة الشركة",
+          "value": "company_approval_required",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Transfer fee as percentage of remaining unit price — minimum fee",
+          "description_ar": "رسوم التحويل كنسبة من سعر الوحدة المتبقي — حد أدنى للرسوم",
+          "value": "1",
+          "unit": "percent_of_remaining_price",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Minimum transfer fee in EGP",
+          "description_ar": "الحد الأدنى لرسوم التحويل بالجنيه المصري",
+          "value": "5000",
+          "unit": "EGP",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Transfer approval time in working days upon receipt of full documentation",
+          "description_ar": "مدة الموافقة على التحويل بأيام عمل من استلام الوثائق",
+          "value": "5",
+          "unit": "working_days",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Sub-sale fee before delivery as percentage of original unit price",
+          "description_ar": "رسوم البيع قبل الاستلام كنسبة من سعر الوحدة الأصلي",
+          "value": "2",
+          "unit": "percent_of_original_price",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Original buyer responsibility until transfer is officially processed",
+          "description_ar": "المشتري الأصلي مسؤول عن جميع الأقساط حتى إتمام التحويل",
+          "value": "original_buyer_liable",
+          "unit": "policy",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["تحويل عقد", "بيع قبل الاستلام", "رسوم التحويل", "موافقة الشركة"],
+      "keywords_en": ["contract transfer", "sub-sale", "transfer fee", "company approval", "resale before delivery"]
+    },
+    {
+      "id": "maintenance_fees",
+      "category": "maintenance",
+      "title_en": "Maintenance Reserve and Annual Fees",
+      "title_ar": "صندوق الصيانة والرسوم السنوية",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "One-time maintenance deposit at contract signing as percentage of unit price",
+          "description_ar": "وديعة صيانة لمرة واحدة عند التعاقد كنسبة من سعر الوحدة",
+          "value": "8",
+          "unit": "percent_of_unit_price",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Maintenance deposit refundable upon unit resale at original amount",
+          "description_ar": "وديعة الصيانة قابلة للاسترداد عند البيع بالمبلغ الأصلي",
+          "value": "refundable",
+          "unit": "policy",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Annual maintenance fee per square meter per year range",
+          "description_ar": "رسوم الصيانة السنوية لكل متر مربع في السنة",
+          "value": "12-18",
+          "unit": "EGP_per_sqm_per_year",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Annual maintenance fee due date",
+          "description_ar": "موعد سداد رسوم الصيانة السنوية",
+          "value": "January",
+          "unit": "month",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "What maintenance covers: compound upkeep pools green areas security common areas",
+          "description_ar": "ما تشمله الصيانة: صيانة الكمبوند والمسابح والمساحات الخضراء والأمن والمناطق المشتركة",
+          "value": "compound_upkeep, pools, green_areas, security, common_areas",
+          "unit": "scope",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "In-unit repairs are buyer's responsibility not covered by maintenance",
+          "description_ar": "إصلاحات داخل الوحدة مسؤولية المشتري وغير مشمولة بالصيانة",
+          "value": "buyer_responsibility",
+          "unit": "policy",
+          "is_critical": false
+        }
+      ],
+      "keywords_ar": ["صيانة", "رسوم صيانة", "وديعة صيانة", "صندوق الصيانة", "رسوم سنوية"],
+      "keywords_en": ["maintenance", "maintenance fee", "maintenance deposit", "annual fee", "compound upkeep"]
+    },
+    {
+      "id": "delivery_process",
+      "category": "delivery",
+      "title_en": "Delivery Process and Inspection",
+      "title_ar": "إجراءات الاستلام والمعاينة",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Advance notice period before delivery date",
+          "description_ar": "مدة الإشعار المسبق قبل موعد التسليم",
+          "value": "30",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Buyer must clear all outstanding installments before inspection",
+          "description_ar": "المشتري يجب أن يسدد جميع الأقساط المتأخرة قبل المعاينة",
+          "value": "all_installments_cleared",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Days from notification to schedule inspection",
+          "description_ar": "أيام من الإشعار لتحديد موعد المعاينة",
+          "value": "14",
+          "unit": "days",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Snagging repair period after inspection",
+          "description_ar": "فترة إصلاح الملاحظات بعد المعاينة",
+          "value": "30",
+          "unit": "days",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Developer delay penalty per month beyond 6 months late",
+          "description_ar": "غرامة تأخر المطور شهرياً بعد تأخر 6 أشهر",
+          "value": "0.5",
+          "unit": "percent_monthly_reduction_on_installments",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Maximum total reduction for developer delay",
+          "description_ar": "الحد الأقصى للتخفيض الإجمالي بسبب تأخر المطور",
+          "value": "5",
+          "unit": "percent_of_total_price",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "Buyer cancellation allowed only if delay exceeds months",
+          "description_ar": "يحق للمشتري الإلغاء فقط إذا تجاوز التأخير عدد الأشهر",
+          "value": "24",
+          "unit": "months",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_008",
+          "description_en": "Title deed issued within months after full payment",
+          "description_ar": "سند الملكية يُصدر خلال أشهر بعد السداد الكامل",
+          "value": "12-18",
+          "unit": "months",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["استلام", "تسليم", "معاينة", "ملاحظات", "سند ملكية", "تأخر تسليم"],
+      "keywords_en": ["delivery", "inspection", "snagging", "title deed", "delayed delivery", "handover"]
+    },
+    {
+      "id": "cash_payment_discount",
+      "category": "discounts",
+      "title_en": "Cash Payment Discount Rules",
+      "title_ar": "قواعد خصم الدفع الكاش",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Standard cash discount on listed price",
+          "description_ar": "الخصم الكاش القياسي على السعر المعلن",
+          "value": "15",
+          "unit": "percent",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Cash discount applies only if 100% of unit price paid within days of reservation",
+          "description_ar": "خصم الكاش ينطبق فقط إذا دُفع 100% من سعر الوحدة خلال أيام من الحجز",
+          "value": "30",
+          "unit": "days",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Accepted payment currencies",
+          "description_ar": "العملات المقبولة في الدفع",
+          "value": "EGP_only",
+          "unit": "currency",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Cryptocurrency accepted",
+          "description_ar": "قبول العملات الرقمية",
+          "value": "not_accepted",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Foreign currency accepted",
+          "description_ar": "قبول العملة الأجنبية",
+          "value": "not_accepted",
+          "unit": "policy",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["كاش", "خصم كاش", "دفع كامل", "عملة", "جنيه مصري"],
+      "keywords_en": ["cash", "cash discount", "full payment", "currency", "EGP", "no crypto", "no forex"]
+    },
+    {
+      "id": "bank_mortgage",
+      "category": "financing",
+      "title_en": "Bank Mortgage and Financing Options",
+      "title_ar": "التمويل البنكي وخيارات الرهن العقاري",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Partner bank Banque Misr — maximum mortgage years and starting interest rate",
+          "description_ar": "بنك شريك بنك مصر — أقصى سنوات تمويل وأدنى فائدة",
+          "value": "15 years from 8.5%",
+          "unit": "years_and_rate",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Partner bank CIB Egypt — maximum mortgage years and starting interest rate",
+          "description_ar": "بنك شريك CIB — أقصى سنوات تمويل وأدنى فائدة",
+          "value": "20 years from 9%",
+          "unit": "years_and_rate",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Partner bank Housing and Development Bank — subsidized social housing rates",
+          "description_ar": "بنك شريك بنك الإسكان والتعمير — أسعار مدعومة للإسكان الاجتماعي",
+          "value": "subsidized",
+          "unit": "rate_type",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Partner bank QNB Alahli — maximum mortgage years",
+          "description_ar": "بنك شريك QNB الأهلي — أقصى سنوات تمويل",
+          "value": "15 years",
+          "unit": "years",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Mortgage pre-approval required before contract signing when using bank finance",
+          "description_ar": "الموافقة المبدئية للبنك مطلوبة قبل التعاقد عند استخدام التمويل البنكي",
+          "value": "pre_approval_required",
+          "unit": "policy",
+          "is_critical": true
+        }
+      ],
+      "keywords_ar": ["تمويل بنكي", "رهن عقاري", "بنك مصر", "CIB", "QNB", "الإسكان والتعمير", "فائدة بنكية"],
+      "keywords_en": ["bank mortgage", "financing", "banque misr", "CIB", "QNB", "housing bank", "bank interest"]
+    },
+    {
+      "id": "sales_ethics",
+      "category": "ethics",
+      "title_en": "Sales Ethics and Salesperson Responsibilities",
+      "title_ar": "أخلاقيات البيع ومسؤوليات البائع",
+      "rules": [
+        {
+          "rule_id": "rule_001",
+          "description_en": "Salesperson must NEVER quote prices not in the official approved price list",
+          "description_ar": "يُحظر على البائع ذكر أسعار غير معتمدة في قائمة الأسعار الرسمية",
+          "value": "never_unapproved_prices",
+          "unit": "prohibition",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_002",
+          "description_en": "Salesperson must NEVER promise delivery dates earlier than official contracted date",
+          "description_ar": "يُحظر الوعد بمواعيد تسليم أبكر من التاريخ المعاقد عليه رسمياً",
+          "value": "never_early_delivery_promise",
+          "unit": "prohibition",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_003",
+          "description_en": "Salesperson must NEVER offer unauthorized discounts beyond official schedule",
+          "description_ar": "يُحظر تقديم خصومات غير مصرح بها خارج الجدول الرسمي",
+          "value": "never_unauthorized_discounts",
+          "unit": "prohibition",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_004",
+          "description_en": "Salesperson must ALWAYS disclose maintenance fee and deposit before signing",
+          "description_ar": "يجب دائماً الإفصاح عن رسوم الصيانة والوديعة قبل التوقيع",
+          "value": "always_disclose_maintenance",
+          "unit": "requirement",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_005",
+          "description_en": "Verbal payment plan promises are NOT legally binding — must be in writing",
+          "description_ar": "الوعود الشفهية بخطط الدفع غير ملزمة قانوناً — يجب أن تكون كتابية",
+          "value": "written_only",
+          "unit": "policy",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_006",
+          "description_en": "Maximum gift value salesperson may accept from client",
+          "description_ar": "أقصى قيمة هدية يمكن للبائع قبولها من العميل",
+          "value": "200",
+          "unit": "EGP",
+          "is_critical": true
+        },
+        {
+          "rule_id": "rule_007",
+          "description_en": "Client complaint escalation time to sales manager in hours",
+          "description_ar": "مدة تصعيد شكاوى العملاء لمدير المبيعات بالساعات",
+          "value": "24",
+          "unit": "hours",
+          "is_critical": false
+        },
+        {
+          "rule_id": "rule_008",
+          "description_en": "Written response to client complaint in working days",
+          "description_ar": "رد كتابي على شكوى العميل بأيام العمل",
+          "value": "3",
+          "unit": "working_days",
+          "is_critical": false
+        }
+      ],
+      "keywords_ar": ["أخلاقيات", "مسؤوليات البائع", "إفصاح", "شكاوى", "هدايا", "التزامات"],
+      "keywords_en": ["sales ethics", "salesperson duties", "disclosure", "complaints", "gifts", "obligations"]
+    }
+  ]
+}

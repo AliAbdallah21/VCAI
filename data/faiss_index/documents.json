@@ -1,0 +1,1444 @@
+[
+  {
+    "id": "fcbce4175228a580",
+    "content": "category: اعتراضات العملاء الشائعة\nobjections: {'id': 'obj_001', 'topic': 'السعر', 'objection_ar': 'السعر ده غالي أوي، فيه أرخص؟', 'typical_response': 'السعر مناسب للموقع والتشطيب، ونقدر نتكلم في خطة التقسيط', 'related_keywords': ['غالي', 'سعر', 'فلوس', 'ارخص', 'تكلفة']}, {'id': 'obj_002', 'topic': 'الموقع', 'objection_ar': 'الموقع ده بعيد عن شغلي في وسط البلد', 'typical_response': 'المواصلات متاحة بسهولة، والمنطقة هتتطور أكتر في السنين الجاية', 'related_keywords': ['بعيد', 'موقع', 'مواصلات', 'ط",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 0
+    }
+  },
+  {
+    "id": "62ae2688ea5fe125",
+    "content": "'related_keywords': ['بعيد', 'موقع', 'مواصلات', 'طريق']}, {'id': 'obj_003', 'topic': 'التسليم', 'objection_ar': 'التسليم بعد 3 سنين ده كتير أوي', 'typical_response': 'ده يديك فرصة تجمع المقدم بالراحة، والسعر دلوقتي أحسن من بعد 3 سنين', 'related_keywords': ['تسليم', 'استلام', 'وقت', 'سنين']}, {'id': 'obj_004', 'topic': 'المقدم', 'objection_ar': 'المقدم ده كتير، مش معايا المبلغ ده دلوقتي', 'typical_response': 'نقدر نقسم المقدم على دفعات، أو نشوف وحدة تانية بمقدم أقل', 'related_keywords': ['مقدم',",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 1
+    }
+  },
+  {
+    "id": "e28f198e3dbf1975",
+    "content": "دة تانية بمقدم أقل', 'related_keywords': ['مقدم', 'دفعة', 'كاش', 'فلوس']}, {'id': 'obj_005', 'topic': 'المساحة', 'objection_ar': 'المساحة دي صغيرة على عيلتي', 'typical_response': 'عندنا وحدات أكبر، أو ممكن نشوف شقة بتصميم مفتوح تبان أوسع', 'related_keywords': ['مساحة', 'صغيرة', 'كبيرة', 'متر', 'غرف']}, {'id': 'obj_006', 'topic': 'الثقة', 'objection_ar': 'إزاي أضمن إن الشركة هتسلم في الوقت؟', 'typical_response': 'عندنا مشاريع سابقة اتسلمت في وقتها، وممكن تزورها وتتكلم مع السكان', 'related_keyword",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 2
+    }
+  },
+  {
+    "id": "9c3becce0590e605",
+    "content": "، وممكن تزورها وتتكلم مع السكان', 'related_keywords': ['ضمان', 'ثقة', 'شركة', 'تسليم', 'مصداقية']}, {'id': 'obj_007', 'topic': 'المنافسين', 'objection_ar': 'أنا شفت عرض أحسن في شركة تانية', 'typical_response': 'إيه اللي عجبك في العرض التاني؟ خلينا نقارن المميزات مش السعر بس', 'related_keywords': ['شركة تانية', 'منافس', 'عرض', 'أحسن']}, {'id': 'obj_008', 'topic': 'التشطيب', 'objection_ar': 'نصف تشطيب هيكلفني كتير بعدين', 'typical_response': 'ده بيديك حرية تشطب على ذوقك، وبنقدم خدمة تشطيب بأسعار م",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 3
+    }
+  },
+  {
+    "id": "92f67ca988401945",
+    "content": "ديك حرية تشطب على ذوقك، وبنقدم خدمة تشطيب بأسعار مخفضة', 'related_keywords': ['تشطيب', 'سوبر لوكس', 'نصف تشطيب']}, {'id': 'obj_009', 'topic': 'القرار', 'objection_ar': 'محتاج أفكر وأستشير العيلة الأول', 'typical_response': 'طبعاً، بس العرض ده صالح لفترة محدودة.",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 4
+    }
+  },
+  {
+    "id": "fe4fc7e05bc01fc7",
+    "content": "response': 'طبعاً، بس العرض ده صالح لفترة محدودة. ممكن تيجي مع العيلة يشوفوا المكان', 'related_keywords': ['أفكر', 'استشير', 'وقت', 'قرار']}, {'id': 'obj_010', 'topic': 'الخدمات', 'objection_ar': 'المنطقة دي مفيهاش خدمات كفاية', 'typical_response': 'الكمبوند فيه كل الخدمات، وفيه خطة تطوير للمنطقة هتكتمل قريب', 'related_keywords': ['خدمات', 'مدارس', 'مستشفى', 'سوبر ماركت']}",
+    "source": "common_objections.json",
+    "metadata": {
+      "source": "common_objections.json",
+      "chunk_index": 5
+    }
+  },
+  {
+    "id": "2a97f0033219471b",
+    "content": "company_name: شركة الأهرام للعقارات\ncompany_name_en: Al-Ahram Real Estate\nbranches: {'location': 'التجمع الخامس', 'address': 'شارع التسعين، بجوار داون تاون مول'}, {'location': 'الشيخ زايد', 'address': 'محور 26 يوليو، أمام مول العرب'}, {'location': 'مدينة نصر', 'address': 'شارع عباس العقاد، برج الحرية'}",
+    "source": "company_policies.json",
+    "metadata": {
+      "source": "company_policies.json",
+      "chunk_index": 0
+    }
+  },
+  {
+    "id": "76644b833481ceb0",
+    "content": "policies: {'id': 'reservation_deposit', 'category': 'reservation', 'title_en': 'Reservation Deposit & Booking', 'title_ar': 'عربون الحجز والتعاقد', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Reservation fee for units under 2,000,000 EGP', 'description_ar': 'رسوم حجز الوحدات أقل من 2 مليون جنيه', 'value': '20000', 'unit': 'EGP', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Reservation fee for units between 2,000,000 and 5,000,000 EGP', 'description_ar': 'رسوم حجز الو",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 0
+    }
+  },
+  {
+    "id": "7b7618d4b9f49258",
+    "content": "nd 5,000,000 EGP', 'description_ar': 'رسوم حجز الوحدات من 2 مليون إلى 5 مليون جنيه', 'value': '30000', 'unit': 'EGP', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Reservation fee for units above 5,000,000 EGP', 'description_ar': 'رسوم حجز الوحدات أكثر من 5 مليون جنيه', 'value': '50000', 'unit': 'EGP', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Reservation fee is deducted from total downpayment, not additional', 'description_ar': 'مبلغ العربون يُخصم من ال",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 1
+    }
+  },
+  {
+    "id": "3131ad0bcd1d09c1",
+    "content": "onal', 'description_ar': 'مبلغ العربون يُخصم من المقدم وليس إضافياً', 'value': 'deducted_from_downpayment', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_005', 'description_en': 'Reservation holds the unit for calendar days only', 'description_ar': 'الحجز يحجز الوحدة لعدد أيام تقويمية فقط', 'value': '7', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Full contract must be signed within days of reservation', 'description_ar': 'التعاقد الكامل يجب أن يت",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 2
+    }
+  },
+  {
+    "id": "d3b6c2acb37bd6a3",
+    "content": "tion', 'description_ar': 'التعاقد الكامل يجب أن يتم خلال أيام من الحجز', 'value': '7', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_007', 'description_en': 'Accepted payment methods for reservation', 'description_ar': 'طرق الدفع المقبولة للحجز', 'value': 'cash, bank transfer, certified check', 'unit': 'methods', 'is_critical': False}], 'keywords_ar': ['حجز', 'عربون', 'تعاقد', 'مقدم', 'وثائق'], 'keywords_en': ['reservation', 'booking deposit', 'contract', 'downpayment', 'documents']},",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 3
+    }
+  },
+  {
+    "id": "040496ac42acfc3e",
+    "content": "posit', 'contract', 'downpayment', 'documents']}, {'id': 'installment_structure', 'category': 'payment_plans', 'title_en': 'Installment Plan Terms', 'title_ar': 'شروط التقسيط', 'rules': [{'rule_id': 'rule_001', 'description_en': 'All installment plans are equal monthly payments with no balloon payments', 'description_ar': 'جميع خطط التقسيط أقساط شهرية متساوية بدون أقساط مضخمة', 'value': 'equal_monthly', 'unit': 'structure', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Interes",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 4
+    }
+  },
+  {
+    "id": "fd999581648ef571",
+    "content": "{'rule_id': 'rule_002', 'description_en': 'Interest rate on standard developer payment plans', 'description_ar': 'نسبة الفائدة على خطط التقسيط القياسية للمطور', 'value': '0', 'unit': 'percent', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Grace period for late payment before penalty applies', 'description_ar': 'فترة السماح لتأخر السداد قبل تطبيق الغرامة', 'value': '10', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Late payment penalty per w",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 5
+    }
+  },
+  {
+    "id": "77508b4161184626",
+    "content": "04', 'description_en': 'Late payment penalty per week after grace period', 'description_ar': 'غرامة التأخر أسبوعياً بعد فترة السماح', 'value': '0.5', 'unit': 'percent_of_installment_per_week', 'is_critical': True}, {'rule_id': 'rule_005', 'description_en': 'Days of non-payment before formal notice is issued', 'description_ar': 'أيام عدم السداد قبل إصدار إنذار رسمي', 'value': '60', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Days of non-payment before company",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 6
+    }
+  },
+  {
+    "id": "739b8c4fcd6b0064",
+    "content": "cription_en': 'Days of non-payment before company may cancel contract', 'description_ar': 'أيام عدم السداد قبل الشركة تلغي العقد', 'value': '90', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_007', 'description_en': 'Discount for early full settlement on remaining balance', 'description_ar': 'خصم للتسوية المبكرة الكاملة على الرصيد المتبقي', 'value': '5', 'unit': 'percent', 'is_critical': False}, {'rule_id': 'rule_008', 'description_en': 'One-time installment deferral period allowed upo",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 7
+    }
+  },
+  {
+    "id": "0ab502211287d209",
+    "content": "'One-time installment deferral period allowed upon written request', 'description_ar': 'تأجيل قسط واحد مرة مسموح به عند الطلب الكتابي', 'value': '3', 'unit': 'months', 'is_critical': False}], 'keywords_ar': ['تقسيط', 'أقساط', 'فائدة', 'غرامة تأخر', 'سداد مبكر', 'إنذار'], 'keywords_en': ['installment', 'payment plan', 'interest', 'late penalty', 'early settlement', 'notice']}, {'id': 'discount_schedule', 'category': 'discounts', 'title_en': 'Discount Schedule by Downpayment Percentage', 'title_a",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 8
+    }
+  },
+  {
+    "id": "d904c33dd6a819b1",
+    "content": "ount Schedule by Downpayment Percentage', 'title_ar': 'جدول الخصومات حسب نسبة المقدم', 'rules': [{'rule_id': 'rule_001', 'description_en': '5% downpayment with 10 years installments — discount', 'description_ar': 'مقدم 5% مع تقسيط 10 سنوات — خصم', 'value': '0', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_002', 'description_en': '10% downpayment with 8 years installments — discount', 'description_ar': 'مقدم 10% مع تقسيط 8 سنوات — خصم', 'value': '0', 'unit': 'percent_disco",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 9
+    }
+  },
+  {
+    "id": "1ffbdd9eaadd1a6a",
+    "content": "سنوات — خصم', 'value': '0', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_003', 'description_en': '15% downpayment with 6 years installments — discount', 'description_ar': 'مقدم 15% مع تقسيط 6 سنوات — خصم', 'value': '3', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_004', 'description_en': '20% downpayment with 5 years installments — discount', 'description_ar': 'مقدم 20% مع تقسيط 5 سنوات — خصم', 'value': '5', 'unit': 'percent_discount', 'is_critical",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 10
+    }
+  },
+  {
+    "id": "9dd1dcce6c88caf5",
+    "content": "ue': '5', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_005', 'description_en': '25% downpayment with 4 years installments — discount', 'description_ar': 'مقدم 25% مع تقسيط 4 سنوات — خصم', 'value': '7', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_006', 'description_en': '30% downpayment with 3 years installments — discount', 'description_ar': 'مقدم 30% مع تقسيط 3 سنوات — خصم', 'value': '10', 'unit': 'percent_discount', 'is_critical': False}, {'rule",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 11
+    }
+  },
+  {
+    "id": "0fc85f5039f14ea8",
+    "content": "'percent_discount', 'is_critical': False}, {'rule_id': 'rule_007', 'description_en': '50% downpayment with 2 years installments — discount', 'description_ar': 'مقدم 50% مع تقسيط سنتين — خصم', 'value': '12', 'unit': 'percent_discount', 'is_critical': False}, {'rule_id': 'rule_008', 'description_en': '100% cash payment — discount', 'description_ar': 'دفع كاش 100% — خصم', 'value': '15', 'unit': 'percent_discount', 'is_critical': True}, {'rule_id': 'rule_009', 'description_en': 'Early booking disco",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 12
+    }
+  },
+  {
+    "id": "e7f1864335a1458d",
+    "content": "'rule_009', 'description_en': 'Early booking discount during first 60 days of project launch — additional discount', 'description_ar': 'خصم الحجز المبكر خلال أول 60 يوم من إطلاق المشروع — خصم إضافي', 'value': '3', 'unit': 'percent_additional', 'is_critical': False}, {'rule_id': 'rule_010', 'description_en': 'Multiple discounts cannot be combined — highest applicable applies', 'description_ar': 'لا يمكن الجمع بين خصومات متعددة — يُطبق أعلى خصم ممكن', 'value': 'highest_only', 'unit': 'policy', 'is",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 13
+    }
+  },
+  {
+    "id": "f51a5b90dab2b10e",
+    "content": "ن', 'value': 'highest_only', 'unit': 'policy', 'is_critical': True}], 'keywords_ar': ['خصم', 'مقدم', 'كاش', 'حجز مبكر', 'جدول الخصومات'], 'keywords_en': ['discount', 'downpayment', 'cash discount', 'early booking', 'discount schedule']}, {'id': 'cancellation_policy', 'category': 'cancellation', 'title_en': 'Cancellation Policy', 'title_ar': 'سياسة الإلغاء', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Cancellation within 7 days of reservation — full refund', 'description_ar': 'إلغاء خلال",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 14
+    }
+  },
+  {
+    "id": "c6c5c15ea0a7759f",
+    "content": "tion — full refund', 'description_ar': 'إلغاء خلال 7 أيام من الحجز — استرداد كامل', 'value': 'full_refund', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Cancellation after 7 days but before contract signing — reservation fee forfeited', 'description_ar': 'إلغاء بعد 7 أيام وقبل التعاقد — يُصادر جزء من العربون', 'value': '50', 'unit': 'percent_of_reservation_fee_forfeited', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Cancellation within 30",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 15
+    }
+  },
+  {
+    "id": "ae5ce036a80f593c",
+    "content": "le_003', 'description_en': 'Cancellation within 30 days of contract signing — downpayment amount forfeited', 'description_ar': 'إلغاء خلال 30 يوم من التعاقد — يُصادر جزء من المقدم', 'value': '10', 'unit': 'percent_of_downpayment_forfeited', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Cancellation 30 days to 1 year after signing — total paid amount forfeited', 'description_ar': 'إلغاء من 30 يوم حتى سنة من التعاقد — يُصادر من إجمالي المدفوع', 'value': '20', 'unit': 'percent_of",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 16
+    }
+  },
+  {
+    "id": "142120af0e6aa083",
+    "content": "جمالي المدفوع', 'value': '20', 'unit': 'percent_of_total_paid_forfeited', 'is_critical': True}, {'rule_id': 'rule_005', 'description_en': 'Cancellation more than 1 year after signing — total paid amount forfeited', 'description_ar': 'إلغاء أكثر من سنة من التعاقد — يُصادر من إجمالي المدفوع', 'value': '30', 'unit': 'percent_of_total_paid_forfeited', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Refund processing time after cancellation request in working days', 'description_ar':",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 17
+    }
+  },
+  {
+    "id": "b912bff3d86b5f64",
+    "content": "lation request in working days', 'description_ar': 'مدة معالجة الاسترداد بعد طلب الإلغاء بأيام عمل', 'value': '30-60', 'unit': 'working_days', 'is_critical': False}, {'rule_id': 'rule_007', 'description_en': 'Developer cancellation for non-payment — administrative fee from total paid', 'description_ar': 'إلغاء المطور لعدم السداد — رسوم إدارية من إجمالي المدفوع', 'value': '20', 'unit': 'percent_admin_fee', 'is_critical': True}], 'keywords_ar': ['إلغاء', 'استرداد', 'مصادرة', 'غرامة إلغاء', 'فسخ عق",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 18
+    }
+  },
+  {
+    "id": "46073a842f677cad",
+    "content": "لغاء', 'استرداد', 'مصادرة', 'غرامة إلغاء', 'فسخ عقد'], 'keywords_en': ['cancellation', 'refund', 'forfeit', 'cancellation penalty', 'contract termination']}, {'id': 'unit_transfer', 'category': 'transfer', 'title_en': 'Unit Transfer and Sub-Sale', 'title_ar': 'تحويل العقد وإعادة البيع قبل الاستلام', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Contract transfer to another party requires company approval', 'description_ar': 'تحويل العقد لطرف آخر يستلزم موافقة الشركة', 'value': 'company_ap",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 19
+    }
+  },
+  {
+    "id": "cd0c1e32938e213d",
+    "content": "رف آخر يستلزم موافقة الشركة', 'value': 'company_approval_required', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Transfer fee as percentage of remaining unit price — minimum fee', 'description_ar': 'رسوم التحويل كنسبة من سعر الوحدة المتبقي — حد أدنى للرسوم', 'value': '1', 'unit': 'percent_of_remaining_price', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Minimum transfer fee in EGP', 'description_ar': 'الحد الأدنى لرسوم التحويل بالجنيه الم",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 20
+    }
+  },
+  {
+    "id": "93e30460a4877dca",
+    "content": "iption_ar': 'الحد الأدنى لرسوم التحويل بالجنيه المصري', 'value': '5000', 'unit': 'EGP', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Transfer approval time in working days upon receipt of full documentation', 'description_ar': 'مدة الموافقة على التحويل بأيام عمل من استلام الوثائق', 'value': '5', 'unit': 'working_days', 'is_critical': False}, {'rule_id': 'rule_005', 'description_en': 'Sub-sale fee before delivery as percentage of original unit price', 'description_ar': 'رسوم ا",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 21
+    }
+  },
+  {
+    "id": "b9844f63459f5167",
+    "content": "of original unit price', 'description_ar': 'رسوم البيع قبل الاستلام كنسبة من سعر الوحدة الأصلي', 'value': '2', 'unit': 'percent_of_original_price', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Original buyer responsibility until transfer is officially processed', 'description_ar': 'المشتري الأصلي مسؤول عن جميع الأقساط حتى إتمام التحويل', 'value': 'original_buyer_liable', 'unit': 'policy', 'is_critical': True}], 'keywords_ar': ['تحويل عقد', 'بيع قبل الاستلام', 'رسوم التحويل',",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 22
+    }
+  },
+  {
+    "id": "a747c485c8c84198",
+    "content": "['تحويل عقد', 'بيع قبل الاستلام', 'رسوم التحويل', 'موافقة الشركة'], 'keywords_en': ['contract transfer', 'sub-sale', 'transfer fee', 'company approval', 'resale before delivery']}, {'id': 'maintenance_fees', 'category': 'maintenance', 'title_en': 'Maintenance Reserve and Annual Fees', 'title_ar': 'صندوق الصيانة والرسوم السنوية', 'rules': [{'rule_id': 'rule_001', 'description_en': 'One-time maintenance deposit at contract signing as percentage of unit price', 'description_ar': 'وديعة صيانة لمرة و",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 23
+    }
+  },
+  {
+    "id": "fc26a194c1f441bd",
+    "content": "unit price', 'description_ar': 'وديعة صيانة لمرة واحدة عند التعاقد كنسبة من سعر الوحدة', 'value': '8', 'unit': 'percent_of_unit_price', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Maintenance deposit refundable upon unit resale at original amount', 'description_ar': 'وديعة الصيانة قابلة للاسترداد عند البيع بالمبلغ الأصلي', 'value': 'refundable', 'unit': 'policy', 'is_critical': False}, {'rule_id': 'rule_003', 'description_en': 'Annual maintenance fee per square meter per yea",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 24
+    }
+  },
+  {
+    "id": "8716e6328aee74a0",
+    "content": ": 'Annual maintenance fee per square meter per year range', 'description_ar': 'رسوم الصيانة السنوية لكل متر مربع في السنة', 'value': '12-18', 'unit': 'EGP_per_sqm_per_year', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Annual maintenance fee due date', 'description_ar': 'موعد سداد رسوم الصيانة السنوية', 'value': 'January', 'unit': 'month', 'is_critical': False}, {'rule_id': 'rule_005', 'description_en': 'What maintenance covers: compound upkeep pools green areas security comm",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 25
+    }
+  },
+  {
+    "id": "5c4a509fca23c0f2",
+    "content": "s: compound upkeep pools green areas security common areas', 'description_ar': 'ما تشمله الصيانة: صيانة الكمبوند والمسابح والمساحات الخضراء والأمن والمناطق المشتركة', 'value': 'compound_upkeep, pools, green_areas, security, common_areas', 'unit': 'scope', 'is_critical': False}, {'rule_id': 'rule_006', 'description_en': \"In-unit repairs are buyer's responsibility not covered by maintenance\", 'description_ar': 'إصلاحات داخل الوحدة مسؤولية المشتري وغير مشمولة بالصيانة', 'value': 'buyer_responsibili",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 26
+    }
+  },
+  {
+    "id": "9bc7551cf83c0222",
+    "content": "غير مشمولة بالصيانة', 'value': 'buyer_responsibility', 'unit': 'policy', 'is_critical': False}], 'keywords_ar': ['صيانة', 'رسوم صيانة', 'وديعة صيانة', 'صندوق الصيانة', 'رسوم سنوية'], 'keywords_en': ['maintenance', 'maintenance fee', 'maintenance deposit', 'annual fee', 'compound upkeep']}, {'id': 'delivery_process', 'category': 'delivery', 'title_en': 'Delivery Process and Inspection', 'title_ar': 'إجراءات الاستلام والمعاينة', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Advance notice p",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 27
+    }
+  },
+  {
+    "id": "215d7bfe04f4b763",
+    "content": "': 'rule_001', 'description_en': 'Advance notice period before delivery date', 'description_ar': 'مدة الإشعار المسبق قبل موعد التسليم', 'value': '30', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Buyer must clear all outstanding installments before inspection', 'description_ar': 'المشتري يجب أن يسدد جميع الأقساط المتأخرة قبل المعاينة', 'value': 'all_installments_cleared', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Days f",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 28
+    }
+  },
+  {
+    "id": "07abb57262eecff6",
+    "content": "{'rule_id': 'rule_003', 'description_en': 'Days from notification to schedule inspection', 'description_ar': 'أيام من الإشعار لتحديد موعد المعاينة', 'value': '14', 'unit': 'days', 'is_critical': False}, {'rule_id': 'rule_004', 'description_en': 'Snagging repair period after inspection', 'description_ar': 'فترة إصلاح الملاحظات بعد المعاينة', 'value': '30', 'unit': 'days', 'is_critical': False}, {'rule_id': 'rule_005', 'description_en': 'Developer delay penalty per month beyond 6 months late', 'd",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 29
+    }
+  },
+  {
+    "id": "31d42661e7c9bea6",
+    "content": "delay penalty per month beyond 6 months late', 'description_ar': 'غرامة تأخر المطور شهرياً بعد تأخر 6 أشهر', 'value': '0.5', 'unit': 'percent_monthly_reduction_on_installments', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Maximum total reduction for developer delay', 'description_ar': 'الحد الأقصى للتخفيض الإجمالي بسبب تأخر المطور', 'value': '5', 'unit': 'percent_of_total_price', 'is_critical': False}, {'rule_id': 'rule_007', 'description_en': 'Buyer cancellation allowed on",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 30
+    }
+  },
+  {
+    "id": "a15a67b4e6122413",
+    "content": ", 'description_en': 'Buyer cancellation allowed only if delay exceeds months', 'description_ar': 'يحق للمشتري الإلغاء فقط إذا تجاوز التأخير عدد الأشهر', 'value': '24', 'unit': 'months', 'is_critical': True}, {'rule_id': 'rule_008', 'description_en': 'Title deed issued within months after full payment', 'description_ar': 'سند الملكية يُصدر خلال أشهر بعد السداد الكامل', 'value': '12-18', 'unit': 'months', 'is_critical': True}], 'keywords_ar': ['استلام', 'تسليم', 'معاينة', 'ملاحظات', 'سند ملكية', '",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 31
+    }
+  },
+  {
+    "id": "791a9d089612b995",
+    "content": "لام', 'تسليم', 'معاينة', 'ملاحظات', 'سند ملكية', 'تأخر تسليم'], 'keywords_en': ['delivery', 'inspection', 'snagging', 'title deed', 'delayed delivery', 'handover']}, {'id': 'cash_payment_discount', 'category': 'discounts', 'title_en': 'Cash Payment Discount Rules', 'title_ar': 'قواعد خصم الدفع الكاش', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Standard cash discount on listed price', 'description_ar': 'الخصم الكاش القياسي على السعر المعلن', 'value': '15', 'unit': 'percent', 'is_critica",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 32
+    }
+  },
+  {
+    "id": "0c9e3afe19930098",
+    "content": "لن', 'value': '15', 'unit': 'percent', 'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Cash discount applies only if 100% of unit price paid within days of reservation', 'description_ar': 'خصم الكاش ينطبق فقط إذا دُفع 100% من سعر الوحدة خلال أيام من الحجز', 'value': '30', 'unit': 'days', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Accepted payment currencies', 'description_ar': 'العملات المقبولة في الدفع', 'value': 'EGP_only', 'unit': 'currency', 'is_critica",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 33
+    }
+  },
+  {
+    "id": "31e321c5e5d86424",
+    "content": "alue': 'EGP_only', 'unit': 'currency', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Cryptocurrency accepted', 'description_ar': 'قبول العملات الرقمية', 'value': 'not_accepted', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_005', 'description_en': 'Foreign currency accepted', 'description_ar': 'قبول العملة الأجنبية', 'value': 'not_accepted', 'unit': 'policy', 'is_critical': True}], 'keywords_ar': ['كاش', 'خصم كاش', 'دفع كامل', 'عملة', 'جنيه مصري'], 'keywords_en': [",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 34
+    }
+  },
+  {
+    "id": "0832f2aa1073a15f",
+    "content": "'دفع كامل', 'عملة', 'جنيه مصري'], 'keywords_en': ['cash', 'cash discount', 'full payment', 'currency', 'EGP', 'no crypto', 'no forex']}, {'id': 'bank_mortgage', 'category': 'financing', 'title_en': 'Bank Mortgage and Financing Options', 'title_ar': 'التمويل البنكي وخيارات الرهن العقاري', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Partner bank Banque Misr — maximum mortgage years and starting interest rate', 'description_ar': 'بنك شريك بنك مصر — أقصى سنوات تمويل وأدنى فائدة', 'value': '",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 35
+    }
+  },
+  {
+    "id": "346a554df997cc3c",
+    "content": "نك مصر — أقصى سنوات تمويل وأدنى فائدة', 'value': '15 years from 8.5%', 'unit': 'years_and_rate', 'is_critical': False}, {'rule_id': 'rule_002', 'description_en': 'Partner bank CIB Egypt — maximum mortgage years and starting interest rate', 'description_ar': 'بنك شريك CIB — أقصى سنوات تمويل وأدنى فائدة', 'value': '20 years from 9%', 'unit': 'years_and_rate', 'is_critical': False}, {'rule_id': 'rule_003', 'description_en': 'Partner bank Housing and Development Bank — subsidized social housing rate",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 36
+    }
+  },
+  {
+    "id": "28629bcb1a47d165",
+    "content": "Development Bank — subsidized social housing rates', 'description_ar': 'بنك شريك بنك الإسكان والتعمير — أسعار مدعومة للإسكان الاجتماعي', 'value': 'subsidized', 'unit': 'rate_type', 'is_critical': False}, {'rule_id': 'rule_004', 'description_en': 'Partner bank QNB Alahli — maximum mortgage years', 'description_ar': 'بنك شريك QNB الأهلي — أقصى سنوات تمويل', 'value': '15 years', 'unit': 'years', 'is_critical': False}, {'rule_id': 'rule_005', 'description_en': 'Mortgage pre-approval required before",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 37
+    }
+  },
+  {
+    "id": "e5514f3c7d5a8a2d",
+    "content": "iption_en': 'Mortgage pre-approval required before contract signing when using bank finance', 'description_ar': 'الموافقة المبدئية للبنك مطلوبة قبل التعاقد عند استخدام التمويل البنكي', 'value': 'pre_approval_required', 'unit': 'policy', 'is_critical': True}], 'keywords_ar': ['تمويل بنكي', 'رهن عقاري', 'بنك مصر', 'CIB', 'QNB', 'الإسكان والتعمير', 'فائدة بنكية'], 'keywords_en': ['bank mortgage', 'financing', 'banque misr', 'CIB', 'QNB', 'housing bank', 'bank interest']}, {'id': 'sales_ethics', 'ca",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 38
+    }
+  },
+  {
+    "id": "0bcc51c5dcfb084f",
+    "content": "nk', 'bank interest']}, {'id': 'sales_ethics', 'category': 'ethics', 'title_en': 'Sales Ethics and Salesperson Responsibilities', 'title_ar': 'أخلاقيات البيع ومسؤوليات البائع', 'rules': [{'rule_id': 'rule_001', 'description_en': 'Salesperson must NEVER quote prices not in the official approved price list', 'description_ar': 'يُحظر على البائع ذكر أسعار غير معتمدة في قائمة الأسعار الرسمية', 'value': 'never_unapproved_prices', 'unit': 'prohibition', 'is_critical': True}, {'rule_id': 'rule_002', 'de",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 39
+    }
+  },
+  {
+    "id": "28da762ea92161dc",
+    "content": "'is_critical': True}, {'rule_id': 'rule_002', 'description_en': 'Salesperson must NEVER promise delivery dates earlier than official contracted date', 'description_ar': 'يُحظر الوعد بمواعيد تسليم أبكر من التاريخ المعاقد عليه رسمياً', 'value': 'never_early_delivery_promise', 'unit': 'prohibition', 'is_critical': True}, {'rule_id': 'rule_003', 'description_en': 'Salesperson must NEVER offer unauthorized discounts beyond official schedule', 'description_ar': 'يُحظر تقديم خصومات غير مصرح بها خارج ا",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 40
+    }
+  },
+  {
+    "id": "d466325474e4c5a1",
+    "content": "ption_ar': 'يُحظر تقديم خصومات غير مصرح بها خارج الجدول الرسمي', 'value': 'never_unauthorized_discounts', 'unit': 'prohibition', 'is_critical': True}, {'rule_id': 'rule_004', 'description_en': 'Salesperson must ALWAYS disclose maintenance fee and deposit before signing', 'description_ar': 'يجب دائماً الإفصاح عن رسوم الصيانة والوديعة قبل التوقيع', 'value': 'always_disclose_maintenance', 'unit': 'requirement', 'is_critical': True}, {'rule_id': 'rule_005', 'description_en': 'Verbal payment plan pro",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 41
+    }
+  },
+  {
+    "id": "9243f660685e338b",
+    "content": "e_005', 'description_en': 'Verbal payment plan promises are NOT legally binding — must be in writing', 'description_ar': 'الوعود الشفهية بخطط الدفع غير ملزمة قانوناً — يجب أن تكون كتابية', 'value': 'written_only', 'unit': 'policy', 'is_critical': True}, {'rule_id': 'rule_006', 'description_en': 'Maximum gift value salesperson may accept from client', 'description_ar': 'أقصى قيمة هدية يمكن للبائع قبولها من العميل', 'value': '200', 'unit': 'EGP', 'is_critical': True}, {'rule_id': 'rule_007', 'desc",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 42
+    }
+  },
+  {
+    "id": "e807dea2fc545088",
+    "content": "is_critical': True}, {'rule_id': 'rule_007', 'description_en': 'Client complaint escalation time to sales manager in hours', 'description_ar': 'مدة تصعيد شكاوى العملاء لمدير المبيعات بالساعات', 'value': '24', 'unit': 'hours', 'is_critical': False}, {'rule_id': 'rule_008', 'description_en': 'Written response to client complaint in working days', 'description_ar': 'رد كتابي على شكوى العميل بأيام العمل', 'value': '3', 'unit': 'working_days', 'is_critical': False}], 'keywords_ar': ['أخلاقيات', 'مسؤو",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 43
+    }
+  },
+  {
+    "id": "6bd3861a045f7057",
+    "content": "tical': False}], 'keywords_ar': ['أخلاقيات', 'مسؤوليات البائع', 'إفصاح', 'شكاوى', 'هدايا', 'التزامات'], 'keywords_en': ['sales ethics', 'salesperson duties', 'disclosure', 'complaints', 'gifts', 'obligations']}",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "chunk_index": 44
+    }
+  },
+  {
+    "id": "6762354af9f1e2f3",
+    "content": "id: palm_hills_october\nname_en: Palm Hills October\nname_ar: بالم هيلز أكتوبر\ndeveloper: Palm Hills Developments\nlocation_en: 6th of October City, Giza — km 38 Cairo-Alexandria Desert Road\nlocation_ar: مدينة 6 أكتوبر، الجيزة — كيلو 38 طريق القاهرة الإسكندرية الصحراوي\ncity: 6th_october\nprice_min: 1800000\nprice_max: 11000000\nprice_currency: EGP\nsize_min_sqm: 70\nsize_max_sqm: 300\nbedrooms_available: [0, 1, 2, 3, 4]\ndown_payment_percent: 10\ninstallment_years: 8\nmonthly_installment_min: 18750\nmonthly_installment_max: 104167\nfeatures: ['3 swimming pools per cluster', 'Gym & health club', 'Club house 4,500 m²', '24/7 security + CCTV', 'Underground parking 1 space per unit', 'Nursery & kindergarten', 'Restaurants & cafes within compound', '40% green areas', 'Commercial strip with supermarket']\ndelivery_year: 2026\ndelivery_quarter: Q4\nfinishing: semi_finished\ncompound_type: residential_compound\nkeywords_ar: ['بالم هيلز', '6 أكتوبر', 'شقق', 'كمبوند', 'مسبح', 'جيم', 'أمن', 'استوديو', 'دوبلكس']\nkeywords_en: ['palm hills', 'october', 'apartment', 'compound', 'pool', 'gym', 'security', 'studio', 'duplex']\nnotes: Fully finished option available for additional 1,500 EGP/m² (super-lux: 2,500 EGP/m²). Plan C (20% down) 5% discount; Plan D (30% down) 10% discount; cash 15% discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 0,
+      "type": "property"
+    }
+  },
+  {
+    "id": "64a2f77573393e77",
+    "content": "id: madinaty\nname_en: Madinaty\nname_ar: مدينتي\ndeveloper: Talaat Moustafa Group (TMG)\nlocation_en: New Cairo — 45 km east of Cairo city center\nlocation_ar: القاهرة الجديدة — 45 كم شرق وسط القاهرة\ncity: new_cairo\nprice_min: 2000000\nprice_max: 35000000\nprice_currency: EGP\nsize_min_sqm: 80\nsize_max_sqm: 600\nbedrooms_available: [1, 2, 3, 4]\ndown_payment_percent: 5\ninstallment_years: 10\nmonthly_installment_min: 15833\nmonthly_installment_max: 277778\nfeatures: ['Total project 8 million m²', 'Artificial beach & lake', 'Sporting & social club', 'International schools GEMS and Future', 'Full hospital — Madinaty Hospital', 'Open Air Mall & Madinaty Mall', '18-hole golf course', 'All units fully air-conditioned & finished']\ndelivery_year: 2028\ndelivery_quarter: Q1\nfinishing: fully_finished\ncompound_type: integrated_city\nkeywords_ar: ['مدينتي', 'القاهرة الجديدة', 'TMG', 'فيلا', 'تاون هاوس', 'مدرسة دولية', 'مستشفى', 'جولف', 'استلام فوري']\nkeywords_en: ['madinaty', 'new cairo', 'TMG', 'villa', 'townhouse', 'school', 'hospital', 'golf', 'immediate delivery']\nnotes: Immediate delivery on select buildings. New phases Q1 2028. Maintenance fee 12 EGP/m²/month. 5% down government plan available; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 1,
+      "type": "property"
+    }
+  },
+  {
+    "id": "13bb317d8fa246be",
+    "content": "id: zed_east\nname_en: Zed East\nname_ar: زيد إيست\ndeveloper: Ora Developers — Naguib Sawiris group\nlocation_en: New Cairo — 5 minutes from 90th Street Ring Road intersection\nlocation_ar: القاهرة الجديدة — 5 دقائق من شارع التسعين دائري\ncity: new_cairo\nprice_min: 2800000\nprice_max: 18000000\nprice_currency: EGP\nsize_min_sqm: 85\nsize_max_sqm: 350\nbedrooms_available: [1, 2, 3]\ndown_payment_percent: 10\ninstallment_years: 7\nmonthly_installment_min: 30952\nmonthly_installment_max: 200000\nfeatures: ['Crystal Lagoon 12,000 m²', 'Club house 5,000 m²', 'Spa & wellness center', 'Infinity pools', '24/7 smart security with face recognition entry', 'Electric vehicle charging stations', 'Smart home automation ready', 'Penthouse units available']\ndelivery_year: 2027\ndelivery_quarter: Q3\nfinishing: fully_finished\ncompound_type: luxury_compound\nkeywords_ar: ['زيد إيست', 'القاهرة الجديدة', 'أورا', 'بنتهاوس', 'بحيرة كريستال', 'سبا', 'سمارت هوم', 'سيارات كهربائية']\nkeywords_en: ['zed east', 'new cairo', 'ora', 'penthouse', 'crystal lagoon', 'spa', 'smart home', 'EV charging']\nnotes: 15% down gets 3% discount; 12% cash discount. Luxury project targeting high-income buyers near 90th Street.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 2,
+      "type": "property"
+    }
+  },
+  {
+    "id": "f103527bbe7eddba",
+    "content": "id: mountain_view_icity\nname_en: Mountain View iCity\nname_ar: ماونتن فيو آي سيتي\ndeveloper: Mountain View Developments\nlocation_en: New Cairo — near AUC American University in Cairo\nlocation_ar: القاهرة الجديدة — بجوار الجامعة الأمريكية AUC\ncity: new_cairo\nprice_min: 2200000\nprice_max: 9500000\nprice_currency: EGP\nsize_min_sqm: 65\nsize_max_sqm: 240\nbedrooms_available: [0, 1, 2, 3]\ndown_payment_percent: 10\ninstallment_years: 8\nmonthly_installment_min: 22917\nmonthly_installment_max: 93750\nfeatures: ['Central park 120 feddans', 'Family & adult pools', 'Cycling & running tracks 5 km', 'Clubhouse 6,000 m²', 'Retail area and pharmacy', 'Underground parking per building', 'Tiles kitchen cabinets and AC units included in finishing']\ndelivery_year: 2027\ndelivery_quarter: Q2\nfinishing: fully_finished\ncompound_type: residential_compound\nkeywords_ar: ['ماونتن فيو', 'القاهرة الجديدة', 'آي سيتي', 'AUC', 'حديقة مركزية', 'دراجات', 'شاليه بجنينة', 'استلام فوري']\nkeywords_en: ['mountain view', 'icity', 'new cairo', 'AUC', 'central park', 'cycling', 'chalet garden', 'immediate delivery']\nnotes: Immediate delivery on select buildings. Ground floor with garden units 20% extra. 20% down gets 7% discount; 15% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 3,
+      "type": "property"
+    }
+  },
+  {
+    "id": "e9cbb0ad4aeddb7a",
+    "content": "id: al_karma_4\nname_en: Al Karma 4\nname_ar: الكارمة 4\ndeveloper: SODIC — Sixth of October Development and Investment Company\nlocation_en: Sheikh Zayed City, Giza — near Mall of Arabia\nlocation_ar: مدينة الشيخ زايد، الجيزة — بجوار مول العرب\ncity: sheikh_zayed\nprice_min: 8500000\nprice_max: 30000000\nprice_currency: EGP\nsize_min_sqm: 250\nsize_max_sqm: 500\nbedrooms_available: [3, 4, 5]\ndown_payment_percent: 10\ninstallment_years: 8\nmonthly_installment_min: 78125\nmonthly_installment_max: 281250\nfeatures: ['Gated community with manned security gates', 'Club House 3,500 m²', 'Private & communal pools', 'Retail strip and cafe', 'Double garage per unit', 'Twin houses townhouses and standalone villas']\ndelivery_year: 2027\ndelivery_quarter: Q4\nfinishing: semi_finished\ncompound_type: villa_compound\nkeywords_ar: ['الكارمة', 'الشيخ زايد', 'SODIC', 'فيلا', 'تاون هاوس', 'توين هاوس', 'جراج مزدوج', 'كمبوند مسور']\nkeywords_en: ['al karma', 'sheikh zayed', 'SODIC', 'villa', 'townhouse', 'twin house', 'gated', 'double garage']\nnotes: Fully finished add-on available. 20% down gets 5% price reduction; 10% cash reduction. Minimum land: townhouse 150 m², twin 200 m², villa 350 m².",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 4,
+      "type": "property"
+    }
+  },
+  {
+    "id": "e711fc77f0831ce8",
+    "content": "id: westown_residences\nname_en: Westown Residences\nname_ar: وست تاون ريزيدنسيز\ndeveloper: SODIC West\nlocation_en: Sheikh Zayed City — adjacent to Beverly Hills Compound\nlocation_ar: مدينة الشيخ زايد — بجوار كمبوند بيفرلي هيلز\ncity: sheikh_zayed\nprice_min: 2600000\nprice_max: 14000000\nprice_currency: EGP\nsize_min_sqm: 80\nsize_max_sqm: 310\nbedrooms_available: [1, 2, 3]\ndown_payment_percent: 10\ninstallment_years: 8\nmonthly_installment_min: 27083\nmonthly_installment_max: 131250\nfeatures: ['Integrated community with Westown Hub shopping and dining', 'Cycling lane 8 km', 'Club Westown 10,000 m² social club', 'Westown School British curriculum', 'Near Mall of Arabia and Arkan Mall', 'Natural gas connection in all units', 'Penthouse units available']\ndelivery_year: 2027\ndelivery_quarter: Q2\nfinishing: fully_finished\ncompound_type: residential_compound\nkeywords_ar: ['وست تاون', 'الشيخ زايد', 'SODIC', 'بيفرلي هيلز', 'مدرسة بريطانية', 'دراجات', 'مول العرب', 'أركان']\nkeywords_en: ['westown', 'sheikh zayed', 'SODIC', 'beverly hills', 'british school', 'cycling', 'arkan mall']\nnotes: 20% down gets 6% discount; 12% cash discount. Adjacent to Westown Hub commercial area with restaurants and shops.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 5,
+      "type": "property"
+    }
+  },
+  {
+    "id": "ab6def25cb9aa548",
+    "content": "id: maadi_residence_towers\nname_en: Maadi Residence Towers\nname_ar: أبراج المعادي ريزيدنس\ndeveloper: Egyptian Real Estate Group (EREG)\nlocation_en: Maadi, Cairo — Corniche El Nile, 15 km from Tahrir Square\nlocation_ar: المعادي، القاهرة — كورنيش النيل، 15 كم من التحرير\ncity: maadi\nprice_min: 2500000\nprice_max: 15000000\nprice_currency: EGP\nsize_min_sqm: 85\nsize_max_sqm: 320\nbedrooms_available: [1, 2, 3, 4]\ndown_payment_percent: 15\ninstallment_years: 7\nmonthly_installment_min: 25595\nmonthly_installment_max: 148810\nfeatures: ['Nile view from floor 10 and above', 'Rooftop pool and lounge', 'Concierge service 24/7', 'Underground parking 1 space per unit', 'Gym on level 3', 'Generator backup on all units', 'Smart meters and fiber internet infrastructure']\ndelivery_year: 2026\ndelivery_quarter: Q1\nfinishing: fully_finished\ncompound_type: high_rise\nkeywords_ar: ['المعادي', 'أبراج', 'النيل', 'كورنيش', 'إطلالة نيل', 'استلام فوري', '24 دور', 'بنتهاوس']\nkeywords_en: ['maadi', 'towers', 'nile view', 'corniche', 'high rise', 'immediate delivery', '24 floors', 'penthouse']\nnotes: Immediate delivery ready to move in. Nile-view floors (10+) carry 15% premium. 25% down gets 5% discount; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 6,
+      "type": "property"
+    }
+  },
+  {
+    "id": "8923524d02eec4fd",
+    "content": "id: capital_heights_nac\nname_en: Capital Heights\nname_ar: كابيتال هايتس\ndeveloper: Ora Developers\nlocation_en: New Administrative Capital — R7 residential district\nlocation_ar: العاصمة الإدارية الجديدة — الحي السكني R7\ncity: new_administrative_capital\nprice_min: 1800000\nprice_max: 10000000\nprice_currency: EGP\nsize_min_sqm: 90\nsize_max_sqm: 300\nbedrooms_available: [1, 2, 3, 4]\ndown_payment_percent: 5\ninstallment_years: 10\nmonthly_installment_min: 14250\nmonthly_installment_max: 79167\nfeatures: ['Near Grand Egyptian Museum 40 min drive', 'Adjacent Central Park', 'Schools and universities nearby', 'Full infrastructure by New Administrative Capital Authority', 'Metro line expected 2027', 'Duplex units available']\ndelivery_year: 2028\ndelivery_quarter: Q1\nfinishing: semi_finished\ncompound_type: residential_compound\nkeywords_ar: ['العاصمة الإدارية', 'كابيتال هايتس', 'أورا', 'R7', 'مترو', 'دوبلكس', 'المتحف المصري', 'أرخص']\nkeywords_en: ['new administrative capital', 'capital heights', 'ora', 'R7', 'metro', 'duplex', 'grand egyptian museum']\nnotes: 5% down government-supported plan available. Fully finished option Q3 2028. 10% cash discount. Lowest price per m² among all projects.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 7,
+      "type": "property"
+    }
+  },
+  {
+    "id": "80243ccc7e1f5f98",
+    "content": "id: azzar_island_north_coast\nname_en: Azzar Island\nname_ar: أزار آيلاند\ndeveloper: Inertia Egypt\nlocation_en: North Coast — km 200 Alexandria-Matrouh road\nlocation_ar: الساحل الشمالي — كيلو 200 طريق الإسكندرية مطروح\ncity: north_coast\nprice_min: 2000000\nprice_max: 11000000\nprice_currency: EGP\nsize_min_sqm: 65\nsize_max_sqm: 220\nbedrooms_available: [1, 2, 3]\ndown_payment_percent: 5\ninstallment_years: 8\nmonthly_installment_min: 19792\nmonthly_installment_max: 107292\nfeatures: ['Private beach 800 m', 'Crystal Lagoon 25,000 m²', 'Beach club and water sports center', 'Beachfront restaurants', '24/7 year-round security', 'Central supermarket', 'Private gardens for twin chalets']\ndelivery_year: 2027\ndelivery_quarter: Q2\nfinishing: fully_finished\ncompound_type: summer_resort\nkeywords_ar: ['أزار آيلاند', 'الساحل الشمالي', 'شاليه', 'شاطئ خاص', 'بحيرة كريستال', 'إينيرشيا', 'صيف', 'إجازة']\nkeywords_en: ['azzar island', 'north coast', 'chalet', 'private beach', 'crystal lagoon', 'inertia', 'summer', 'vacation']\nnotes: Sea-view units carry 20% premium. 5% booking + 10% within 3 months option available. 15% cash discount. Seasonal summer delivery June 2027.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 8,
+      "type": "property"
+    }
+  },
+  {
+    "id": "ca7a980b2fca7af0",
+    "content": "id: nile_business_city_residences\nname_en: Nile Business City Residences\nname_ar: أبراج مدينة النيل للأعمال السكنية\ndeveloper: Al Ahly Sabbour\nlocation_en: New Cairo — Cairo Ring Road, Mostorod Exit\nlocation_ar: القاهرة الجديدة — الطريق الدائري، مخرج مستورد\ncity: new_cairo\nprice_min: 1600000\nprice_max: 7500000\nprice_currency: EGP\nsize_min_sqm: 55\nsize_max_sqm: 220\nbedrooms_available: [0, 1, 2, 3]\ndown_payment_percent: 10\ninstallment_years: 7\nmonthly_installment_min: 17857\nmonthly_installment_max: 83333\nfeatures: ['Panoramic Nile view from floors 20 and above', 'Business lounge on ground floor', 'Gym and pool on 5th floor podium', 'Smart building management system', 'Central AC option available', 'Retail and food and beverage at base of tower', '40-floor high-rise tower']\ndelivery_year: 2027\ndelivery_quarter: Q3\nfinishing: semi_finished\ncompound_type: high_rise\nkeywords_ar: ['مدينة النيل للأعمال', 'القاهرة الجديدة', 'الأهلي صبور', 'برج', 'إطلالة نيل', 'الدائري', 'استوديو', 'استثمار']\nkeywords_en: ['nile business city', 'new cairo', 'al ahly sabbour', 'tower', 'nile view', 'ring road', 'studio', 'investment']\nnotes: Full finishing option available. 15% down gets 4% discount; 10% cash discount. Studio units from 55 m² ideal for investment buyers.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 9,
+      "type": "property"
+    }
+  },
+  {
+    "id": "60784d9c27dee78e",
+    "content": "id: heliopolis_heights\nname_en: Heliopolis Heights\nname_ar: هيليوبوليس هايتس\ndeveloper: Arab Contractors Real Estate\nlocation_en: Heliopolis, Cairo — near Cairo International Airport\nlocation_ar: مصر الجديدة، القاهرة — بالقرب من مطار القاهرة الدولي\ncity: heliopolis\nprice_min: 3000000\nprice_max: 9000000\nprice_currency: EGP\nsize_min_sqm: 100\nsize_max_sqm: 280\nbedrooms_available: [2, 3, 4]\ndown_payment_percent: 15\ninstallment_years: 7\nmonthly_installment_min: 29762\nmonthly_installment_max: 89286\nfeatures: ['Central location Heliopolis 20 min from downtown', 'Near Cairo International Airport 15 min', 'Lobby concierge service', 'Rooftop garden and lounge', 'Underground garage', 'Mature trees and landscaping', 'Close to Korba commercial district']\ndelivery_year: 2026\ndelivery_quarter: Q3\nfinishing: fully_finished\ncompound_type: residential_building\nkeywords_ar: ['مصر الجديدة', 'هيليوبوليس', 'الكوربة', 'مطار القاهرة', 'موقع مركزي', 'العرب المقاولون']\nkeywords_en: ['heliopolis', 'masr el gedida', 'korba', 'cairo airport', 'central location', 'arab contractors']\nnotes: Prime location for business professionals and expats. 20% down gets 5% discount; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "index": 10,
+      "type": "property"
+    }
+  },
+  {
+    "id": "6247a4734e307ede",
+    "content": "================================================================\nVCAI REAL ESTATE — COMPANY SALES POLICIES & PROCEDURES\nسياسات وإجراءات المبيعات — للاستخدام الداخلي فقط\nLast Updated: April 2026\n================================================================\n\n----------------------------------------------------------------\nSECTION 1 — RESERVATION & BOOKING (الحجز والتعاقد)\n----------------------------------------------------------------",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 0
+    }
+  },
+  {
+    "id": "1db0c31297484263",
+    "content": "------------------------------------------------\n\n1.1 Reservation Deposit (عربون الحجز)\n  - Standard reservation deposit: 20,000 – 50,000 EGP depending on unit price\n    • Units under 2,000,000 EGP: 20,000 EGP reservation fee\n    • Units 2,000,000 – 5,000,000 EGP: 30,000 EGP reservation fee\n    • Units above 5,000,000 EGP: 50,000 EGP reservation fee\n  - Reservation fee is deducted from the total downpayment (not extra)\n  - Reservation holds the unit for 7 calendar days only\n  - Payment method: c",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 1
+    }
+  },
+  {
+    "id": "f28365391f897d1d",
+    "content": "nit for 7 calendar days only\n  - Payment method: cash, bank transfer, or certified check payable to company\n\n1.2 Contract Signing (التعاقد)\n  - Full contract must be signed within 7 days of reservation\n  - Required documents from buyer:\n    • National ID (بطاقة الرقم القومي) — original + 2 copies\n    • Recent utility bill (to confirm address)\n    • For company buyers: commercial registry + authorized signatory docs\n  - Downpayment must be paid on day of contract signing\n  - Contract is bilingual",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 2
+    }
+  },
+  {
+    "id": "ec102c36a4c440d8",
+    "content": "day of contract signing\n  - Contract is bilingual (Arabic + English) — Arabic version is legally binding\n\n1.3 Downpayment Options (الدفعة الأولى / المقدم)\n  - Minimum downpayment varies by payment plan:\n    • 5% minimum (available only on select government-supported projects)\n    • 10% standard (most projects)\n    • 15% – 30% for discounted payment plans (see Section 3)\n  - Downpayment cannot be paid in installments — must be paid in one lump sum at signing\n  - Cash payment discount applies onl",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 3
+    }
+  },
+  {
+    "id": "31cd824779fdb284",
+    "content": "m at signing\n  - Cash payment discount applies only if 100% of unit price paid within 30 days of reservation\n\n----------------------------------------------------------------\nSECTION 2 — PAYMENT PLAN TERMS (شروط التقسيط)\n----------------------------------------------------------------",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 4
+    }
+  },
+  {
+    "id": "00aa7f42f05c0060",
+    "content": "------------------------------------------------\n\n2.1 Installment Structure (هيكل الأقساط)\n  - All installment plans are equal monthly payments (no balloon payments)\n  - Installment calculated as: (Total price – Downpayment) ÷ Number of months\n  - No interest charged on standard payment plans (0% financing by developer)\n  - Plans range from 3 years to 10 years depending on the project\n  - Early settlement allowed at any time — 5% discount on remaining balance for early full payment",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 5
+    }
+  },
+  {
+    "id": "55278cc056480e55",
+    "content": "ount on remaining balance for early full payment\n\n2.2 Installment Due Dates (مواعيد سداد الأقساط)\n  - First installment due 30 days after contract signing date\n  - Subsequent installments due on same day of each following month\n  - Grace period for late payment: 10 days (no penalty)\n  - Late payment penalty after 10-day grace: 0.5% of installment amount per week\n  - After 60 days non-payment: company may issue formal notice (إنذار)\n  - After 90 days non-payment: company reserves right to cancel",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 6
+    }
+  },
+  {
+    "id": "1db02acc48f1a52a",
+    "content": "ays non-payment: company reserves right to cancel contract (subject to cancellation policy)\n\n2.3 Bank Mortgage Option (التمويل البنكي)\n  - Company has agreements with the following banks for mortgage financing:\n    • Banque Misr (بنك مصر) — up to 15 years, interest rate from 8.5% per annum\n    • CIB Egypt (بنك CIB) — up to 20 years, interest rate from 9% per annum\n    • Housing and Development Bank / بنك الإسكان والتعمير — subsidized rates for social housing\n    • QNB Alahli — up to 15 years\n  -",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 7
+    }
+  },
+  {
+    "id": "5b6910cacdc82827",
+    "content": "cial housing\n    • QNB Alahli — up to 15 years\n  - Mortgage pre-approval required before signing if using bank finance\n  - Company sales team can arrange initial bank consultation — no obligation\n\n2.4 Maintenance Reserve (صندوق الصيانة)\n  - One-time maintenance deposit: 8% of unit price, paid at contract signing\n  - Maintenance deposit is refundable upon unit resale (at original amount)\n  - Annual maintenance fee (رسوم الصيانة): 12–18 EGP/m²/year, due every January\n  - Maintenance covers: compou",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 8
+    }
+  },
+  {
+    "id": "5e4f0353d69207c6",
+    "content": ", due every January\n  - Maintenance covers: compound upkeep, pools, green areas, security, building common areas\n  - Maintenance does NOT cover in-unit repairs (buyer's responsibility)\n\n----------------------------------------------------------------\nSECTION 3 — PAYMENT PLAN DISCOUNTS (خصومات خطط الدفع)\n----------------------------------------------------------------",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 9
+    }
+  },
+  {
+    "id": "4c44ea6bf0487792",
+    "content": "------------------------------------------------\n\n3.1 Discount Schedule by Downpayment Percentage\n  Downpayment %   | Installment Period  | Discount on Total Price\n  5%              | 10 years            | 0%\n  10%             | 8 years             | 0%\n  15%             | 6 years             | 3%\n  20%             | 5 years             | 5%\n  25%             | 4 years             | 7%\n  30%             | 3 years             | 10%\n  50%             | 2 years             | 12%\n  100% (cash)     |",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 10
+    }
+  },
+  {
+    "id": "639cb5bb73414326",
+    "content": "| 2 years             | 12%\n  100% (cash)     | —                   | 15%\n\n  Note: Discounts apply to total unit price before maintenance fee\n  Note: Multiple discounts cannot be combined (highest applicable discount applies)\n\n3.2 Early Booking Discount (خصم الحجز المبكر)\n  - During launch phase (first 60 days of project launch): additional 3% discount on top of payment plan discount\n  - Launch phase pricing is non-negotiable — price is same for all buyers during launch\n  - Post-launch prices",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 11
+    }
+  },
+  {
+    "id": "6cea9f9bd28f6e69",
+    "content": "or all buyers during launch\n  - Post-launch prices increase 5–8% every 6 months (subject to market conditions)\n\n----------------------------------------------------------------\nSECTION 4 — CANCELLATION POLICY (سياسة الإلغاء)\n----------------------------------------------------------------",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 12
+    }
+  },
+  {
+    "id": "660903fa36b18318",
+    "content": "------------------------------------------------\n\n4.1 Cancellation by Buyer (إلغاء من المشتري)\n  - Cancellation within 7 days of reservation: full refund of reservation fee (no deductions)\n  - Cancellation after 7 days but before contract signing: 50% of reservation fee is forfeited\n  - Cancellation after contract signing but before delivery:\n    • Within 30 days of signing: 10% of downpayment forfeited (rest refunded)\n    • 30 days to 1 year after signing: 20% of total paid amount forfeited",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 13
+    }
+  },
+  {
+    "id": "38df58f766ebb6b7",
+    "content": "er signing: 20% of total paid amount forfeited\n    • More than 1 year after signing: 30% of total paid amount forfeited\n  - All refunds processed within 30–60 working days of cancellation request\n\n4.2 Cancellation by Developer (إلغاء من الشركة)\n  - Developer may cancel contract in case of:\n    • Non-payment beyond 90 days (after formal notice)\n    • Fraudulent documentation provided by buyer\n  - Upon developer cancellation for non-payment:\n    • Developer refunds all paid amounts minus 20% as ad",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 14
+    }
+  },
+  {
+    "id": "665cb315c630777c",
+    "content": "Developer refunds all paid amounts minus 20% as administrative fee\n    • Refund timeline: up to 90 working days\n\n4.3 Unit Exchange / Transfer (تحويل العقد)\n  - Buyer may transfer contract to another party (with company approval)\n  - Transfer fee: 1% of remaining unit price (minimum 5,000 EGP)\n  - Original buyer remains liable until transfer officially processed\n  - Transfer approved within 5 working days upon receipt of full documentation",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 15
+    }
+  },
+  {
+    "id": "b29c8de089c458ed",
+    "content": "working days upon receipt of full documentation\n\n----------------------------------------------------------------\nSECTION 5 — DELIVERY PROCESS (إجراءات الاستلام)\n----------------------------------------------------------------\n\n5.1 Delivery Notification (إشعار الاستلام)\n  - Company notifies buyer 30 days before delivery via registered mail and SMS/email\n  - Buyer must clear all outstanding installments before unit inspection\n  - Buyer has 14 days from notification to schedule inspection",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 16
+    }
+  },
+  {
+    "id": "05a60bb3d327fb02",
+    "content": "14 days from notification to schedule inspection\n\n5.2 Inspection (المعاينة)\n  - Buyer inspects unit with company representative (مشرف الاستلام)\n  - Snag list (قائمة الملاحظات) signed by both parties during inspection\n  - All snags repaired within 30 days of inspection\n  - Second inspection scheduled after snagging completion\n  - Buyer must accept delivery within 30 days of snagging completion",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 17
+    }
+  },
+  {
+    "id": "53e45dd33e8050d9",
+    "content": "t delivery within 30 days of snagging completion\n\n5.3 Penalties for Delayed Delivery (عقوبات التأخر في التسليم)\n  - If developer delays delivery beyond contracted date by more than 6 months:\n    • Buyer may request 0.5% per month reduction on outstanding installments\n    • Maximum reduction: 5% of total price\n  - Force majeure events (pandemics, natural disasters, government decisions) exempt from penalty\n  - Buyer may NOT cancel contract solely due to delay unless delay exceeds 24 months",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 18
+    }
+  },
+  {
+    "id": "3962e292a3f1b1bd",
+    "content": "lely due to delay unless delay exceeds 24 months\n\n5.4 Title Deed / Utilities Registration (التسجيل والمرافق)\n  - Title deed (سند ملكية) issued within 12–18 months after full payment\n  - Water, electricity, and gas connected at delivery (buyer pays connection fees)\n  - Electricity connection fee: 3,000–5,000 EGP (varies by project)\n  - Water connection: included in maintenance deposit",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 19
+    }
+  },
+  {
+    "id": "649ad55d534b541e",
+    "content": "ater connection: included in maintenance deposit\n\n----------------------------------------------------------------\nSECTION 6 — RESALE & INVESTMENT POLICIES (البيع والتحويل)\n----------------------------------------------------------------\n\n6.1 Resale Before Delivery (البيع قبل الاستلام)\n  - Resale of unit before delivery is allowed with company approval\n  - Sub-sale fee: 2% of original unit price\n  - Original buyer responsible for all installments until transfer is approved\n  - New buyer must qua",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 20
+    }
+  },
+  {
+    "id": "47d54ea40be42074",
+    "content": "until transfer is approved\n  - New buyer must qualify through standard documentation process\n\n6.2 Rental of Units\n  - Units may be rented after delivery and registration\n  - Short-term rental (Airbnb-type) allowed only in designated projects (check per project rules)\n  - Compound management must be notified of long-term tenants\n  - Tenant must follow compound rules — violations may be reported to owner",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 21
+    }
+  },
+  {
+    "id": "ec87d97671f01167",
+    "content": "ound rules — violations may be reported to owner\n\n6.3 Capital Appreciation\n  - Historical average appreciation in New Cairo and 6th of October: 12–18% per annum\n  - Off-plan purchase vs. delivery price increase: typically 30–50% over project lifecycle\n  - North Coast properties: seasonal, higher rental yield in summer (10–15% annual yield)",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 22
+    }
+  },
+  {
+    "id": "b99477ec9f1f97d8",
+    "content": "her rental yield in summer (10–15% annual yield)\n\n----------------------------------------------------------------\nSECTION 7 — SALES ETHICS & CLIENT COMMUNICATION (أخلاقيات البيع)\n----------------------------------------------------------------\n\n7.1 Salesperson Responsibilities\n  - NEVER quote prices not approved in the official price list\n  - NEVER promise delivery dates earlier than the official contracted date\n  - NEVER offer discounts beyond what is authorized in Sections 3.1 and 3.2\n  - ALW",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 23
+    }
+  },
+  {
+    "id": "e330e78ab00c81d0",
+    "content": "what is authorized in Sections 3.1 and 3.2\n  - ALWAYS disclose the maintenance fee and maintenance deposit before signing\n  - ALWAYS confirm payment plan terms in writing — verbal promises are not binding\n\n7.2 Complaints Handling (التعامل مع الشكاوى)\n  - Client complaints must be escalated to sales manager within 24 hours\n  - Written response to client within 3 working days\n  - Escalation path: Sales Rep → Sales Manager → Customer Relations Director",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 24
+    }
+  },
+  {
+    "id": "1072cd6dc9b078c0",
+    "content": "ep → Sales Manager → Customer Relations Director\n\n7.3 Anti-Bribery & Gifts Policy\n  - Sales representatives may NOT accept gifts valued above 200 EGP from clients\n  - Any offered gift above this amount must be reported to management immediately\n  - Violation of this policy is grounds for immediate termination\n\n----------------------------------------------------------------\nSECTION 8 — FREQUENTLY ASKED QUESTIONS (أسئلة شائعة)\n----------------------------------------------------------------",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 25
+    }
+  },
+  {
+    "id": "b9515d0c6e880f61",
+    "content": "------------------------------------------------\n\nQ: هل ممكن أزود المقدم وأقلل فترة التقسيط؟\nA: نعم، الجدول في القسم 3.1 يوضح الخيارات المتاحة. كلما زاد المقدم، كلما قلت فترة التقسيط وزاد الخصم.\n\nQ: Can a foreigner (non-Egyptian) buy?\nA: Yes. Foreign nationals may purchase with valid passport. Additional paperwork required (residence permit or notarized POA).",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 26
+    }
+  },
+  {
+    "id": "f41db46fcefaded1",
+    "content": "ork required (residence permit or notarized POA). Resale restricted — cannot resell within 5 years without government approval for foreign buyers.\n\nQ: هل فيه خصم للموظفين الحكوميين؟\nA: لا يوجد خصم خاص للموظفين الحكوميين في مشاريعنا الحالية. الخصومات متاحة للجميع وفقاً لخطط الدفع المحددة.\n\nQ: Can I pay with cryptocurrency?\nA: No. Company accepts only EGP cash, bank transfer, or certified checks.",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 27
+    }
+  },
+  {
+    "id": "03b8931510340c63",
+    "content": "nly EGP cash, bank transfer, or certified checks. No foreign currency or cryptocurrency accepted.\n\nQ: هل المشاريع مسجلة رسمياً في الشهر العقاري؟\nA: نعم، جميع مشاريعنا مرخصة من وزارة الإسكان وهيئة المجتمعات العمرانية. سند الملكية يُصدر بعد السداد الكامل خلال 12–18 شهراً.\n\nQ: What happens if I lose my job and can't pay installments?\nA: We offer a one-time installment deferral for up to 3 months (no penalty) upon written request with documentation.",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 28
+    }
+  },
+  {
+    "id": "29a14efd8433e44a",
+    "content": "penalty) upon written request with documentation. Extensions beyond 3 months are subject to management approval and may require restructuring the payment plan.\n\n================================================================\nEND OF COMPANY POLICIES DOCUMENT\nFor questions contact: sales@vcai-realestate.com | 19XXX\n================================================================",
+    "source": "company_policies.txt",
+    "metadata": {
+      "source": "company_policies.txt",
+      "chunk_index": 29
+    }
+  },
+  {
+    "id": "c32e4f4405bd0f64",
+    "content": "================================================================\nVCAI REAL ESTATE KNOWLEDGE BASE — SAMPLE PROPERTIES\nLast Updated: April 2026\n================================================================\n\n----------------------------------------------------------------\nPROPERTY 1 — Palm Hills Compound, 6th of October City\n----------------------------------------------------------------\nProject Name: Palm Hills October (بالم هيلز أكتوبر)\nDeveloper: Palm Hills Developments\nLocation: 6th of Octo",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 0
+    }
+  },
+  {
+    "id": "64d806922efc26c6",
+    "content": "per: Palm Hills Developments\nLocation: 6th of October City, Giza Governorate — km 38 Cairo–Alexandria Desert Road\nType: Apartment (شقة)\n\nUnit Sizes:\n  - Studio: 70–85 m²\n  - 1-bedroom: 90–110 m²\n  - 2-bedroom: 130–160 m²\n  - 3-bedroom: 175–220 m²\n  - 4-bedroom duplex: 260–300 m²",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 1
+    }
+  },
+  {
+    "id": "bdb2494fd7f1d123",
+    "content": "oom: 175–220 m²\n  - 4-bedroom duplex: 260–300 m²\n\nPrices (2026):\n  - Studio: starts from 1,800,000 EGP\n  - 1-bedroom: 2,400,000 – 3,200,000 EGP\n  - 2-bedroom: 3,500,000 – 4,800,000 EGP\n  - 3-bedroom: 5,200,000 – 7,000,000 EGP\n  - 4-bedroom duplex: 8,500,000 – 11,000,000 EGP",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 2
+    }
+  },
+  {
+    "id": "d1f1caad450fc612",
+    "content": "- 4-bedroom duplex: 8,500,000 – 11,000,000 EGP\n\nPayment Plans:\n  - Plan A: 10% downpayment + 8 years installments (0% interest)\n  - Plan B: 15% downpayment + 6 years installments\n  - Plan C: 20% downpayment + 5 years installments (5% discount on unit price)\n  - Plan D: 30% downpayment + 3 years installments (10% discount on unit price)\n  - Cash price: 15% discount on listed price\n\nDelivery: Q4 2026 (semi-finished) | Fully finished units: Q2 2027",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 3
+    }
+  },
+  {
+    "id": "1a4731b25a8beb59",
+    "content": "(semi-finished) | Fully finished units: Q2 2027\n\nFeatures & Amenities:\n  - مسبح (Swimming pools) — 3 pools per cluster\n  - نادي رياضي / جيم (Gym & health club)\n  - Club house — 4,500 m²\n  - أمن على مدار الساعة (24/7 security + CCTV)\n  - جراج (Underground parking — 1 space per unit)\n  - حضانة وروضة أطفال (Nursery & kindergarten)\n  - مطاعم وكافيهات (Restaurants & cafés within compound)\n  - مساحات خضراء 40% من المشروع (40% green areas)\n  - Commercial strip with supermarket",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 4
+    }
+  },
+  {
+    "id": "96433fb959129855",
+    "content": "een areas)\n  - Commercial strip with supermarket\n\nFinishing Options:\n  - Semi-finished (عظم): standard price\n  - Fully finished: additional 1,500 EGP/m²\n  - Super-lux finished: additional 2,500 EGP/m²\n\n----------------------------------------------------------------\nPROPERTY 2 — Madinaty Compound, New Cairo\n----------------------------------------------------------------\nProject Name: Madinaty (مدينتي)\nDeveloper: Talaat Moustafa Group (TMG)\nLocation: New Cairo, Cairo Governorate — 45 km east of",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 5
+    }
+  },
+  {
+    "id": "89fc1c873188262c",
+    "content": "ion: New Cairo, Cairo Governorate — 45 km east of Cairo city center\nType: Apartments, Villas, Townhouses\n\nUnit Sizes:\n  - 1-bedroom apartment: 80–100 m²\n  - 2-bedroom apartment: 115–145 m²\n  - 3-bedroom apartment: 160–195 m²\n  - 4-bedroom apartment: 210–260 m²\n  - Townhouse: 220–280 m²\n  - Villa standalone: 350–600 m²",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 6
+    }
+  },
+  {
+    "id": "34975329cbf220d2",
+    "content": "use: 220–280 m²\n  - Villa standalone: 350–600 m²\n\nPrices (2026):\n  - 1-bedroom: 2,000,000 – 2,800,000 EGP\n  - 2-bedroom: 3,200,000 – 4,500,000 EGP\n  - 3-bedroom: 4,800,000 – 6,500,000 EGP\n  - 4-bedroom: 7,000,000 – 9,500,000 EGP\n  - Townhouse: 9,500,000 – 14,000,000 EGP\n  - Standalone villa: 18,000,000 – 35,000,000 EGP",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 7
+    }
+  },
+  {
+    "id": "0b75bf1bc3d271d2",
+    "content": "- Standalone villa: 18,000,000 – 35,000,000 EGP\n\nPayment Plans:\n  - Plan A: 5% downpayment + 10 years installments\n  - Plan B: 10% downpayment + 8 years installments\n  - Plan C: 20% downpayment + 6 years installments (5% discount)\n  - Cash: 10% discount\n\nMaintenance Fee: 12 EGP/m²/month\nDelivery: Immediate delivery (immediate_delivery) on selected buildings | New phases: Q1 2028",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 8
+    }
+  },
+  {
+    "id": "47fdbe9f0cdc8e3c",
+    "content": "ery) on selected buildings | New phases: Q1 2028\n\nFeatures & Amenities:\n  - إجمالي المشروع 8 مليون متر مربع (Total project: 8 million m²)\n  - شاطئ اصطناعي وبحيرة (Artificial beach & lake)\n  - نادي سبورتيف ونادي اجتماعي (Sporting & social club)\n  - المدارس الدولية (International schools: GEMS, Future)\n  - مستشفى متكامل (Full hospital — مستشفى مدينتي)\n  - مراكز تجارية (Malls: Open Air Mall & Madinaty Mall)\n  - ملاعب جولف (18-hole golf course)\n  - جميع أنواع الوحدات بالتكييف والتشطيب الكامل (All un",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 9
+    }
+  },
+  {
+    "id": "3d401aea5378e0b6",
+    "content": "ميع أنواع الوحدات بالتكييف والتشطيب الكامل (All units fully AC & finished)\n\n----------------------------------------------------------------\nPROPERTY 3 — Zed East, New Cairo (ZED East)\n----------------------------------------------------------------\nProject Name: Zed East (زيد إيست)\nDeveloper: Ora Developers (Naguib Sawiris group)\nLocation: New Cairo — 5 minutes from 90th Street, Ring Road intersection\nType: Apartments and Penthouse",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 10
+    }
+  },
+  {
+    "id": "15567a2c3c6d313d",
+    "content": "Road intersection\nType: Apartments and Penthouse\n\nUnit Sizes:\n  - 1-bedroom: 85–105 m²\n  - 2-bedroom: 140–165 m²\n  - 3-bedroom: 190–230 m²\n  - Penthouse 3-bedroom: 280–350 m²\n\nPrices (2026):\n  - 1-bedroom: 2,800,000 – 3,600,000 EGP\n  - 2-bedroom: 4,500,000 – 6,000,000 EGP\n  - 3-bedroom: 6,500,000 – 9,000,000 EGP\n  - Penthouse: 12,000,000 – 18,000,000 EGP\n\nPayment Plans:\n  - 10% downpayment + 7 years installments\n  - 15% downpayment + 5 years installments (3% discount)\n  - Cash: 12% discount",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 11
+    }
+  },
+  {
+    "id": "cc2a26cafbe9e196",
+    "content": "nstallments (3% discount)\n  - Cash: 12% discount\n\nDelivery: Q3 2027 fully finished\n\nFeatures & Amenities:\n  - Crystal Lagoon 12,000 m² (بحيرة كريستال)\n  - Club house 5,000 m²\n  - Spa & wellness center\n  - مسبح لانهائي (Infinity pools)\n  - 24/7 smart security (face recognition entry)\n  - Electric vehicle charging stations\n  - Smart home automation ready",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 12
+    }
+  },
+  {
+    "id": "186977aa0ccaf77b",
+    "content": "harging stations\n  - Smart home automation ready\n\n----------------------------------------------------------------\nPROPERTY 4 — Mountain View iCity, New Cairo\n----------------------------------------------------------------\nProject Name: Mountain View iCity (ماونتن فيو آي سيتي)\nDeveloper: Mountain View Developments\nLocation: New Cairo — near AUC (American University in Cairo)\nType: Apartments, Lofts, Villas",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 13
+    }
+  },
+  {
+    "id": "6b32d024e1ba8690",
+    "content": "ersity in Cairo)\nType: Apartments, Lofts, Villas\n\nUnit Sizes:\n  - Studio loft: 65–80 m²\n  - 1-bedroom: 95–120 m²\n  - 2-bedroom: 145–175 m²\n  - 3-bedroom: 195–240 m²\n  - Chalet (ground floor with garden): 165–200 m² + 80–150 m² garden\n\nPrices (2026):\n  - Studio: 2,200,000 – 2,900,000 EGP\n  - 1-bedroom: 3,100,000 – 4,200,000 EGP\n  - 2-bedroom: 4,500,000 – 6,200,000 EGP\n  - 3-bedroom: 6,800,000 – 9,500,000 EGP\n  - Ground floor with garden: additional 20% on unit price",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 14
+    }
+  },
+  {
+    "id": "daf1cfb71af54863",
+    "content": "floor with garden: additional 20% on unit price\n\nPayment Plans:\n  - Standard: 10% downpayment + 8 years (equal monthly installments)\n  - Accelerated: 20% downpayment + 5 years (7% discount)\n  - Cash: 15% discount\n\nDelivery: Immediate on select buildings | Q2 2027 for new phases\nFinishing: Fully finished (tiles, kitchen cabinets, AC units)",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 15
+    }
+  },
+  {
+    "id": "51aac3a2c4903698",
+    "content": "lly finished (tiles, kitchen cabinets, AC units)\n\nFeatures:\n  - Park نادي الحديقة المركزي (Central park — 120 feddans)\n  - مسابح للأطفال والكبار (Pools — family & adult)\n  - Track دراجات وجري (Cycling & running tracks 5 km)\n  - Clubhouse 6,000 m²\n  - Retail area and pharmacy\n  - Underground parking for each building",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 16
+    }
+  },
+  {
+    "id": "ee3ae1b114441800",
+    "content": "armacy\n  - Underground parking for each building\n\n----------------------------------------------------------------\nPROPERTY 5 — Al Karma 4, Sheikh Zayed\n----------------------------------------------------------------\nProject Name: Al Karma 4 (الكارمة 4)\nDeveloper: SODIC (Sixth of October Development & Investment Company)\nLocation: Sheikh Zayed City, Giza Governorate — near Mall of Arabia\nType: Twin houses, Townhouses, Standalone villas",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 17
+    }
+  },
+  {
+    "id": "ab7931cc63b7fc88",
+    "content": "Type: Twin houses, Townhouses, Standalone villas\n\nUnit Sizes:\n  - Townhouse: 250–300 m² BUA + 150–200 m² land\n  - Twin house: 280–320 m² BUA + 200–250 m² land\n  - Standalone villa: 350–500 m² BUA + 350–600 m² land\n\nPrices (2026):\n  - Townhouse: 8,500,000 – 11,000,000 EGP\n  - Twin house: 12,000,000 – 16,000,000 EGP\n  - Standalone villa: 18,000,000 – 30,000,000 EGP",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 18
+    }
+  },
+  {
+    "id": "ffef5c48ee992dc8",
+    "content": "- Standalone villa: 18,000,000 – 30,000,000 EGP\n\nPayment Plans:\n  - 10% downpayment + 8 years installments\n  - 20% downpayment + 6 years installments (5% price reduction)\n  - Cash: 10% reduction\n\nDelivery: Q4 2027 (semi-finished for villas) | Fully finished optional add-on\n\nFeatures:\n  - Gated community بوابات الأمن (Manned security gates)\n  - Club House 3,500 m²\n  - مسابح خاصة وعامة (Private & communal pools)\n  - Retail strip and café\n  - كل وحدة بها جراج مزدوج (Each unit has double garage)",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 19
+    }
+  },
+  {
+    "id": "a74c74387a04198e",
+    "content": "حدة بها جراج مزدوج (Each unit has double garage)\n\n----------------------------------------------------------------\nPROPERTY 6 — Maadi Residence Towers, Maadi\n----------------------------------------------------------------\nProject Name: Maadi Residence Towers (أبراج المعادي ريزيدنس)\nDeveloper: Egyptian Real Estate Group (EREG)\nLocation: Maadi, Cairo — Corniche El Nile, 15 km from Tahrir Square\nType: High-rise apartments, 24 floors",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 20
+    }
+  },
+  {
+    "id": "125cceb1ef2c2952",
+    "content": "rir Square\nType: High-rise apartments, 24 floors\n\nUnit Sizes:\n  - 1-bedroom: 85–100 m²\n  - 2-bedroom: 120–150 m²\n  - 3-bedroom: 165–200 m²\n  - Penthouse (4-bedroom): 280–320 m²\n\nPrices (2026):\n  - 1-bedroom: 2,500,000 – 3,500,000 EGP\n  - 2-bedroom: 3,800,000 – 5,200,000 EGP\n  - 3-bedroom: 5,500,000 – 7,500,000 EGP\n  - Penthouse: 11,000,000 – 15,000,000 EGP\n  - Nile-view floor premium: +15% on listed price",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 21
+    }
+  },
+  {
+    "id": "b86207cc46347941",
+    "content": "- Nile-view floor premium: +15% on listed price\n\nPayment Plans:\n  - 15% downpayment + 7 years\n  - 25% downpayment + 5 years (5% discount)\n  - Cash: 10% discount\n\nDelivery: Immediate delivery (fully finished, ready to move in)\n\nFeatures:\n  - إطلالة على النيل من الطوابق 10+ (Nile view from floor 10+)\n  - Rooftop pool and lounge\n  - Concierge service 24/7\n  - Underground parking (1 space per unit, additional space available)\n  - Gym on level 3\n  - Generator backup on all units\n  - Smart meters and",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 22
+    }
+  },
+  {
+    "id": "837e9f1242a0082f",
+    "content": "Generator backup on all units\n  - Smart meters and fiber internet infrastructure\n\n----------------------------------------------------------------\nPROPERTY 7 — Capital Heights, New Administrative Capital\n----------------------------------------------------------------\nProject Name: Capital Heights (كابيتال هايتس)\nDeveloper: Ora Developers\nLocation: New Administrative Capital (العاصمة الإدارية الجديدة) — R7 residential district\nType: Apartments, Duplexes",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 23
+    }
+  },
+  {
+    "id": "be8c5089482e9ed5",
+    "content": "residential district\nType: Apartments, Duplexes\n\nUnit Sizes:\n  - 1-bedroom: 90–110 m²\n  - 2-bedroom: 130–160 m²\n  - 3-bedroom: 175–215 m²\n  - Duplex 4-bedroom: 240–300 m²\n\nPrices (2026):\n  - 1-bedroom: 1,800,000 – 2,500,000 EGP\n  - 2-bedroom: 2,800,000 – 3,900,000 EGP\n  - 3-bedroom: 4,200,000 – 5,800,000 EGP\n  - Duplex: 7,000,000 – 10,000,000 EGP\n\nPayment Plans:\n  - 5% downpayment + 10 years installments (government-supported)\n  - 10% downpayment + 8 years\n  - Cash: 10% discount",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 24
+    }
+  },
+  {
+    "id": "5283cbdc49f3c31e",
+    "content": "10% downpayment + 8 years\n  - Cash: 10% discount\n\nDelivery: Q1 2028 (semi-finished) | Q3 2028 (fully finished option)\n\nFeatures:\n  - قرب من المتحف المصري الكبير الجديد (Near Grand Egyptian Museum — 40 min drive)\n  - Central Park محاذي للمشروع\n  - Schools and universities nearby\n  - All infrastructure provided by New Administrative Capital Authority\n  - مترو العاصمة الإدارية (Metro line — expected 2027)",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 25
+    }
+  },
+  {
+    "id": "77c87200fa363534",
+    "content": "رو العاصمة الإدارية (Metro line — expected 2027)\n\n----------------------------------------------------------------\nPROPERTY 8 — Westown Residences, Sheikh Zayed\n----------------------------------------------------------------\nProject Name: Westown Residences (وست تاون ريزيدنسيز)\nDeveloper: SODIC West\nLocation: Sheikh Zayed City — adjacent to Beverly Hills Compound\nType: Apartments, Penthouse units",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 26
+    }
+  },
+  {
+    "id": "5c450ccc552618da",
+    "content": "Hills Compound\nType: Apartments, Penthouse units\n\nUnit Sizes:\n  - 1-bedroom: 80–100 m²\n  - 2-bedroom: 120–150 m²\n  - 3-bedroom: 165–200 m²\n  - Penthouse: 260–310 m²\n\nPrices (2026):\n  - 1-bedroom: 2,600,000 – 3,400,000 EGP\n  - 2-bedroom: 3,900,000 – 5,200,000 EGP\n  - 3-bedroom: 5,500,000 – 7,300,000 EGP\n  - Penthouse: 9,500,000 – 14,000,000 EGP\n\nPayment Plans:\n  - 10% downpayment + 8 years installments\n  - 20% downpayment + 6 years (6% discount)\n  - Cash: 12% discount",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 27
+    }
+  },
+  {
+    "id": "8569e8020723bd36",
+    "content": "t + 6 years (6% discount)\n  - Cash: 12% discount\n\nDelivery: Q2 2027 fully finished\n\nFeatures:\n  - Integrated community with Westown Hub (shopping/dining)\n  - Cycling lane 8 km\n  - Club Westown — 10,000 m² social club\n  - Schools: Westown School (British curriculum)\n  - Nearby: Mall of Arabia, Arkan Mall\n  - Natural gas connection in all units",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 28
+    }
+  },
+  {
+    "id": "79db6cab3db65072",
+    "content": "kan Mall\n  - Natural gas connection in all units\n\n----------------------------------------------------------------\nPROPERTY 9 — Azzar Island, North Coast\n----------------------------------------------------------------\nProject Name: Azzar Island (أزار آيلاند)\nDeveloper: Inertia Egypt\nLocation: North Coast (الساحل الشمالي) — km 200 Alexandria–Matrouh road\nType: Chalets, villas (summer/vacation)",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 29
+    }
+  },
+  {
+    "id": "73697c18747f3318",
+    "content": "ouh road\nType: Chalets, villas (summer/vacation)\n\nUnit Sizes:\n  - Chalet 1-bedroom: 65–85 m²\n  - Chalet 2-bedroom: 100–130 m²\n  - Chalet 3-bedroom: 145–175 m²\n  - Twin chalet: 180–220 m² + private garden\n\nPrices (2026):\n  - 1-bedroom: 2,000,000 – 2,800,000 EGP\n  - 2-bedroom: 3,200,000 – 4,500,000 EGP\n  - 3-bedroom: 4,800,000 – 6,500,000 EGP\n  - Twin chalet: 7,500,000 – 11,000,000 EGP\n  - Sea-view premium: +20% on listed price",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 30
+    }
+  },
+  {
+    "id": "cab67fced84efb2b",
+    "content": "0 EGP\n  - Sea-view premium: +20% on listed price\n\nPayment Plans:\n  - 5% booking fee + 10% within 3 months + 8 years installments\n  - 20% downpayment + 6 years installments\n  - Cash: 15% discount\n\nDelivery: Summer 2027 (seasonal delivery — June)\nFinishing: Fully finished\n\nFeatures:\n  - شاطئ خاص 800 متر (Private beach 800 m)\n  - Crystal Lagoon 25,000 m²\n  - Beach club and water sports center\n  - مطاعم على البحر (Beachfront restaurants)\n  - 24/7 year-round security\n  - Central supermarket",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 31
+    }
+  },
+  {
+    "id": "0ebefa14cae3c575",
+    "content": "24/7 year-round security\n  - Central supermarket\n\n----------------------------------------------------------------\nPROPERTY 10 — Nile Business City (Residential Towers), New Cairo\n----------------------------------------------------------------\nProject Name: Nile Business City Residences (أبراج سكنية — مدينة النيل للأعمال)\nDeveloper: Al Ahly Sabbour\nLocation: New Cairo — Cairo Ring Road, Mostorod Exit\nType: High-rise residential tower, 40 floors",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 32
+    }
+  },
+  {
+    "id": "d712b745658afef3",
+    "content": "xit\nType: High-rise residential tower, 40 floors\n\nUnit Sizes:\n  - Studio: 55–70 m²\n  - 1-bedroom: 90–110 m²\n  - 2-bedroom: 135–160 m²\n  - 3-bedroom: 180–220 m²\n\nPrices (2026):\n  - Studio: 1,600,000 – 2,100,000 EGP\n  - 1-bedroom: 2,400,000 – 3,200,000 EGP\n  - 2-bedroom: 3,700,000 – 5,000,000 EGP\n  - 3-bedroom: 5,500,000 – 7,500,000 EGP\n\nPayment Plans:\n  - 10% downpayment + 7 years\n  - 15% downpayment + 6 years (4% discount)\n  - Cash: 10% discount",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 33
+    }
+  },
+  {
+    "id": "bd16e0484b6749c3",
+    "content": "t + 6 years (4% discount)\n  - Cash: 10% discount\n\nDelivery: Q3 2027 semi-finished | Full finishing option available\n\nFeatures:\n  - Panoramic Nile view from floors 20+\n  - Business lounge on ground floor\n  - Gym + pool on 5th floor podium\n  - Smart building management system\n  - Central a/c option available\n  - Retail and F&B at base of tower",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 34
+    }
+  },
+  {
+    "id": "b1527335e1c93c3e",
+    "content": "on available\n  - Retail and F&B at base of tower\n\n----------------------------------------------------------------\nPRICE REFERENCE SUMMARY TABLE (2026)\n----------------------------------------------------------------\nProject                   | Type        | Size Range (m²) | Price Range (EGP)\nPalm Hills October        | Apartment   | 70–300          | 1.8M – 11M\nMadinaty                  | Apt/Villa   | 80–600          | 2M – 35M\nZed East                  | Apartment   | 85–350          | 2.8M",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 35
+    }
+  },
+  {
+    "id": "1b2444efadfad351",
+    "content": "| Apartment   | 85–350          | 2.8M – 18M\nMountain View iCity       | Apt/Villa   | 65–240          | 2.2M – 9.5M\nAl Karma 4 (SODIC)        | Villa/TH    | 250–500 BUA     | 8.5M – 30M\nMaadi Residence Towers    | High-rise   | 85–320          | 2.5M – 15M\nCapital Heights (NAC)     | Apartment   | 90–300          | 1.8M – 10M\nWestown Residences        | Apartment   | 80–310          | 2.6M – 14M\nAzzar Island (N Coast)    | Chalet      | 65–220          | 2M – 11M\nNile Business City",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 36
+    }
+  },
+  {
+    "id": "eee6d1da128558eb",
+    "content": "| 65–220          | 2M – 11M\nNile Business City        | High-rise   | 55–220          | 1.6M – 7.5M",
+    "source": "sample_properties.txt",
+    "metadata": {
+      "source": "sample_properties.txt",
+      "chunk_index": 37
+    }
+  },
+  {
+    "id": "42172a2362a461ef_palm_hills_october",
+    "content": "بالم هيلز أكتوبر | Palm Hills October | مدينة 6 أكتوبر، الجيزة — كيلو 38 طريق القاهرة الإسكندرية الصحراوي | 6th of October City, Giza — km 38 Cairo-Alexandria Desert Road | Palm Hills Developments | 6th_october | بالم هيلز 6 أكتوبر شقق كمبوند مسبح جيم أمن استوديو دوبلكس | palm hills october apartment compound pool gym security studio duplex | سعر من 1,800,000 إلى 11,000,000 جنيه | price from 1,800,000 to 11,000,000 EGP | 3 swimming pools per cluster Gym & health club Club house 4,500 m² 24/7 security + CCTV Underground parking 1 space per unit Nursery & kindergarten Restaurants & cafes within compound 40% green areas Commercial strip with supermarket | Fully finished option available for additional 1,500 EGP/m² (super-lux: 2,500 EGP/m²). Plan C (20% down) 5% discount; Plan D (30% down) 10% discount; cash 15% discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "palm_hills_october",
+      "type": "property_structured",
+      "name_ar": "بالم هيلز أكتوبر",
+      "city": "6th_october"
+    }
+  },
+  {
+    "id": "a06e8c64cdfff9c6_madinaty",
+    "content": "مدينتي | Madinaty | القاهرة الجديدة — 45 كم شرق وسط القاهرة | New Cairo — 45 km east of Cairo city center | Talaat Moustafa Group (TMG) | new_cairo | مدينتي القاهرة الجديدة TMG فيلا تاون هاوس مدرسة دولية مستشفى جولف استلام فوري | madinaty new cairo TMG villa townhouse school hospital golf immediate delivery | سعر من 2,000,000 إلى 35,000,000 جنيه | price from 2,000,000 to 35,000,000 EGP | Total project 8 million m² Artificial beach & lake Sporting & social club International schools GEMS and Future Full hospital — Madinaty Hospital Open Air Mall & Madinaty Mall 18-hole golf course All units fully air-conditioned & finished | Immediate delivery on select buildings. New phases Q1 2028. Maintenance fee 12 EGP/m²/month. 5% down government plan available; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "madinaty",
+      "type": "property_structured",
+      "name_ar": "مدينتي",
+      "city": "new_cairo"
+    }
+  },
+  {
+    "id": "3278741eeef1cc16_zed_east",
+    "content": "زيد إيست | Zed East | القاهرة الجديدة — 5 دقائق من شارع التسعين دائري | New Cairo — 5 minutes from 90th Street Ring Road intersection | Ora Developers — Naguib Sawiris group | new_cairo | زيد إيست القاهرة الجديدة أورا بنتهاوس بحيرة كريستال سبا سمارت هوم سيارات كهربائية | zed east new cairo ora penthouse crystal lagoon spa smart home EV charging | سعر من 2,800,000 إلى 18,000,000 جنيه | price from 2,800,000 to 18,000,000 EGP | Crystal Lagoon 12,000 m² Club house 5,000 m² Spa & wellness center Infinity pools 24/7 smart security with face recognition entry Electric vehicle charging stations Smart home automation ready Penthouse units available | 15% down gets 3% discount; 12% cash discount. Luxury project targeting high-income buyers near 90th Street.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "zed_east",
+      "type": "property_structured",
+      "name_ar": "زيد إيست",
+      "city": "new_cairo"
+    }
+  },
+  {
+    "id": "fb259462e61b2594_mountain_view_icity",
+    "content": "ماونتن فيو آي سيتي | Mountain View iCity | القاهرة الجديدة — بجوار الجامعة الأمريكية AUC | New Cairo — near AUC American University in Cairo | Mountain View Developments | new_cairo | ماونتن فيو القاهرة الجديدة آي سيتي AUC حديقة مركزية دراجات شاليه بجنينة استلام فوري | mountain view icity new cairo AUC central park cycling chalet garden immediate delivery | سعر من 2,200,000 إلى 9,500,000 جنيه | price from 2,200,000 to 9,500,000 EGP | Central park 120 feddans Family & adult pools Cycling & running tracks 5 km Clubhouse 6,000 m² Retail area and pharmacy Underground parking per building Tiles kitchen cabinets and AC units included in finishing | Immediate delivery on select buildings. Ground floor with garden units 20% extra. 20% down gets 7% discount; 15% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "mountain_view_icity",
+      "type": "property_structured",
+      "name_ar": "ماونتن فيو آي سيتي",
+      "city": "new_cairo"
+    }
+  },
+  {
+    "id": "0bc7b48ed17b2cd0_al_karma_4",
+    "content": "الكارمة 4 | Al Karma 4 | مدينة الشيخ زايد، الجيزة — بجوار مول العرب | Sheikh Zayed City, Giza — near Mall of Arabia | SODIC — Sixth of October Development and Investment Company | sheikh_zayed | الكارمة الشيخ زايد SODIC فيلا تاون هاوس توين هاوس جراج مزدوج كمبوند مسور | al karma sheikh zayed SODIC villa townhouse twin house gated double garage | سعر من 8,500,000 إلى 30,000,000 جنيه | price from 8,500,000 to 30,000,000 EGP | Gated community with manned security gates Club House 3,500 m² Private & communal pools Retail strip and cafe Double garage per unit Twin houses townhouses and standalone villas | Fully finished add-on available. 20% down gets 5% price reduction; 10% cash reduction. Minimum land: townhouse 150 m², twin 200 m², villa 350 m².",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "al_karma_4",
+      "type": "property_structured",
+      "name_ar": "الكارمة 4",
+      "city": "sheikh_zayed"
+    }
+  },
+  {
+    "id": "9b271ee1935b3699_westown_residences",
+    "content": "وست تاون ريزيدنسيز | Westown Residences | مدينة الشيخ زايد — بجوار كمبوند بيفرلي هيلز | Sheikh Zayed City — adjacent to Beverly Hills Compound | SODIC West | sheikh_zayed | وست تاون الشيخ زايد SODIC بيفرلي هيلز مدرسة بريطانية دراجات مول العرب أركان | westown sheikh zayed SODIC beverly hills british school cycling arkan mall | سعر من 2,600,000 إلى 14,000,000 جنيه | price from 2,600,000 to 14,000,000 EGP | Integrated community with Westown Hub shopping and dining Cycling lane 8 km Club Westown 10,000 m² social club Westown School British curriculum Near Mall of Arabia and Arkan Mall Natural gas connection in all units Penthouse units available | 20% down gets 6% discount; 12% cash discount. Adjacent to Westown Hub commercial area with restaurants and shops.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "westown_residences",
+      "type": "property_structured",
+      "name_ar": "وست تاون ريزيدنسيز",
+      "city": "sheikh_zayed"
+    }
+  },
+  {
+    "id": "a1de7833fe00bec3_maadi_residence_towers",
+    "content": "أبراج المعادي ريزيدنس | Maadi Residence Towers | المعادي، القاهرة — كورنيش النيل، 15 كم من التحرير | Maadi, Cairo — Corniche El Nile, 15 km from Tahrir Square | Egyptian Real Estate Group (EREG) | maadi | المعادي أبراج النيل كورنيش إطلالة نيل استلام فوري 24 دور بنتهاوس | maadi towers nile view corniche high rise immediate delivery 24 floors penthouse | سعر من 2,500,000 إلى 15,000,000 جنيه | price from 2,500,000 to 15,000,000 EGP | Nile view from floor 10 and above Rooftop pool and lounge Concierge service 24/7 Underground parking 1 space per unit Gym on level 3 Generator backup on all units Smart meters and fiber internet infrastructure | Immediate delivery ready to move in. Nile-view floors (10+) carry 15% premium. 25% down gets 5% discount; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "maadi_residence_towers",
+      "type": "property_structured",
+      "name_ar": "أبراج المعادي ريزيدنس",
+      "city": "maadi"
+    }
+  },
+  {
+    "id": "f141385df40e314c_capital_heights_nac",
+    "content": "كابيتال هايتس | Capital Heights | العاصمة الإدارية الجديدة — الحي السكني R7 | New Administrative Capital — R7 residential district | Ora Developers | new_administrative_capital | العاصمة الإدارية كابيتال هايتس أورا R7 مترو دوبلكس المتحف المصري أرخص | new administrative capital capital heights ora R7 metro duplex grand egyptian museum | سعر من 1,800,000 إلى 10,000,000 جنيه | price from 1,800,000 to 10,000,000 EGP | Near Grand Egyptian Museum 40 min drive Adjacent Central Park Schools and universities nearby Full infrastructure by New Administrative Capital Authority Metro line expected 2027 Duplex units available | 5% down government-supported plan available. Fully finished option Q3 2028. 10% cash discount. Lowest price per m² among all projects.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "capital_heights_nac",
+      "type": "property_structured",
+      "name_ar": "كابيتال هايتس",
+      "city": "new_administrative_capital"
+    }
+  },
+  {
+    "id": "130c6e3b21adcfde_azzar_island_north_coast",
+    "content": "أزار آيلاند | Azzar Island | الساحل الشمالي — كيلو 200 طريق الإسكندرية مطروح | North Coast — km 200 Alexandria-Matrouh road | Inertia Egypt | north_coast | أزار آيلاند الساحل الشمالي شاليه شاطئ خاص بحيرة كريستال إينيرشيا صيف إجازة | azzar island north coast chalet private beach crystal lagoon inertia summer vacation | سعر من 2,000,000 إلى 11,000,000 جنيه | price from 2,000,000 to 11,000,000 EGP | Private beach 800 m Crystal Lagoon 25,000 m² Beach club and water sports center Beachfront restaurants 24/7 year-round security Central supermarket Private gardens for twin chalets | Sea-view units carry 20% premium. 5% booking + 10% within 3 months option available. 15% cash discount. Seasonal summer delivery June 2027.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "azzar_island_north_coast",
+      "type": "property_structured",
+      "name_ar": "أزار آيلاند",
+      "city": "north_coast"
+    }
+  },
+  {
+    "id": "1b8678d5591df19d_nile_business_city_residences",
+    "content": "أبراج مدينة النيل للأعمال السكنية | Nile Business City Residences | القاهرة الجديدة — الطريق الدائري، مخرج مستورد | New Cairo — Cairo Ring Road, Mostorod Exit | Al Ahly Sabbour | new_cairo | مدينة النيل للأعمال القاهرة الجديدة الأهلي صبور برج إطلالة نيل الدائري استوديو استثمار | nile business city new cairo al ahly sabbour tower nile view ring road studio investment | سعر من 1,600,000 إلى 7,500,000 جنيه | price from 1,600,000 to 7,500,000 EGP | Panoramic Nile view from floors 20 and above Business lounge on ground floor Gym and pool on 5th floor podium Smart building management system Central AC option available Retail and food and beverage at base of tower 40-floor high-rise tower | Full finishing option available. 15% down gets 4% discount; 10% cash discount. Studio units from 55 m² ideal for investment buyers.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "nile_business_city_residences",
+      "type": "property_structured",
+      "name_ar": "أبراج مدينة النيل للأعمال السكنية",
+      "city": "new_cairo"
+    }
+  },
+  {
+    "id": "20a03552fcf05ddb_heliopolis_heights",
+    "content": "هيليوبوليس هايتس | Heliopolis Heights | مصر الجديدة، القاهرة — بالقرب من مطار القاهرة الدولي | Heliopolis, Cairo — near Cairo International Airport | Arab Contractors Real Estate | heliopolis | مصر الجديدة هيليوبوليس الكوربة مطار القاهرة موقع مركزي العرب المقاولون | heliopolis masr el gedida korba cairo airport central location arab contractors | سعر من 3,000,000 إلى 9,000,000 جنيه | price from 3,000,000 to 9,000,000 EGP | Central location Heliopolis 20 min from downtown Near Cairo International Airport 15 min Lobby concierge service Rooftop garden and lounge Underground garage Mature trees and landscaping Close to Korba commercial district | Prime location for business professionals and expats. 20% down gets 5% discount; 10% cash discount.",
+    "source": "properties.json",
+    "metadata": {
+      "source": "properties.json",
+      "property_id": "heliopolis_heights",
+      "type": "property_structured",
+      "name_ar": "هيليوبوليس هايتس",
+      "city": "heliopolis"
+    }
+  },
+  {
+    "id": "a889d760c51eb47e_reservation_deposit",
+    "content": "عربون الحجز والتعاقد | Reservation Deposit & Booking | reservation | حجز عربون تعاقد مقدم وثائق | reservation booking deposit contract downpayment documents | رسوم حجز الوحدات أقل من 2 مليون جنيه رسوم حجز الوحدات من 2 مليون إلى 5 مليون جنيه رسوم حجز الوحدات أكثر من 5 مليون جنيه مبلغ العربون يُخصم من المقدم وليس إضافياً الحجز يحجز الوحدة لعدد أيام تقويمية فقط التعاقد الكامل يجب أن يتم خلال أيام من الحجز طرق الدفع المقبولة للحجز | Reservation fee for units under 2,000,000 EGP Reservation fee for units between 2,000,000 and 5,000,000 EGP Reservation fee for units above 5,000,000 EGP Reservation fee is deducted from total downpayment, not additional Reservation holds the unit for calendar days only Full contract must be signed within days of reservation Accepted payment methods for reservation",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "reservation_deposit",
+      "type": "policy_structured",
+      "title_ar": "عربون الحجز والتعاقد",
+      "category": "reservation"
+    }
+  },
+  {
+    "id": "8cdd07f6a79ef0c0_installment_structure",
+    "content": "شروط التقسيط | Installment Plan Terms | payment_plans | تقسيط أقساط فائدة غرامة تأخر سداد مبكر إنذار | installment payment plan interest late penalty early settlement notice | جميع خطط التقسيط أقساط شهرية متساوية بدون أقساط مضخمة نسبة الفائدة على خطط التقسيط القياسية للمطور فترة السماح لتأخر السداد قبل تطبيق الغرامة غرامة التأخر أسبوعياً بعد فترة السماح أيام عدم السداد قبل إصدار إنذار رسمي أيام عدم السداد قبل الشركة تلغي العقد خصم للتسوية المبكرة الكاملة على الرصيد المتبقي تأجيل قسط واحد مرة مسموح به عند الطلب الكتابي | All installment plans are equal monthly payments with no balloon payments Interest rate on standard developer payment plans Grace period for late payment before penalty applies Late payment penalty per week after grace period Days of non-payment before formal notice is issued Days of non-payment before company may cancel contract Discount for early full settlement on remaining balance One-time installment deferral period allowed upon written request",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "installment_structure",
+      "type": "policy_structured",
+      "title_ar": "شروط التقسيط",
+      "category": "payment_plans"
+    }
+  },
+  {
+    "id": "781b60ab1a7515d8_discount_schedule",
+    "content": "جدول الخصومات حسب نسبة المقدم | Discount Schedule by Downpayment Percentage | discounts | خصم مقدم كاش حجز مبكر جدول الخصومات | discount downpayment cash discount early booking discount schedule | مقدم 5% مع تقسيط 10 سنوات — خصم مقدم 10% مع تقسيط 8 سنوات — خصم مقدم 15% مع تقسيط 6 سنوات — خصم مقدم 20% مع تقسيط 5 سنوات — خصم مقدم 25% مع تقسيط 4 سنوات — خصم مقدم 30% مع تقسيط 3 سنوات — خصم مقدم 50% مع تقسيط سنتين — خصم دفع كاش 100% — خصم خصم الحجز المبكر خلال أول 60 يوم من إطلاق المشروع — خصم إضافي لا يمكن الجمع بين خصومات متعددة — يُطبق أعلى خصم ممكن | 5% downpayment with 10 years installments — discount 10% downpayment with 8 years installments — discount 15% downpayment with 6 years installments — discount 20% downpayment with 5 years installments — discount 25% downpayment with 4 years installments — discount 30% downpayment with 3 years installments — discount 50% downpayment with 2 years installments — discount 100% cash payment — discount Early booking discount during first 60 days of project launch — additional discount Multiple discounts cannot be combined — highest applicable applies",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "discount_schedule",
+      "type": "policy_structured",
+      "title_ar": "جدول الخصومات حسب نسبة المقدم",
+      "category": "discounts"
+    }
+  },
+  {
+    "id": "0a2e36f0d591a7c3_cancellation_policy",
+    "content": "سياسة الإلغاء | Cancellation Policy | cancellation | إلغاء استرداد مصادرة غرامة إلغاء فسخ عقد | cancellation refund forfeit cancellation penalty contract termination | إلغاء خلال 7 أيام من الحجز — استرداد كامل إلغاء بعد 7 أيام وقبل التعاقد — يُصادر جزء من العربون إلغاء خلال 30 يوم من التعاقد — يُصادر جزء من المقدم إلغاء من 30 يوم حتى سنة من التعاقد — يُصادر من إجمالي المدفوع إلغاء أكثر من سنة من التعاقد — يُصادر من إجمالي المدفوع مدة معالجة الاسترداد بعد طلب الإلغاء بأيام عمل إلغاء المطور لعدم السداد — رسوم إدارية من إجمالي المدفوع | Cancellation within 7 days of reservation — full refund Cancellation after 7 days but before contract signing — reservation fee forfeited Cancellation within 30 days of contract signing — downpayment amount forfeited Cancellation 30 days to 1 year after signing — total paid amount forfeited Cancellation more than 1 year after signing — total paid amount forfeited Refund processing time after cancellation request in working days Developer cancellation for non-payment — administrative fee from total paid",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "cancellation_policy",
+      "type": "policy_structured",
+      "title_ar": "سياسة الإلغاء",
+      "category": "cancellation"
+    }
+  },
+  {
+    "id": "14711cf8f25e0b49_unit_transfer",
+    "content": "تحويل العقد وإعادة البيع قبل الاستلام | Unit Transfer and Sub-Sale | transfer | تحويل عقد بيع قبل الاستلام رسوم التحويل موافقة الشركة | contract transfer sub-sale transfer fee company approval resale before delivery | تحويل العقد لطرف آخر يستلزم موافقة الشركة رسوم التحويل كنسبة من سعر الوحدة المتبقي — حد أدنى للرسوم الحد الأدنى لرسوم التحويل بالجنيه المصري مدة الموافقة على التحويل بأيام عمل من استلام الوثائق رسوم البيع قبل الاستلام كنسبة من سعر الوحدة الأصلي المشتري الأصلي مسؤول عن جميع الأقساط حتى إتمام التحويل | Contract transfer to another party requires company approval Transfer fee as percentage of remaining unit price — minimum fee Minimum transfer fee in EGP Transfer approval time in working days upon receipt of full documentation Sub-sale fee before delivery as percentage of original unit price Original buyer responsibility until transfer is officially processed",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "unit_transfer",
+      "type": "policy_structured",
+      "title_ar": "تحويل العقد وإعادة البيع قبل الاستلام",
+      "category": "transfer"
+    }
+  },
+  {
+    "id": "a5bdfe74524c1258_maintenance_fees",
+    "content": "صندوق الصيانة والرسوم السنوية | Maintenance Reserve and Annual Fees | maintenance | صيانة رسوم صيانة وديعة صيانة صندوق الصيانة رسوم سنوية | maintenance maintenance fee maintenance deposit annual fee compound upkeep | وديعة صيانة لمرة واحدة عند التعاقد كنسبة من سعر الوحدة وديعة الصيانة قابلة للاسترداد عند البيع بالمبلغ الأصلي رسوم الصيانة السنوية لكل متر مربع في السنة موعد سداد رسوم الصيانة السنوية ما تشمله الصيانة: صيانة الكمبوند والمسابح والمساحات الخضراء والأمن والمناطق المشتركة إصلاحات داخل الوحدة مسؤولية المشتري وغير مشمولة بالصيانة | One-time maintenance deposit at contract signing as percentage of unit price Maintenance deposit refundable upon unit resale at original amount Annual maintenance fee per square meter per year range Annual maintenance fee due date What maintenance covers: compound upkeep pools green areas security common areas In-unit repairs are buyer's responsibility not covered by maintenance",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "maintenance_fees",
+      "type": "policy_structured",
+      "title_ar": "صندوق الصيانة والرسوم السنوية",
+      "category": "maintenance"
+    }
+  },
+  {
+    "id": "8633fcd40fe49f56_delivery_process",
+    "content": "إجراءات الاستلام والمعاينة | Delivery Process and Inspection | delivery | استلام تسليم معاينة ملاحظات سند ملكية تأخر تسليم | delivery inspection snagging title deed delayed delivery handover | مدة الإشعار المسبق قبل موعد التسليم المشتري يجب أن يسدد جميع الأقساط المتأخرة قبل المعاينة أيام من الإشعار لتحديد موعد المعاينة فترة إصلاح الملاحظات بعد المعاينة غرامة تأخر المطور شهرياً بعد تأخر 6 أشهر الحد الأقصى للتخفيض الإجمالي بسبب تأخر المطور يحق للمشتري الإلغاء فقط إذا تجاوز التأخير عدد الأشهر سند الملكية يُصدر خلال أشهر بعد السداد الكامل | Advance notice period before delivery date Buyer must clear all outstanding installments before inspection Days from notification to schedule inspection Snagging repair period after inspection Developer delay penalty per month beyond 6 months late Maximum total reduction for developer delay Buyer cancellation allowed only if delay exceeds months Title deed issued within months after full payment",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "delivery_process",
+      "type": "policy_structured",
+      "title_ar": "إجراءات الاستلام والمعاينة",
+      "category": "delivery"
+    }
+  },
+  {
+    "id": "54dfe1b192d0f2be_cash_payment_discount",
+    "content": "قواعد خصم الدفع الكاش | Cash Payment Discount Rules | discounts | كاش خصم كاش دفع كامل عملة جنيه مصري | cash cash discount full payment currency EGP no crypto no forex | الخصم الكاش القياسي على السعر المعلن خصم الكاش ينطبق فقط إذا دُفع 100% من سعر الوحدة خلال أيام من الحجز العملات المقبولة في الدفع قبول العملات الرقمية قبول العملة الأجنبية | Standard cash discount on listed price Cash discount applies only if 100% of unit price paid within days of reservation Accepted payment currencies Cryptocurrency accepted Foreign currency accepted",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "cash_payment_discount",
+      "type": "policy_structured",
+      "title_ar": "قواعد خصم الدفع الكاش",
+      "category": "discounts"
+    }
+  },
+  {
+    "id": "2b7890795e273180_bank_mortgage",
+    "content": "التمويل البنكي وخيارات الرهن العقاري | Bank Mortgage and Financing Options | financing | تمويل بنكي رهن عقاري بنك مصر CIB QNB الإسكان والتعمير فائدة بنكية | bank mortgage financing banque misr CIB QNB housing bank bank interest | بنك شريك بنك مصر — أقصى سنوات تمويل وأدنى فائدة بنك شريك CIB — أقصى سنوات تمويل وأدنى فائدة بنك شريك بنك الإسكان والتعمير — أسعار مدعومة للإسكان الاجتماعي بنك شريك QNB الأهلي — أقصى سنوات تمويل الموافقة المبدئية للبنك مطلوبة قبل التعاقد عند استخدام التمويل البنكي | Partner bank Banque Misr — maximum mortgage years and starting interest rate Partner bank CIB Egypt — maximum mortgage years and starting interest rate Partner bank Housing and Development Bank — subsidized social housing rates Partner bank QNB Alahli — maximum mortgage years Mortgage pre-approval required before contract signing when using bank finance",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "bank_mortgage",
+      "type": "policy_structured",
+      "title_ar": "التمويل البنكي وخيارات الرهن العقاري",
+      "category": "financing"
+    }
+  },
+  {
+    "id": "d43d823f517dbf7a_sales_ethics",
+    "content": "أخلاقيات البيع ومسؤوليات البائع | Sales Ethics and Salesperson Responsibilities | ethics | أخلاقيات مسؤوليات البائع إفصاح شكاوى هدايا التزامات | sales ethics salesperson duties disclosure complaints gifts obligations | يُحظر على البائع ذكر أسعار غير معتمدة في قائمة الأسعار الرسمية يُحظر الوعد بمواعيد تسليم أبكر من التاريخ المعاقد عليه رسمياً يُحظر تقديم خصومات غير مصرح بها خارج الجدول الرسمي يجب دائماً الإفصاح عن رسوم الصيانة والوديعة قبل التوقيع الوعود الشفهية بخطط الدفع غير ملزمة قانوناً — يجب أن تكون كتابية أقصى قيمة هدية يمكن للبائع قبولها من العميل مدة تصعيد شكاوى العملاء لمدير المبيعات بالساعات رد كتابي على شكوى العميل بأيام العمل | Salesperson must NEVER quote prices not in the official approved price list Salesperson must NEVER promise delivery dates earlier than official contracted date Salesperson must NEVER offer unauthorized discounts beyond official schedule Salesperson must ALWAYS disclose maintenance fee and deposit before signing Verbal payment plan promises are NOT legally binding — must be in writing Maximum gift value salesperson may accept from client Client complaint escalation time to sales manager in hours Written response to client complaint in working days",
+    "source": "policies.json",
+    "metadata": {
+      "source": "policies.json",
+      "policy_id": "sales_ethics",
+      "type": "policy_structured",
+      "title_ar": "أخلاقيات البيع ومسؤوليات البائع",
+      "category": "ethics"
+    }
+  }
+]

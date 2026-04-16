@@ -38,8 +38,8 @@ def _gather_context(state):
     print(f"  Checkpoints: {len(memory.get('checkpoints', []))}")
     print(f"  Recent messages: {len(memory.get('recent_messages', []))}")
     for i, msg in enumerate(memory.get('recent_messages', [])[-6:]):  # Last 6
-        role = msg.get('role', 'unknown')
-        content = msg.get('content', '')[:50]
+        role = msg.get('speaker', 'unknown')
+        content = msg.get('text', '')[:50]
         print(f"    {i+1}. [{role}]: {content}...")
     print("="*60 + "\n")
     

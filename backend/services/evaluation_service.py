@@ -181,10 +181,11 @@ def compute_quick_stats(db: Session, session_id: UUID) -> Dict[str, Any]:
     return quick_stats
 
 
-def _run_evaluation_background(session_id: UUID, mode: str):
+def run_evaluation_background(session_id: UUID, mode: str):
     """
-    Run evaluation in background thread.
-    Calls Menna's EvaluationManager which runs Ismail's LangGraph pipeline.
+    Run evaluation in a background worker (called by FastAPI BackgroundTasks or
+    a thread pool). Calls EvaluationManager → LangGraph pipeline → saves result
+    to the EvaluationReport DB row.
     """
     from backend.database import get_db_context
     
@@ -286,7 +287,7 @@ def trigger_evaluation(
             db.refresh(existing)
             
             # Start evaluation in background
-            _executor.submit(_run_evaluation_background, session_id, mode)
+            _executor.submit(run_evaluation_background, session_id, mode)
             return existing
     
     # Create new report (handles race conditions internally)
@@ -300,7 +301,7 @@ def trigger_evaluation(
         except Exception as e:
             print(f"[EVAL] Quick stats error: {e}")
         
-        # Start evaluation in background thread
-        _executor.submit(_run_evaluation_background, session_id, mode)
-    
+        # Start evaluation in background thread (legacy path; new router uses BackgroundTasks)
+        _executor.submit(run_evaluation_background, session_id, mode)
+
     return report

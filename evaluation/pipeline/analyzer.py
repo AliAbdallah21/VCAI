@@ -54,13 +54,13 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             return mark_failed(state, "Analyzer: transcript is empty")
 
         emotion_log = state.get("emotion_log", [])
-        rag_context = state.get("rag_context", [])
+        structured_fact_check = state.get("structured_fact_check", {})
 
         # Build analyzer prompt (doc requirement: use skills + checkpoints)
         prompt = build_analyzer_prompt(
             transcript=transcript,
             emotion_log=emotion_log,
-            rag_context=rag_context,
+            structured_fact_check=structured_fact_check,
             skill_configs=[cfg.model_dump() for cfg in SKILL_CONFIGS.values()],
             checkpoint_configs=[cfg.model_dump() for cfg in CHECKPOINT_CONFIGS.values()],
             AnalysisReport=AnalysisReport,

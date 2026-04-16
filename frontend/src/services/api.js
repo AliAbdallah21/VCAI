@@ -44,14 +44,14 @@ export const sessionsAPI = {
 };
 
 export const evaluationAPI = {
-  triggerEvaluation: (sessionId, mode = 'training') => 
-    api.post(`/evaluation/${sessionId}/trigger?mode=${mode}`).then(r => r.data),
-  getStatus: (sessionId) => 
-    api.get(`/evaluation/${sessionId}/status`).then(r => r.data),
-  getQuickStats: (sessionId) => 
-    api.get(`/evaluation/${sessionId}/quick-stats`).then(r => r.data),
-  getReport: (sessionId) => 
-    api.get(`/evaluation/${sessionId}/report`).then(r => r.data),
+  triggerEvaluation: (sessionId, mode = 'training') =>
+    api.post(`/sessions/${sessionId}/evaluate?mode=${mode}`).then(r => r.data),
+  getStatus: (sessionId) =>
+    api.get(`/sessions/${sessionId}/eval-status`).then(r => r.data),
+  getQuickStats: (sessionId) =>
+    api.get(`/sessions/${sessionId}/quick-stats`).then(r => r.data),
+  getReport: (sessionId) =>
+    api.get(`/sessions/${sessionId}/report`).then(r => r.data),
 };
 
 export const createWebSocket = (sessionId) => {

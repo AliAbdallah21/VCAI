@@ -1,11 +1,18 @@
 # orchestration/nodes/rag_node.py
 """
-RAG (Retrieval-Augmented Generation) node for orchestration.
-Retrieves relevant documents based on conversation context.
+RAG helper utilities — for the EVALUATION pipeline only.
 
-Used for:
-1. AI Customer - Ask realistic, company-specific questions
-2. Evaluation - Check if salesperson gave correct information
+⚠️  RAG is NOT part of the real-time conversation pipeline.
+    The virtual customer responds solely based on its persona configuration.
+    Do NOT import or wire rag_node into conversation_graph.py.
+
+RAG is used exclusively in the post-session evaluation pipeline
+(evaluation/manager.py) to fact-check what the salesperson said:
+    - Did the salesperson quote correct prices?
+    - Did they describe features/locations accurately?
+    - Did they follow correct payment plan policies?
+
+The helper `format_rag_context_for_llm()` is re-used by evaluation prompts.
 """
 import time
 from orchestration.state import ConversationState

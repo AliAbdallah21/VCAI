@@ -237,6 +237,20 @@ def detect_text_emotion(text: str) -> TextEmotionResult:
         return _keyword_based_detection(text)
 
 
+def predict(text: str) -> tuple:
+    """
+    Convenience wrapper: run text emotion detection and return a simple tuple.
+
+    Args:
+        text: Arabic text string.
+
+    Returns:
+        (emotion_label: str, confidence: float)
+    """
+    result = detect_text_emotion(text)
+    return result["primary_emotion"], result["confidence"]
+
+
 # ══════════════════════════════════════════════════════════════════════════════
 # TESTING
 # ══════════════════════════════════════════════════════════════════════════════

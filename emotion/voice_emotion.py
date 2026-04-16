@@ -219,3 +219,17 @@ def detect_emotion(
             intensity="low",
             scores={emotion: 0.2 for emotion in EMOTION_LABELS.keys()}
         )
+
+
+def predict(audio_array: np.ndarray) -> tuple:
+    """
+    Convenience wrapper: run voice emotion detection and return a simple tuple.
+
+    Args:
+        audio_array: Float32 numpy array at 16 kHz.
+
+    Returns:
+        (emotion_label: str, confidence: float)
+    """
+    result = detect_emotion(text="", audio=audio_array)
+    return result["primary_emotion"], result["confidence"]

@@ -1,0 +1,511 @@
+{
+  "status": "completed",
+  "report": {
+    "mode": "training",
+    "passed": null,
+    "scores": {
+      "skills": [
+        {
+          "score": 30,
+          "weight": 0.12,
+          "summary": "Basic greeting provided but lacked personalization and follow-up on family needs",
+          "skill_key": "rapport_building",
+          "strengths": [
+            "Basic professional greeting was provided"
+          ],
+          "skill_name": "Rapport Building",
+          "was_tested": true,
+          "evidence_turns": [
+            0
+          ],
+          "areas_to_improve": [
+            "Should acknowledge customer's name when greeting",
+            "Could ask about family size/needs after customer mentioned family housing",
+            "Missing small talk or personal connection elements"
+          ],
+          "weighted_contribution": 3.6
+        },
+        {
+          "score": 40,
+          "weight": 0.12,
+          "summary": "Responded to basic questions but missed several important customer concerns",
+          "skill_key": "active_listening",
+          "strengths": [
+            "Responded to some basic questions about property features"
+          ],
+          "skill_name": "Active Listening",
+          "was_tested": true,
+          "evidence_turns": [
+            2,
+            12
+          ],
+          "areas_to_improve": [
+            "Should acknowledge all customer questions before moving to new information",
+            "Need to demonstrate understanding by summarizing customer concerns",
+            "Should clarify when communication breaks down (Turn 12)"
+          ],
+          "weighted_contribution": 4.8
+        },
+        {
+          "score": 35,
+          "weight": 0.14,
+          "summary": "Provided property options but failed to ask about specific family needs or budget range",
+          "skill_key": "needs_discovery",
+          "strengths": [
+            "Provided information on multiple property options"
+          ],
+          "skill_name": "Needs Discovery",
+          "was_tested": true,
+          "evidence_turns": [
+            0,
+            3
+          ],
+          "areas_to_improve": [
+            "Should ask about specific budget range rather than just offering properties",
+            "Need to ask about family size, bedroom requirements, location preferences",
+            "Should confirm understanding of needs before presenting solutions"
+          ],
+          "weighted_contribution": 4.9
+        },
+        {
+          "score": 65,
+          "weight": 0.14,
+          "summary": "Good knowledge of amenities and payment options but provided incorrect pricing information",
+          "skill_key": "product_knowledge",
+          "strengths": [
+            "Knew basic property features and amenities",
+            "Provided information on payment plans and discounts"
+          ],
+          "skill_name": "Product Knowledge",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            5
+          ],
+          "areas_to_improve": [
+            "Need accurate pricing information for all properties",
+            "Should provide more specific details about property features"
+          ],
+          "weighted_contribution": 9.1
+        },
+        {
+          "score": 40,
+          "weight": 0.14,
+          "summary": "Offered payment alternatives but didn't directly address price concerns or explain value",
+          "skill_key": "objection_handling",
+          "strengths": [
+            "Offered alternative payment options (cash discount, installment plans)"
+          ],
+          "skill_name": "Objection Handling",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            2,
+            10,
+            11
+          ],
+          "areas_to_improve": [
+            "Should acknowledge price concerns directly before offering solutions",
+            "Need to explain value proposition when price objections arise",
+            "Should validate customer concerns rather than just providing alternatives"
+          ],
+          "weighted_contribution": 5.6
+        },
+        {
+          "score": 30,
+          "weight": 0.12,
+          "summary": "Failed to recognize or address customer's negative emotions throughout the conversation",
+          "skill_key": "emotional_intelligence",
+          "strengths": [
+            "Maintained professional tone throughout conversation"
+          ],
+          "skill_name": "Emotional Intelligence",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            10
+          ],
+          "areas_to_improve": [
+            "Should acknowledge customer's concerns about prices",
+            "Need to show empathy when customer expresses dissatisfaction",
+            "Should adapt approach when customer remains in negative emotional state"
+          ],
+          "weighted_contribution": 3.6
+        },
+        {
+          "score": 55,
+          "weight": 0.12,
+          "summary": "Recognized closing signals and provided booking information but lacked benefit summary",
+          "skill_key": "closing_skills",
+          "strengths": [
+            "Recognized opportunity to suggest immediate reservation",
+            "Provided specific booking amount information"
+          ],
+          "skill_name": "Closing Skills",
+          "was_tested": true,
+          "evidence_turns": [
+            7,
+            8,
+            9
+          ],
+          "areas_to_improve": [
+            "Should summarize benefits before asking for commitment",
+            "Need to clarify all payment terms before attempting close",
+            "Should confirm customer understanding before proceeding"
+          ],
+          "weighted_contribution": 6.6
+        },
+        {
+          "score": 40,
+          "weight": 0.1,
+          "summary": "Used simple language for basics but had incomplete responses and one incomprehensible message",
+          "skill_key": "communication_clarity",
+          "strengths": [
+            "Used simple language for basic property information"
+          ],
+          "skill_name": "Communication Clarity",
+          "was_tested": true,
+          "evidence_turns": [
+            12
+          ],
+          "areas_to_improve": [
+            "Need to provide complete, clear responses to questions",
+            "Should use proper spelling and grammar consistently",
+            "Need to confirm understanding when communication issues arise"
+          ],
+          "weighted_contribution": 4.0
+        }
+      ],
+      "status": "failed",
+      "overall_score": 42,
+      "skills_passed": 0,
+      "skills_tested": 8,
+      "weakest_skill": "rapport_building",
+      "pass_threshold": 75,
+      "strongest_skill": "product_knowledge",
+      "points_from_passing": -33
+    },
+    "user_id": "usr_12345",
+    "report_id": "rep_20231115_1430",
+    "created_at": "2023-11-15T14:30:00Z",
+    "persona_id": "per_angry_customer",
+    "session_id": "sample_session_123",
+    "checkpoints": [
+      {
+        "icon": "❌",
+        "name": "Rapport Established",
+        "achieved": false,
+        "why_missed": "Customer remained angry throughout the conversation with no signs of rapport being established.",
+        "description": "Building trust and connection with the customer",
+        "how_achieved": null,
+        "how_to_achieve": "Use the customer's name, ask personal questions about their family needs, acknowledge their concerns, and show genuine interest in helping them find the right home.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "✅",
+        "name": "Needs Identified",
+        "achieved": true,
+        "why_missed": null,
+        "description": "Understanding customer requirements",
+        "how_achieved": "Customer stated they were looking for family housing with budget constraints.",
+        "how_to_achieve": null,
+        "achieved_at_turn": 0
+      },
+      {
+        "icon": "❌",
+        "name": "Value Demonstrated",
+        "achieved": false,
+        "why_missed": "No improvement in customer emotion after product presentation. Customer remained skeptical about prices and features.",
+        "description": "Showing how properties meet customer needs",
+        "how_achieved": null,
+        "how_to_achieve": "Connect property features specifically to family needs, explain why the price is justified by the value, and use comparisons to show relative value.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Objection Handled",
+        "achieved": false,
+        "why_missed": "Multiple price objections were not adequately addressed, and the customer remained concerned about costs.",
+        "description": "Addressing customer concerns effectively",
+        "how_achieved": null,
+        "how_to_achieve": "Acknowledge price concerns directly, validate the customer's perspective, explain the value proposition, and then offer alternatives or solutions.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "✅",
+        "name": "Closing Signal Recognized",
+        "achieved": true,
+        "why_missed": null,
+        "description": "Identifying when customer is ready to move forward",
+        "how_achieved": "Customer asked about reservation deadline, and salesperson responded with immediate booking option.",
+        "how_to_achieve": null,
+        "achieved_at_turn": 8
+      },
+      {
+        "icon": "❌",
+        "name": "Commitment Achieved",
+        "achieved": false,
+        "why_missed": "No commitment was secured. Conversation ended with confusion about payment terms.",
+        "description": "Securing next steps or purchase decision",
+        "how_achieved": null,
+        "how_to_achieve": "Summarize benefits, address all concerns, clarify payment terms completely, and ask for a specific commitment with clear next steps.",
+        "achieved_at_turn": null
+      }
+    ],
+    "quick_stats": {
+      "total_turns": 13,
+      "call_outcome": "customer_disengaged",
+      "customer_turns": 13,
+      "checkpoint_list": [
+        "✓ Needs Identified",
+        "✓ Closing Signal Recognized",
+        "✗ Rapport Established",
+        "✗ Value Demonstrated",
+        "✗ Objection Handled",
+        "✗ Commitment Achieved"
+      ],
+      "duration_seconds": 1200,
+      "emotion_improved": false,
+      "checkpoints_total": 6,
+      "salesperson_turns": 13,
+      "duration_formatted": "20:00",
+      "checkpoints_achieved": 2,
+      "final_customer_emotion": "angry"
+    },
+    "persona_name": "Budget-Conscious Family Buyer",
+    "raw_analysis": null,
+    "top_strengths": [
+      "Knowledge of property amenities and features including pool, gym, and security",
+      "Clear information about payment plans and interest rates",
+      "Recognition of closing signals and providing immediate booking options"
+    ],
+    "turn_feedback": [
+      {
+        "text": "أهلا بحضرتك، إزاي أقدر أساعد حضرتك؟",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 0,
+        "is_highlight": false,
+        "skills_shown": [
+          "rapport_building"
+        ],
+        "what_was_good": "Professional greeting that opens the conversation",
+        "what_to_improve": "Missing personalization and warmth that would help establish rapport",
+        "is_critical_moment": false,
+        "suggested_alternative": "أهلا بحضرتك، أنا [اسمك] من [اسم الشركة]. سعيد بالتحدث معك اليوم. كيف يمكنني مساعدتك في البحث عن منزل مناسب لك؟"
+      },
+      {
+        "text": "المساحات من أول 80 متر والمقدم 5% بس والتقصيد بيبقى على 10 سنين",
+        "tone": "critical",
+        "speaker": "salesperson",
+        "assessment": "poor",
+        "turn_number": 1,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "objection_handling"
+        ],
+        "what_was_good": "Provided some basic information about property sizes and payment terms",
+        "what_to_improve": "Provided incorrect pricing information and didn't address the customer's price objection directly",
+        "is_critical_moment": true,
+        "suggested_alternative": "أتفهم تماماً اهتمامك بالسعر، وهو عامل مهم. أسعار الوحدات في مدينتي تبدأ من 2 مليون جنيه وتختلف حسب المساحة والموقع. لدينا خطط دفع مرنة تبدأ بمقدم 5% فقط وتقسيط على 10 سنوات لتناسب ميزانيتك."
+      },
+      {
+        "text": "لو حضرتك عايز تدفع كاش في خصم 10%",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 2,
+        "is_highlight": false,
+        "skills_shown": [
+          "active_listening",
+          "objection_handling"
+        ],
+        "what_was_good": "Offered a cash discount option which could be valuable information",
+        "what_to_improve": "Ignored the customer's question about interest rates and didn't acknowledge their price concern",
+        "is_critical_moment": false,
+        "suggested_alternative": "بخصوص سؤالك عن الفوائد، هي 5% سنوياً على مدار فترة التقسيط. وإذا كنت تفضل الدفع كاش، فيمكننا تقديم خصم 10% على السعر الإجمالي، مما سيوفر لك مبلغاً كبيراً. هل تفضل خيار التقسيط أم الدفع النقدي؟"
+      },
+      {
+        "text": "في كمان شقق في أكتوبر بمساحات أكبر وبنفس السعر تقريباً",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 3,
+        "is_highlight": false,
+        "skills_shown": [
+          "needs_discovery"
+        ],
+        "what_was_good": "Introduced alternative options that might better fit the customer's needs",
+        "what_to_improve": "Introduced new property without confirming if first option met needs or asking about specific requirements",
+        "is_critical_moment": false,
+        "suggested_alternative": "قبل أن أقترح خيارات أخرى، أود أن أفهم احتياجات عائلتك بشكل أفضل. كم عدد أفراد الأسرة؟ وما هي المساحة المناسبة لكم؟ لدينا أيضاً شقق في أكتوبر بمساحات أكبر وبأسعار مماثلة قد تناسب احتياجاتكم."
+      },
+      {
+        "text": "الشقق في أكتوبر مساحتها بتبدأ من 100 متر",
+        "tone": "neutral",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 4,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge"
+        ],
+        "what_was_good": "Provided specific information about property sizes in October",
+        "what_to_improve": "Response is very brief and doesn't elaborate on features or benefits of these larger properties",
+        "is_critical_moment": false,
+        "suggested_alternative": "الشقق في أكتوبر تبدأ من مساحة 100 متر، مما يوفر مساحة أكبر للعائلة. تتميز هذه الشقق بتصميم عائلي مريح مع غرف نوم واسعة وصالة معيشة كبيرة. هل تفضل المساحات الأكبر لعائلتك؟"
+      },
+      {
+        "text": "الكمبوند فيه حمام سباحة وجيم وأمن 24 ساعة وجراج مجاني",
+        "tone": "positive",
+        "speaker": "salesperson",
+        "assessment": "good",
+        "turn_number": 5,
+        "is_highlight": true,
+        "skills_shown": [
+          "product_knowledge"
+        ],
+        "what_was_good": "Provided comprehensive information about compound amenities that add value to the property",
+        "what_to_improve": "Could connect these features to family benefits and explain how they justify the price",
+        "is_critical_moment": false,
+        "suggested_alternative": "الكمبوند مصمم خصيصاً للعائلات، ويضم حمام سباحة حيث يمكن لأطفالك الاستمتاع، وجيم للحفاظ على لياقتك، وأمن على مدار 24 ساعة لراحة بالك، وجراج مجاني يوفر عليك تكاليف إضافية. هذه المميزات تضيف قيمة حقيقية للسعر الذي تدفعه."
+      },
+      {
+        "text": "في كمان مصاريف صيانة 10 آلاف في السنة",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 6,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "communication_clarity"
+        ],
+        "what_was_good": "Provided transparent information about maintenance fees",
+        "what_to_improve": "Introduced a new cost without explaining the value or benefits of the maintenance services",
+        "is_critical_moment": false,
+        "suggested_alternative": "هناك أيضاً مصاريف صيانة سنوية قدرها 10 آلاف جنيه، وهي تغطي صيانة كاملة للمرافق المشتركة مثل حمام السباحة والجيم والحدائق، بالإضافة إلى خدمات النظافة والأمن، مما يضمن لك الحفاظ على جودة وقيمة العقار على المدى الطويل."
+      },
+      {
+        "text": "الفايدة بتبقى 5% على مدار العشر سنين",
+        "tone": "positive",
+        "speaker": "salesperson",
+        "assessment": "good",
+        "turn_number": 7,
+        "is_highlight": true,
+        "skills_shown": [
+          "product_knowledge",
+          "closing_skills"
+        ],
+        "what_was_good": "Provided clear answer about interest rate on installment plan",
+        "what_to_improve": "Response is very brief and could include more context about how this rate compares to market",
+        "is_critical_moment": false,
+        "suggested_alternative": "الفائدة ثابتة بنسبة 5% سنوياً على مدار العشر سنوات، وهي نسبة تنافسية مقارنة بمتوسط السوق الذي يتراوح بين 7-8%. هذا يعني أن قسطك الشهري سيكون ثابتاً ويمكنك التخطيط لميزانيتك بشكل مريح."
+      },
+      {
+        "text": "لو حضرتك اخدت قرار الحجز ممكن نعمل حجز دلوقتي وبمبلغ رمزي جداً 10 تلاف جنيه بس",
+        "tone": "positive",
+        "speaker": "salesperson",
+        "assessment": "good",
+        "turn_number": 8,
+        "is_highlight": true,
+        "skills_shown": [
+          "closing_skills"
+        ],
+        "what_was_good": "Recognized closing signal and offered immediate booking option with specific amount",
+        "what_to_improve": "Did not summarize benefits before asking for commitment or explain what the reservation fee covers",
+        "is_critical_moment": true,
+        "suggested_alternative": "بناءً على اهتمامك، يمكننا تأمين الوحدة لك اليوم بمبلغ حجز رمزي قدره 10 آلاف جنيه فقط. هذا المبلغ سيضمن لك الاستفادة من الخصم الحالي ويتم خصمه من إجمالي المقدم. الحجز يحمي حقك في الوحدة والسعر الحالي لمدة أسبوع حتى تتخذ قرارك النهائي. هل ترغب في المضي قدماً بالحجز؟"
+      },
+      {
+        "text": "10% هو أقل حاجة ممكن تدفعها عشان تحجز الشقة حاجز كامل مش حاجز إداري بس",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 9,
+        "is_highlight": false,
+        "skills_shown": [
+          "objection_handling",
+          "communication_clarity"
+        ],
+        "what_was_good": "Attempted to explain the difference between administrative and full reservation",
+        "what_to_improve": "Created confusion by contradicting previous statement about 10,000 EGP reservation fee",
+        "is_critical_moment": false,
+        "suggested_alternative": "دعني أوضح: هناك نوعان من الحجز. الحجز المبدئي هو 10 آلاف جنيه ويحفظ لك الوحدة لمدة أسبوع. أما الحجز الكامل فيتطلب دفع 10% من قيمة الوحدة كمقدم أول. هذا المبلغ يضمن لك الوحدة بشكل نهائي ويبدأ معه إجراءات التعاقد. هل تفضل البدء بالحجز المبدئي أولاً؟"
+      },
+      {
+        "text": "لا مش مصاريف إدارية. دي مصاريف صيانة سنوية للكمبوند كله",
+        "tone": "neutral",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 10,
+        "is_highlight": false,
+        "skills_shown": [
+          "objection_handling",
+          "emotional_intelligence"
+        ],
+        "what_was_good": "Clarified the nature of the maintenance fees",
+        "what_to_improve": "Did not address the customer's concern about additional costs or explain the value provided",
+        "is_critical_moment": true,
+        "suggested_alternative": "أتفهم قلقك بشأن التكاليف الإضافية. أود أن أوضح أن هذه ليست مصاريف إدارية، بل هي مصاريف صيانة سنوية للكمبوند بأكمله. هذه المصاريف ضرورية للحفاظ على جودة المرافق التي ستستفيد منها عائلتك مثل حمام السباحة والحدائق والأمن. هذه الخدمات تضيف قيمة حقيقية للعقار وتضمن بيئة معيشية راقية لعائلتك."
+      },
+      {
+        "text": "لو حضرتك عايز تعرف تفاصيل أكتر عن طرق الدفع ممكن نتقابل في المكتب ونوضح كل حاجة",
+        "tone": "neutral",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 11,
+        "is_highlight": false,
+        "skills_shown": [
+          "closing_skills"
+        ],
+        "what_was_good": "Offered next step for more detailed information about payment plans",
+        "what_to_improve": "Missed opportunity to address immediate concerns and secure commitment for meeting",
+        "is_critical_moment": false,
+        "suggested_alternative": "أرى أن لديك اهتماماً بمعرفة المزيد عن خطط الدفع. يمكنني تقديم موعد في مكتبنا غداً أو بعد غد لمناقشة كافة التفاصيل وعرض نماذج الوحدات بشكل أفضل. سنقوم أيضاً بإعداد خطة دفع مخصصة تناسب ميزانيتك تماماً. هل يناسبك الحضور غداً في الساعة 5 مساءً؟"
+      },
+      {
+        "text": "كُصَمْ مَا كَسَانْدِمْ",
+        "tone": "critical",
+        "speaker": "salesperson",
+        "assessment": "poor",
+        "turn_number": 12,
+        "is_highlight": true,
+        "skills_shown": [
+          "communication_clarity"
+        ],
+        "what_was_good": null,
+        "what_to_improve": "Response is completely incomprehensible and confuses the customer",
+        "is_critical_moment": false,
+        "suggested_alternative": "عذراً، يبدو أن هناك خطأ في الرسالة السابقة. ما أردت قوله هو: يمكنني تقديم كافة التفاصيل عن خطط الدفع والأسعار بشكل واضح خلال لقائنا. هل لديك أي استفسارات أخرى يمكنني الإجابة عليها الآن؟"
+      }
+    ],
+    "highlight_turns": [
+      5,
+      7,
+      8,
+      12
+    ],
+    "top_improvements": [
+      "Building rapport by personalizing the conversation and showing interest in the customer's family needs",
+      "Addressing price objections directly by acknowledging concerns before offering solutions",
+      "Demonstrating empathy and adapting approach when the customer shows negative emotions"
+    ],
+    "executive_summary": "You demonstrated good product knowledge about amenities and payment options, and successfully recognized closing signals. However, there's significant room for improvement in building rapport, addressing price objections directly, and showing empathy to the customer's concerns, which would help turn around negative customer emotions.",
+    "retake_recommended": null,
+    "include_raw_analysis": false,
+    "recommended_practice": [
+      "Practice acknowledging price objections directly: 'أتفهم قلقك بشأن السعر...' before offering solutions",
+      "Role-play building rapport with family buyers by asking specific questions about family size, children's ages, and specific housing needs",
+      "Practice explaining the value proposition of properties by connecting features to benefits for the family",
+      "Work on recognizing and responding to emotional cues by acknowledging customer feelings before moving to solutions",
+      "Practice clear explanations of payment terms and reservation processes to avoid customer confusion"
+    ],
+    "include_turn_feedback": true,
+    "certification_eligible": null
+  },
+  "overall_score": 42,
+  "passed": null
+}

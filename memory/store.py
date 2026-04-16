@@ -124,7 +124,7 @@ def get_recent_messages_db(session_id: str, last_n: int = 10) -> list[Message]:
         rows = (
             db.query(MessageDB)
             .filter(MessageDB.session_id == sid)
-            .order_by(MessageDB.turn_number.desc())
+            .order_by(MessageDB.turn_number.desc(), MessageDB.created_at.desc())
             .limit(last_n)
             .all()
         )

@@ -158,7 +158,7 @@ def load_chunks() -> List[RawChunk]:
         return []
     
     # Supported extensions
-    extensions = ['.json', '.txt', '*.md']
+    extensions = ['*.json', '*.txt', '*.md']
     
     for ext in extensions:
         for file_path in DOCS_DIR.glob(ext):

@@ -37,13 +37,18 @@ class EvaluationLLMWrapper:
     """
     
     def __init__(self):
-        self.api_key = os.getenv("OPENROUTER_API_KEY", "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")
+        self.api_key = os.environ.get("OPENROUTER_API_KEY")
+        if not self.api_key:
+            raise ValueError(
+                "OPENROUTER_API_KEY environment variable is required for evaluation. "
+                "Set it in your .env file or shell environment."
+            )
         self.base_url = "https://openrouter.ai/api/v1/chat/completions"
         # Try these models in order:
         # 1. "anthropic/claude-3.5-sonnet" (best, costs credits)
         # 2. "google/gemini-2.0-flash-exp:free" (free, good)
         # 3. "meta-llama/llama-3.1-70b-instruct" (cheap, decent)
-        self.model = "anthropic/claude-3.5-sonnet"
+        self.model = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-3.7-sonnet")
     
     def generate(self, *, system_prompt: str, user_prompt: str) -> str:
         """Generate response using OpenRouter."""
@@ -94,6 +99,7 @@ def gather_evaluation_inputs(session_id: str) -> dict:
     """
     from backend.database import get_db_context
     from backend.models import Session as TrainingSession, Message, EmotionLog
+    from backend.models.persona import Persona as PersonaModel
     from uuid import UUID
     
     logger.info(f"[MANAGER] Gathering inputs for session {session_id}")
@@ -146,29 +152,76 @@ def gather_evaluation_inputs(session_id: str) -> dict:
         elif session.started_at and session.ended_at:
             duration_seconds = int((session.ended_at - session.started_at).total_seconds())
         
+        # Look up persona for name and difficulty
+        persona = db.query(PersonaModel).filter(
+            PersonaModel.id == session.persona_id
+        ).first()
+        persona_name = (persona.name_ar or persona.name_en) if persona else session.persona_id
+        persona_difficulty = persona.difficulty if persona else "medium"
+
         # Session info
         session_info = {
             "session_id": str(session.id),
             "user_id": str(session.user_id),
             "persona_id": session.persona_id,
-            "persona_name": session.persona_id,  # TODO: Get actual name
-            "persona_difficulty": "medium",  # TODO: Get from persona
+            "persona_name": persona_name,
+            "persona_difficulty": persona_difficulty,
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
             "duration_seconds": duration_seconds,
         }
         
-        # RAG context (empty for now - would need to query RAG logs if stored)
-        rag_context = []
-        
         logger.info(f"[MANAGER] Gathered: {len(transcript)} messages, {len(emotion_log)} emotions")
-        
-        return {
-            "transcript": transcript,
-            "emotion_log": emotion_log,
-            "rag_context": rag_context,
-            "session_info": session_info,
-        }
+
+    # Run structured fact-checking outside the DB session
+    structured_fact_check = _gather_fact_check_context(transcript)
+
+    return {
+        "transcript": transcript,
+        "emotion_log": emotion_log,
+        "rag_context": [],
+        "structured_fact_check": structured_fact_check,
+        "session_info": session_info,
+    }
+
+
+# ═══════════════════════════════════════════════════════════════════════════════
+# RAG Fact-Checking Context Gathering
+# ═══════════════════════════════════════════════════════════════════════════════
+
+def _gather_fact_check_context(transcript: list) -> dict:
+    """
+    Run structured fact-checking via hybrid RAG pipeline (claim extraction + KB comparison).
+
+    This is called AFTER the session ends. The result is pre-computed and passed directly
+    to the analyzer prompt, replacing unreliable unstructured RAG text chunks.
+
+    Args:
+        transcript: List of TranscriptMessage dicts from the session
+
+    Returns:
+        Structured fact-check result dict from rag.agent.fact_check_transcript, or {}
+        on failure (evaluation still runs, just without fact-checking).
+    """
+    try:
+        from rag.agent import fact_check_transcript
+    except ImportError:
+        logger.warning("[MANAGER] RAG module not available — fact-checking will be skipped")
+        return {}
+
+    try:
+        result = fact_check_transcript(transcript)
+        errors = result.get("errors", [])
+        logger.info(
+            "[Evaluation] Fact-check complete: %d claims checked, %d errors found, accuracy_rate=%.1f%%",
+            result.get("claims_checked", 0),
+            len(errors),
+            result.get("accuracy_rate", 1.0) * 100,
+        )
+        return result
+    except Exception as exc:
+        logger.warning("[MANAGER] Fact-check failed: %s — evaluation continues without it", exc)
+        return {}
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
@@ -222,21 +275,22 @@ class EvaluationManager:
         
         try:
             # Step 1: Gather inputs from database
-            self._log("[MENNA] Gathering inputs from database...")
+            self._log(" Gathering inputs from database...")
             inputs = gather_evaluation_inputs(session_id)
             
             # Step 2: Create initial state
             state = create_initial_state(session_id, mode)
-            self._log("[MENNA] Initial state created")
+            self._log(" Initial state created")
 
             # Step 3: Inject LLM FIRST (CRITICAL!)
-            self._log("[MENNA] Injecting LLM into state...")
+            self._log(" Injecting LLM into state...")
             state["llm"] = get_evaluation_llm()
 
             # Step 4: Populate state with gathered data
             state["transcript"] = inputs["transcript"]
             state["emotion_log"] = inputs["emotion_log"]
             state["rag_context"] = inputs["rag_context"]
+            state["structured_fact_check"] = inputs["structured_fact_check"]
             state["session_info"] = inputs["session_info"]
 
             # Verify LLM is still there
@@ -246,7 +300,7 @@ class EvaluationManager:
             # Step 5: Run Ismail's LangGraph pipeline
             from evaluation.graphs.evaluation_graph import run_evaluation
             
-            self._log("[MENNA] Running LangGraph evaluation pipeline...")
+            self._log(" Running LangGraph evaluation pipeline...")
             final_state = run_evaluation(state)
             
             # Step 6: Check for errors
@@ -259,8 +313,13 @@ class EvaluationManager:
             if not final_report:
                 raise RuntimeError("Pipeline completed but no final report generated")
             
-            self._log(f"[MENNA] Evaluation complete! Score: {final_report.scores.overall_score}/100")
-            
+            self._log(f" Evaluation complete! Score: {final_report.scores.overall_score}/100")
+
+            # NOTE: Saving the FinalReport to the EvaluationReport DB table is the
+            # responsibility of the CALLER (backend/services/evaluation_service.py →
+            # run_evaluation_background). This method intentionally returns the report
+            # without persisting it, so it remains testable without a DB dependency.
+
             return final_report
             
         except ImportError as e:
@@ -300,6 +359,7 @@ class EvaluationManager:
             state["transcript"] = inputs["transcript"]
             state["emotion_log"] = inputs["emotion_log"]
             state["rag_context"] = inputs["rag_context"]
+            state["structured_fact_check"] = inputs["structured_fact_check"]
             state["session_info"] = inputs["session_info"]
             state["llm"] = get_evaluation_llm()
             

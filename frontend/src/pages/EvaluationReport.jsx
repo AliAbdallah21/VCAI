@@ -20,37 +20,26 @@ export default function EvaluationReport() {
             const sessionData = await sessionsAPI.getById(sessionId);
             setSession(sessionData);
 
-            // Try to get existing report first
-            try {
-                const report = await evaluationAPI.getReport(sessionId);
+            // Get current report state (always returns 200 with a status field)
+            const report = await evaluationAPI.getReport(sessionId);
+
+            if (report.status === 'not_started') {
+                // No evaluation yet — trigger it
+                await evaluationAPI.triggerEvaluation(sessionId);
+                setEvaluation({ status: 'pending', progress: 0 });
+            } else {
                 setEvaluation(report);
                 if (report.quick_stats) {
                     setQuickStats(report.quick_stats);
                 }
-            } catch (reportErr) {
-                // No report exists, check status or trigger
-                if (reportErr.response?.status === 404) {
-                    // Try to get status
-                    const status = await evaluationAPI.getStatus(sessionId);
+            }
 
-                    if (status.status === 'not_found') {
-                        // Need to trigger evaluation
-                        await evaluationAPI.triggerEvaluation(sessionId);
-                        setEvaluation({ status: 'pending', progress: 0 });
-                    } else {
-                        setEvaluation(status);
-                    }
-
-                    // Get quick stats while waiting
-                    try {
-                        const stats = await evaluationAPI.getQuickStats(sessionId);
-                        setQuickStats(stats.stats);
-                    } catch {
-                        // Quick stats optional
-                    }
-                } else {
-                    throw reportErr;
-                }
+            // Get quick stats while waiting (non-blocking)
+            try {
+                const stats = await evaluationAPI.getQuickStats(sessionId);
+                setQuickStats(stats.stats);
+            } catch {
+                // Quick stats optional
             }
         } catch (err) {
             console.error('Evaluation fetch error:', err);
@@ -75,19 +64,14 @@ export default function EvaluationReport() {
             try {
                 const report = await evaluationAPI.getReport(sessionId);
                 setEvaluation(report);
+                if (report.quick_stats) setQuickStats(report.quick_stats);
                 if (report.status === 'completed' || report.status === 'failed') {
                     clearInterval(interval);
                 }
             } catch {
-                // Still processing, check status
-                try {
-                    const status = await evaluationAPI.getStatus(sessionId);
-                    setEvaluation(prev => ({ ...prev, ...status }));
-                } catch {
-                    // Ignore polling errors
-                }
+                // Ignore polling errors — will retry on next tick
             }
-        }, 2000);
+        }, 3000);
 
         return () => clearInterval(interval);
     }, [evaluation, sessionId]);

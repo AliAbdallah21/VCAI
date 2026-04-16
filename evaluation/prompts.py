@@ -167,35 +167,80 @@ def _system_style_guardrails() -> str:
     )
 
 
+def _format_fact_check_section(structured_fact_check: Dict[str, Any]) -> str:
+    """
+    Format the pre-computed structured fact-check results for inclusion in the prompt.
+    Returns a human-readable summary the LLM can use directly.
+    """
+    if not structured_fact_check:
+        return "No pre-computed fact-check results available — skip fact verification.\n"
+
+    claims_checked = structured_fact_check.get("claims_checked", 0)
+    accurate = structured_fact_check.get("accurate_count", 0)
+    inaccurate = structured_fact_check.get("inaccurate_count", 0)
+    accuracy_rate = structured_fact_check.get("accuracy_rate", 1.0)
+    errors = structured_fact_check.get("errors", [])
+    unverifiable = structured_fact_check.get("unverifiable_claims", [])
+
+    lines = [
+        f"Claims checked: {claims_checked}  |  Accurate: {accurate}  |  "
+        f"Inaccurate: {inaccurate}  |  Accuracy rate: {accuracy_rate * 100:.1f}%\n",
+    ]
+
+    if errors:
+        lines.append("ERRORS FOUND (use these directly for product_knowledge scoring):")
+        for err in errors:
+            sev = err.get("severity", "minor").upper()
+            ctype = err.get("claim_type", "")
+            prop = err.get("property_name", "")
+            claimed = err.get("claimed_value", "")
+            correct = err.get("correct_value", "")
+            explanation = err.get("explanation_ar", "")
+            turn = err.get("turn_number", "?")
+            lines.append(
+                f"  [{sev}] Turn {turn} | {ctype} | Property: {prop} | "
+                f"Claimed: {claimed} | Correct: {correct}"
+            )
+            if explanation:
+                lines.append(f"           {explanation}")
+    else:
+        lines.append("No factual errors detected in salesperson claims.")
+
+    if unverifiable:
+        lines.append(f"\nUnverifiable claims (property not identified): {len(unverifiable)}")
+
+    return "\n".join(lines) + "\n"
+
+
 def build_analyzer_prompt(
     transcript: List[Dict[str, Any]],
     emotion_log: List[Dict[str, Any]],
-    rag_context: List[Dict[str, Any]],
+    structured_fact_check: Dict[str, Any],
     skill_configs: List[Dict[str, Any]],
     checkpoint_configs: List[Dict[str, Any]],
     AnalysisReport: Type[BaseModel]
 ) -> str:
     """
     Build the complete analyzer prompt.
-    
+
     The analyzer performs Pass 1: deep analysis of what happened in the conversation.
-    
+
     Args:
         transcript: List of conversation turns with turn_number, speaker, text
         emotion_log: List of emotion detections with turn_number, emotion, confidence
-        rag_context: List of RAG retrievals with query, documents, sources
+        structured_fact_check: Pre-computed fact-check result from rag.agent.fact_check_transcript
         skill_configs: The 8 skills with name, name_ar, weight, description
         checkpoint_configs: The 6 checkpoints with name, name_ar, criteria
         AnalysisReport: Pydantic model class for schema generation
-    
+
     Returns:
         Complete system + user prompt for the analyzer
     """
     schema = json.dumps(json_schema_for_model(AnalysisReport), ensure_ascii=False, indent=2)
-    
+
     transcript_json = json.dumps(transcript, ensure_ascii=False, indent=2)
     emotion_json = json.dumps(emotion_log, ensure_ascii=False, indent=2)
-    rag_json = json.dumps(rag_context, ensure_ascii=False, indent=2)
+    fact_check_section = _format_fact_check_section(structured_fact_check)
     skills_json = json.dumps(skill_configs, ensure_ascii=False, indent=2)
     checkpoints_json = json.dumps(checkpoint_configs, ensure_ascii=False, indent=2)
 
@@ -206,40 +251,42 @@ def build_analyzer_prompt(
         "═══════════════════════════════════════════════════════════════════\n\n"
         "You will analyze a real estate sales conversation and produce a detailed AnalysisReport.\n"
         "This is Pass 1 of a 2-pass evaluation system.\n\n"
-        
+
         "CONTEXT - The VCAI System:\n"
         "- This is a training platform for real estate salespeople\n"
         "- Salespeople practice with AI virtual customers (personas)\n"
         "- Conversations are in Arabic (Egyptian dialect) or Arabic/English mix\n"
         "- Your job: analyze what happened and score the salesperson's performance\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "THE 8 SALES SKILLS (What You're Evaluating):\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
         f"{skills_json}\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "THE 6 CHECKPOINTS (Milestones to Track):\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
         f"{checkpoints_json}\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "CONVERSATION DATA:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
-        
+
         "TRANSCRIPT (Complete conversation):\n"
         f"{transcript_json}\n\n"
-        
+
         "EMOTION LOG (Customer emotions detected at each turn):\n"
         f"{emotion_json}\n\n"
-        
-        "RAG CONTEXT (Knowledge base documents retrieved during conversation):\n"
-        f"{rag_json}\n\n"
-        
+
+        "PRE-COMPUTED FACT-CHECK RESULTS (Deterministic KB comparison — trust these):\n"
+        "These results were computed by comparing the salesperson's exact claims against the\n"
+        "structured knowledge base. They are authoritative — do NOT re-derive or override them.\n"
+        f"{fact_check_section}\n"
+
         "═══════════════════════════════════════════════════════════════════\n"
         "YOUR ANALYSIS TASKS:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
-        
+
         "1. UNDERSTAND THE CONVERSATION:\n"
         "   - What was the customer looking for?\n"
         "   - What stages did the conversation go through? (greeting, discovery, presentation, objection, closing)\n"
@@ -247,48 +294,51 @@ def build_analyzer_prompt(
         "   - Were there objections? What were they? How were they handled?\n"
         "   - Were there closing signals? Were they recognized?\n"
         "   - How did emotions change throughout?\n\n"
-        
+
         "2. EVALUATE EACH SKILL (0-100):\n"
         "   - Score ONLY skills that were actually tested in this conversation\n"
         "   - If a skill wasn't tested (e.g., no objections = can't test objection_handling), note this\n"
         "   - Use specific evidence from turns to justify scores\n"
         "   - Be fair: don't penalize for situations that didn't arise\n\n"
-        
-        "3. CHECK FACTS:\n"
-        "   - Did the salesperson make claims about the property?\n"
-        "   - Compare claims against the RAG context (knowledge base)\n"
-        "   - Flag any inaccuracies (CRITICAL: wrong info can lose sales)\n\n"
-        
+
+        "3. PRODUCT KNOWLEDGE SCORE (use pre-computed fact-check results above):\n"
+        "   - Use the PRE-COMPUTED FACT-CHECK RESULTS directly — do not re-derive from transcript\n"
+        "   - Base score: accuracy_rate × 100 (e.g., 60% accuracy → start at 60)\n"
+        "   - Each CRITICAL error (price/size/delivery): subtract 10-15 points from base\n"
+        "   - Each MINOR error (down_payment/installment/feature): subtract 5 points from base\n"
+        "   - Copy the error list directly into fact_verification.critical_errors (Arabic explanations)\n"
+        "   - If no fact-check results available, score based on general accuracy impression\n\n"
+
         "4. TRACK CHECKPOINTS:\n"
         "   - Which of the 6 milestones were achieved?\n"
         "   - Provide evidence (which turn, what happened)\n\n"
-        
+
         "5. PROVIDE TURN-BY-TURN FEEDBACK:\n"
         "   - For each salesperson turn, assess quality (excellent/good/okay/poor)\n"
         "   - Note what went well and what could improve\n"
         "   - Suggest rewrites for poor turns\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "SCORING GUIDELINES:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
-        
+
         "- Scores are 0-100 for each skill\n"
         "- Use the weights from skill_configs (they sum to 1.0)\n"
         "- overall_score = weighted average: Σ(skill_score × skill_weight)\n"
         "- Be evidence-based: every score must be justified with specific quotes/observations\n"
         "- Short quotes only: <= 25 words\n\n"
-        
+
         "DYNAMIC EVALUATION (Important!):\n"
         "- Only evaluate what was ACTUALLY TESTED\n"
         "- If no objections arose, set objection_handling weight to 0 (or very low)\n"
         "- If no closing opportunity, set closing_skills weight to 0 (or very low)\n"
         "- This makes evaluation FAIR\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "OUTPUT SCHEMA:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
         f"{schema}\n\n"
-        
+
         "═══════════════════════════════════════════════════════════════════\n"
         "CRITICAL REMINDERS:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
@@ -296,10 +346,10 @@ def build_analyzer_prompt(
         "✓ Match the schema exactly\n"
         "✓ Use evidence from actual turns\n"
         "✓ Be fair: only evaluate what was tested\n"
-        "✓ Verify facts against RAG context\n"
+        "✓ Use PRE-COMPUTED fact-check results for product_knowledge (do not re-derive)\n"
         "✓ Track all 6 checkpoints\n"
         "✓ Provide turn-by-turn feedback\n\n"
-        
+
         "BEGIN YOUR ANALYSIS NOW.\n"
     )
 
