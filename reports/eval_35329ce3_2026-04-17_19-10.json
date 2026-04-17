@@ -1,0 +1,388 @@
+{
+  "status": "completed",
+  "report": {
+    "mode": "training",
+    "passed": null,
+    "scores": {
+      "skills": [
+        {
+          "score": 40,
+          "weight": 0.12,
+          "summary": "Started with proper greeting but failed to build personal connection with customer",
+          "skill_key": "rapport_building",
+          "strengths": [
+            "Started with proper greeting"
+          ],
+          "skill_name": "Rapport Building",
+          "was_tested": true,
+          "evidence_turns": [
+            1
+          ],
+          "areas_to_improve": [
+            "Misspelled company name as 'للتسوية' instead of 'للتسويق'",
+            "Didn't correct mistake when customer pointed it out",
+            "Failed to build personal connection with customer"
+          ],
+          "weighted_contribution": 4.8
+        },
+        {
+          "score": 50,
+          "weight": 0.12,
+          "summary": "Provided information but often didn't directly address customer questions",
+          "skill_key": "active_listening",
+          "strengths": [
+            "Eventually provided information about apartment sizes and prices"
+          ],
+          "skill_name": "Active Listening",
+          "was_tested": true,
+          "evidence_turns": [
+            3
+          ],
+          "areas_to_improve": [
+            "Often didn't directly answer customer questions",
+            "Asked irrelevant question about customer location without explaining why"
+          ],
+          "weighted_contribution": 6.0
+        },
+        {
+          "score": 45,
+          "weight": 0.14,
+          "summary": "Asked about location but missed other important customer requirements",
+          "skill_key": "needs_discovery",
+          "strengths": [
+            "Asked about customer's current location"
+          ],
+          "skill_name": "Needs Discovery",
+          "was_tested": true,
+          "evidence_turns": [
+            3
+          ],
+          "areas_to_improve": [
+            "Didn't ask about budget requirements",
+            "Failed to inquire about family size or specific needs",
+            "Didn't explain why location information was relevant"
+          ],
+          "weighted_contribution": 6.3
+        },
+        {
+          "score": 80,
+          "weight": 0.14,
+          "summary": "Demonstrated strong knowledge of apartment specifications and delivery timeline",
+          "skill_key": "product_knowledge",
+          "strengths": [
+            "Provided accurate information about apartment sizes and prices",
+            "Explained delivery timeline and finishing status clearly"
+          ],
+          "skill_name": "Product Knowledge",
+          "was_tested": true,
+          "evidence_turns": [
+            4,
+            5
+          ],
+          "areas_to_improve": [
+            "Could provide more details about amenities and features",
+            "Didn't explain benefits of the location"
+          ],
+          "weighted_contribution": 11.2
+        },
+        {
+          "score": 0,
+          "weight": 0.0,
+          "summary": "Not tested in this conversation",
+          "skill_key": "objection_handling",
+          "strengths": [],
+          "skill_name": "Objection Handling",
+          "was_tested": false,
+          "evidence_turns": [],
+          "areas_to_improve": [],
+          "weighted_contribution": 0.0
+        },
+        {
+          "score": 40,
+          "weight": 0.12,
+          "summary": "Maintained professional tone but failed to recognize customer's frustration",
+          "skill_key": "emotional_intelligence",
+          "strengths": [
+            "Maintained professional tone throughout conversation"
+          ],
+          "skill_name": "Emotional Intelligence",
+          "was_tested": true,
+          "evidence_turns": [
+            3
+          ],
+          "areas_to_improve": [
+            "Failed to recognize customer's growing frustration",
+            "Didn't adjust approach when customer showed signs of impatience"
+          ],
+          "weighted_contribution": 4.8
+        },
+        {
+          "score": 0,
+          "weight": 0.0,
+          "summary": "Not tested in this conversation",
+          "skill_key": "closing_skills",
+          "strengths": [],
+          "skill_name": "Closing Skills",
+          "was_tested": false,
+          "evidence_turns": [],
+          "areas_to_improve": [],
+          "weighted_contribution": 0.0
+        },
+        {
+          "score": 60,
+          "weight": 0.1,
+          "summary": "Clear on apartment details but had issues with grammar and company explanation",
+          "skill_key": "communication_clarity",
+          "strengths": [
+            "Provided clear information about apartment specifications",
+            "Used simple language to explain delivery timeline"
+          ],
+          "skill_name": "Communication Clarity",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            4,
+            5
+          ],
+          "areas_to_improve": [
+            "Confusing explanation about company role",
+            "Grammar and spelling issues in several responses",
+            "Incomplete answers to customer questions"
+          ],
+          "weighted_contribution": 6.0
+        }
+      ],
+      "status": "failed",
+      "overall_score": 53,
+      "skills_passed": 1,
+      "skills_tested": 6,
+      "weakest_skill": "rapport_building",
+      "pass_threshold": 75,
+      "strongest_skill": "product_knowledge",
+      "points_from_passing": -22
+    },
+    "user_id": "b7eb2e79-094f-4a1f-bc76-64e4d1c37387",
+    "report_id": "RPT-2026-04-17-17-08-54",
+    "created_at": "2026-04-17T14:30:00Z",
+    "persona_id": "first_time_buyer",
+    "session_id": "35329ce3-a0f5-4d6d-aa43-d6e7dfb81323",
+    "checkpoints": [
+      {
+        "icon": "❌",
+        "name": "Rapport Established",
+        "achieved": false,
+        "why_missed": "Failed to correct company name misunderstanding and didn't establish personal connection",
+        "description": "Building trust and connection with the customer",
+        "how_achieved": null,
+        "how_to_achieve": "Introduce yourself clearly, ask the customer's name, and show interest in their situation. Correct any misunderstandings immediately.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "✅",
+        "name": "Needs Identified",
+        "achieved": true,
+        "why_missed": null,
+        "description": "Understanding customer requirements and preferences",
+        "how_achieved": "Customer expressed interest in apartment size, price, location, finishing status, and payment options",
+        "how_to_achieve": null,
+        "achieved_at_turn": 4
+      },
+      {
+        "icon": "❌",
+        "name": "Value Demonstrated",
+        "achieved": false,
+        "why_missed": "Provided factual information but didn't connect features to benefits for the customer",
+        "description": "Showing how the property meets customer needs",
+        "how_achieved": null,
+        "how_to_achieve": "After sharing property details, explain why these features would benefit this specific customer based on their needs.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Objection Handled",
+        "achieved": false,
+        "why_missed": "No major objections were raised in this conversation",
+        "description": "Addressing customer concerns effectively",
+        "how_achieved": null,
+        "how_to_achieve": "When objections arise, acknowledge them, provide information to address concerns, and confirm the customer is satisfied with the response.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Closing Signal Recognized",
+        "achieved": false,
+        "why_missed": "No closing signals were observed in the conversation",
+        "description": "Identifying when customer is ready for next steps",
+        "how_achieved": null,
+        "how_to_achieve": "Listen for phrases indicating interest like questions about next steps or specific details about purchasing.",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Commitment Achieved",
+        "achieved": false,
+        "why_missed": "Conversation didn't progress to this stage",
+        "description": "Securing customer agreement to move forward",
+        "how_achieved": null,
+        "how_to_achieve": "After addressing all questions, suggest a specific next action like scheduling a viewing or discussing payment options in more detail.",
+        "achieved_at_turn": null
+      }
+    ],
+    "quick_stats": {
+      "total_turns": 12,
+      "call_outcome": "customer_interested",
+      "customer_turns": 6,
+      "checkpoint_list": [
+        "✅ Needs Identified",
+        "❌ Rapport Established",
+        "❌ Value Demonstrated",
+        "❌ Objection Handled",
+        "❌ Closing Signal Recognized",
+        "❌ Commitment Achieved"
+      ],
+      "duration_seconds": 194,
+      "emotion_improved": false,
+      "checkpoints_total": 6,
+      "salesperson_turns": 6,
+      "duration_formatted": "3:14",
+      "checkpoints_achieved": 1,
+      "final_customer_emotion": "angry"
+    },
+    "persona_name": "مشتري لأول مرة",
+    "raw_analysis": null,
+    "top_strengths": [
+      "Strong product knowledge with accurate information about apartment specifications and pricing",
+      "Clear explanation of delivery timeline and finishing status",
+      "Maintained professional tone throughout the conversation"
+    ],
+    "turn_feedback": [
+      {
+        "text": "السلام عليكم معك علي عبدالله من شركة حسن علام للتسوية العقاري",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 1,
+        "is_highlight": false,
+        "skills_shown": [
+          "rapport_building",
+          "communication_clarity"
+        ],
+        "what_was_good": "You started with a proper greeting which is professional",
+        "what_to_improve": "There's a spelling mistake in your company name - 'للتسوية' instead of 'للتسويق'",
+        "is_critical_moment": false,
+        "suggested_alternative": "السلام عليكم معك علي عبدالله من شركة حسن علام للتسويق العقاري. كيف يمكنني مساعدتك اليوم؟"
+      },
+      {
+        "text": "وعليكم السلام. للتسوية؟ مش للتسويق؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 2,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "لا للتسوية العقاري انا بسوى الاشراء بتاعة المستثمر حسن علام وحضرتك مكانك فين يا أستاذ أحمد",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "poor",
+        "turn_number": 3,
+        "is_highlight": true,
+        "skills_shown": [
+          "active_listening",
+          "needs_discovery",
+          "emotional_intelligence"
+        ],
+        "what_was_good": "You addressed the customer by name which is good for personalization",
+        "what_to_improve": "You didn't correct the company name mistake and gave a confusing explanation. You also changed the subject without explaining why location is relevant",
+        "is_critical_moment": true,
+        "suggested_alternative": "عفواً، أقصد للتسويق العقاري. أنا أعمل مع شركة حسن علام للتسويق العقاري. ممكن أسأل حضرتك عن مكان سكنك الحالي لأساعدك في اختيار أفضل موقع يناسبك؟"
+      },
+      {
+        "text": "أنا في مدينة نصر. بس أنا عايز أعرف إيه الشقق اللي عندكم وأسعارها كام وإيه المساحات؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 4,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "الشقق في مدينتي تبدأ من أول 150 متر وأسعارها تبدأ من أول 2 مليون",
+        "tone": "positive",
+        "speaker": "salesperson",
+        "assessment": "good",
+        "turn_number": 5,
+        "is_highlight": true,
+        "skills_shown": [
+          "product_knowledge",
+          "communication_clarity"
+        ],
+        "what_was_good": "You provided clear and specific information about apartment sizes and prices",
+        "what_to_improve": "You could add more context about why Madinaty is a good choice and ask follow-up questions about the customer's preferences",
+        "is_critical_moment": false,
+        "suggested_alternative": "الشقق في مدينتي تبدأ من أول 150 متر وأسعارها تبدأ من أول 2 مليون. مدينتي منطقة متميزة بالخدمات والمساحات الخضراء. هل هذه المساحة والسعر مناسبين لاحتياجاتك؟"
+      },
+      {
+        "text": "طيب وإيه نظام التسليم؟ والتشطيب؟ وهل فيه أنظمة تقسيط؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 6,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "التسليم بيكون كمان سنتين وهو بيكون في المرحلة التالتة في المراحل المدينتي وباسملك الشقة متشطبة بالكامل",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 7,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "communication_clarity"
+        ],
+        "what_was_good": "You provided clear information about delivery timeline and finishing status",
+        "what_to_improve": "You didn't address the customer's question about payment plans/installments",
+        "is_critical_moment": false,
+        "suggested_alternative": "التسليم بيكون كمان سنتين وهو بيكون في المرحلة التالتة في مراحل مدينتي والشقة متشطبة بالكامل. وبالنسبة لأنظمة التقسيط، عندنا خطط دفع مرنة تبدأ بمقدم 20% والباقي على 5 سنوات. هل تفضل نظام تقسيط معين؟"
+      }
+    ],
+    "highlight_turns": [
+      3,
+      5
+    ],
+    "top_improvements": [
+      "Build better rapport by correcting misunderstandings and showing personal interest in the customer",
+      "Practice active listening by directly addressing customer questions before moving to new topics",
+      "Recognize and respond to emotional cues when customers show frustration or impatience"
+    ],
+    "executive_summary": "You demonstrated good product knowledge about Madinaty apartments, providing accurate information on sizes, prices, and delivery timelines. However, there are opportunities to improve rapport building, active listening, and emotional intelligence to better connect with customers and address their specific needs.",
+    "retake_recommended": null,
+    "include_raw_analysis": false,
+    "recommended_practice": [
+      "Practice introducing yourself clearly and correctly, including proper company name pronunciation and spelling",
+      "Work on active listening techniques - always address customer questions directly before asking your own",
+      "Practice recognizing emotional cues and responding with empathy when customers show frustration",
+      "Develop a structured approach to needs discovery that covers location, budget, family size, and timeline",
+      "Practice connecting property features to customer benefits rather than just stating facts"
+    ],
+    "include_turn_feedback": true,
+    "certification_eligible": null
+  },
+  "overall_score": 53,
+  "passed": null
+}

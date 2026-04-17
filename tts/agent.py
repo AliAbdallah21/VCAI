@@ -23,7 +23,7 @@ _egyptian_active: bool = False
 # EGYPTIAN FINE-TUNE CHECKPOINT
 # Set to None to use base model only
 # ══════════════════════════════════════════════════════════════════════════════
-EGYPTIAN_CHECKPOINT = r"C:\chatterboxMulti\egyptian-finetune\output_audiobooks_multispeaker_2\final_model\model.safetensors"
+EGYPTIAN_CHECKPOINT = os.getenv("EGYPTIAN_CHECKPOINT", None)
 
 # ══════════════════════════════════════════════════════════════════════════════
 # FALLBACK PHRASES
