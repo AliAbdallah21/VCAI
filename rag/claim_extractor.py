@@ -221,9 +221,22 @@ def extract_salesperson_claims(transcript: list[dict]) -> list[dict]:
     claims: list[dict] = []
 
     try:
+        # Pre-compute a global property hint from ALL salesperson turns combined.
+        # This handles the common pattern where the property name is mentioned once
+        # ("عندنا شقق في مدينتي") and prices are given in a later turn without
+        # repeating the property name.
+        _sp_speakers = {"salesperson", "sales", "مندوب", "بائع"}
+        _full_sp_text = " ".join(
+            (t.get("text") or "")
+            for t in transcript
+            if t.get("speaker", "") in _sp_speakers
+        )
+        _global_hint = _find_property_hint(_full_sp_text)
+        _log.debug("[ClaimExtractor] global_hint=%r from full salesperson text", _global_hint)
+
         for turn in transcript:
             speaker = turn.get("speaker", "")
-            if speaker not in ("salesperson", "sales", "مندوب", "بائع"):
+            if speaker not in _sp_speakers:
                 continue
 
             text = (turn.get("text") or "").strip()
@@ -231,7 +244,8 @@ def extract_salesperson_claims(transcript: list[dict]) -> list[dict]:
                 continue
 
             turn_num  = int(turn.get("turn_number", 0))
-            prop_hint = _find_property_hint(text)
+            # Prefer per-turn hint (most specific), fall back to global hint
+            prop_hint = _find_property_hint(text) or _global_hint
 
             def _claim(ctype: str, value: str, unit: str) -> dict:
                 return {

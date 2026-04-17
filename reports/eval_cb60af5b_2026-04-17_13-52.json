@@ -1,0 +1,438 @@
+{
+  "status": "completed",
+  "report": {
+    "mode": "training",
+    "passed": null,
+    "scores": {
+      "skills": [
+        {
+          "score": 40,
+          "weight": 0.12,
+          "summary": "Basic greeting provided but lacked personalization and engagement",
+          "skill_key": "rapport_building",
+          "strengths": [
+            "Provided proper greeting and company introduction"
+          ],
+          "skill_name": "Rapport Building",
+          "was_tested": true,
+          "evidence_turns": [
+            0
+          ],
+          "areas_to_improve": [
+            "Failed to engage in small talk or personalize the interaction",
+            "Didn't ask about customer's needs or situation before jumping to offerings"
+          ],
+          "weighted_contribution": 4.8
+        },
+        {
+          "score": 30,
+          "weight": 0.12,
+          "summary": "Minimal acknowledgment of customer concerns with no follow-up on key issues",
+          "skill_key": "active_listening",
+          "strengths": [
+            "Responded to location interest by mentioning available properties"
+          ],
+          "skill_name": "Active Listening",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            2,
+            4
+          ],
+          "areas_to_improve": [
+            "Didn't acknowledge customer's price concerns in turns 2 and 4",
+            "Failed to demonstrate understanding of customer's financial considerations"
+          ],
+          "weighted_contribution": 3.6
+        },
+        {
+          "score": 20,
+          "weight": 0.14,
+          "summary": "Very limited needs assessment with only basic location preference question",
+          "skill_key": "needs_discovery",
+          "strengths": [
+            "Asked which location customer preferred"
+          ],
+          "skill_name": "Needs Discovery",
+          "was_tested": true,
+          "evidence_turns": [
+            1
+          ],
+          "areas_to_improve": [
+            "Failed to ask about budget, family size, preferred features",
+            "Didn't explore customer's timeline or specific requirements",
+            "No follow-up questions to understand customer's situation better"
+          ],
+          "weighted_contribution": 2.8
+        },
+        {
+          "score": 70,
+          "weight": 0.14,
+          "summary": "Demonstrated solid knowledge of prices and payment terms but lacked detail on features",
+          "skill_key": "product_knowledge",
+          "strengths": [
+            "Provided specific price points and apartment sizes",
+            "Knew payment plan details including down payment percentage"
+          ],
+          "skill_name": "Product Knowledge",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            2,
+            3
+          ],
+          "areas_to_improve": [
+            "Didn't elaborate on property features or benefits",
+            "Lacked detailed information about locations and amenities",
+            "Didn't explain interest rate calculation clearly"
+          ],
+          "weighted_contribution": 9.8
+        },
+        {
+          "score": 10,
+          "weight": 0.14,
+          "summary": "Failed to address multiple clear objections about price and interest rates",
+          "skill_key": "objection_handling",
+          "strengths": [],
+          "skill_name": "Objection Handling",
+          "was_tested": true,
+          "evidence_turns": [
+            2,
+            4
+          ],
+          "areas_to_improve": [
+            "Failed to acknowledge price concerns or justify the value",
+            "Didn't offer alternatives when customer found interest rate too high",
+            "No attempt to address customer's explicit objections"
+          ],
+          "weighted_contribution": 1.4
+        },
+        {
+          "score": 20,
+          "weight": 0.12,
+          "summary": "Showed little awareness of customer's negative emotional reactions throughout conversation",
+          "skill_key": "emotional_intelligence",
+          "strengths": [],
+          "skill_name": "Emotional Intelligence",
+          "was_tested": true,
+          "evidence_turns": [
+            2,
+            4
+          ],
+          "areas_to_improve": [
+            "Failed to recognize customer's negative emotional reactions",
+            "Didn't acknowledge frustration or concerns about affordability",
+            "No attempt to build rapport or establish emotional connection"
+          ],
+          "weighted_contribution": 2.4
+        },
+        {
+          "score": 0,
+          "weight": 0.0,
+          "summary": "Not tested in this conversation",
+          "skill_key": "closing_skills",
+          "strengths": [],
+          "skill_name": "Closing Skills",
+          "was_tested": false,
+          "evidence_turns": [],
+          "areas_to_improve": [],
+          "weighted_contribution": 0.0
+        },
+        {
+          "score": 50,
+          "weight": 0.1,
+          "summary": "Provided basic information but with spelling errors and insufficient explanation",
+          "skill_key": "communication_clarity",
+          "strengths": [
+            "Provided direct answers about prices and payment terms"
+          ],
+          "skill_name": "Communication Clarity",
+          "was_tested": true,
+          "evidence_turns": [
+            1,
+            3
+          ],
+          "areas_to_improve": [
+            "Multiple spelling/typing errors affected clarity",
+            "Responses were very brief without sufficient explanation",
+            "Failed to structure information in a clear, comprehensive manner"
+          ],
+          "weighted_contribution": 5.0
+        }
+      ],
+      "status": "failed",
+      "overall_score": 34,
+      "skills_passed": 1,
+      "skills_tested": 7,
+      "weakest_skill": "Objection Handling",
+      "pass_threshold": 75,
+      "strongest_skill": "Product Knowledge",
+      "points_from_passing": -41
+    },
+    "user_id": "USR-12345",
+    "report_id": "RPT-2026-04-17-13-24-26",
+    "created_at": "2026-04-17T13:30:00Z",
+    "persona_id": "PERS-789",
+    "session_id": "2026-04-17-13-24-26",
+    "checkpoints": [
+      {
+        "icon": "❌",
+        "name": "Rapport Established",
+        "achieved": false,
+        "why_missed": "Conversation remained transactional with no personal connection established",
+        "description": "Building connection and trust with the customer",
+        "how_achieved": null,
+        "how_to_achieve": "Start with friendly greeting, ask about customer's day, and show genuine interest in their situation before discussing properties",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "✅",
+        "name": "Needs Identified",
+        "achieved": true,
+        "why_missed": null,
+        "description": "Understanding customer requirements and preferences",
+        "how_achieved": "Customer stated they were looking to buy an apartment and asked about available options",
+        "how_to_achieve": null,
+        "achieved_at_turn": 0
+      },
+      {
+        "icon": "❌",
+        "name": "Value Demonstrated",
+        "achieved": false,
+        "why_missed": "Properties were presented with basic facts but no emphasis on benefits or value proposition",
+        "description": "Showing how properties meet customer needs and provide value",
+        "how_achieved": null,
+        "how_to_achieve": "Highlight specific features that match customer needs, explain neighborhood benefits, and justify the price with value points",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Objection Handled",
+        "achieved": false,
+        "why_missed": "Customer raised clear objections about price and interest rates that were not addressed",
+        "description": "Addressing customer concerns effectively",
+        "how_achieved": null,
+        "how_to_achieve": "Acknowledge concerns, validate feelings, provide context or alternatives, and check if the response addresses their concern",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Closing Signal Recognized",
+        "achieved": false,
+        "why_missed": "No closing signals occurred as customer became increasingly disengaged",
+        "description": "Identifying when customer is ready for next steps",
+        "how_achieved": null,
+        "how_to_achieve": "Create opportunities for closing signals by building value and addressing objections first",
+        "achieved_at_turn": null
+      },
+      {
+        "icon": "❌",
+        "name": "Commitment Achieved",
+        "achieved": false,
+        "why_missed": "Customer disengaged before any commitment could be established",
+        "description": "Securing next steps or commitment from customer",
+        "how_achieved": null,
+        "how_to_achieve": "Work on earlier checkpoints first to create conditions where commitment becomes possible",
+        "achieved_at_turn": null
+      }
+    ],
+    "quick_stats": {
+      "total_turns": 10,
+      "call_outcome": "customer_disengaged",
+      "customer_turns": 5,
+      "checkpoint_list": [
+        "✅ Needs Identified",
+        "❌ Rapport Established",
+        "❌ Value Demonstrated",
+        "❌ Objection Handled",
+        "❌ Closing Signal Recognized",
+        "❌ Commitment Achieved"
+      ],
+      "duration_seconds": 170,
+      "emotion_improved": false,
+      "checkpoints_total": 6,
+      "salesperson_turns": 5,
+      "duration_formatted": "2:50",
+      "checkpoints_achieved": 1,
+      "final_customer_emotion": "angry"
+    },
+    "persona_name": "Ahmed - First-Time Buyer",
+    "raw_analysis": null,
+    "top_strengths": [
+      "Good knowledge of property prices and apartment sizes",
+      "Ability to provide specific payment plan details including down payment percentages",
+      "Clear introduction with proper company identification"
+    ],
+    "turn_feedback": [
+      {
+        "text": "السلام عليكم معك علي عبدالله من شركة حسن علام للتسويق العقاري",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "adequate",
+        "turn_number": 0,
+        "is_highlight": false,
+        "skills_shown": [
+          "rapport_building",
+          "communication_clarity"
+        ],
+        "what_was_good": "Professional introduction with your name and company",
+        "what_to_improve": "Missing a warm welcome or question to engage the customer",
+        "is_critical_moment": false,
+        "suggested_alternative": "السلام عليكم! معك علي عبدالله من شركة حسن علام للتسويق العقاري. كيف يمكنني مساعدتك اليوم؟"
+      },
+      {
+        "text": "وعليكم السلام. بدور على شقة أشتريها. عندكم شقق إيه دلوقتي وبكام؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 1,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "عندنا شوق في مدينتي وعندنا شوق في بولم هيلز اكتوبر. حضرك تحب تسمع عني اوفرز",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 2,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "needs_discovery"
+        ],
+        "what_was_good": "You mentioned specific locations which is helpful",
+        "what_to_improve": "Misspelled 'شقق' as 'شوق' and didn't ask about customer's budget or requirements before offering options",
+        "is_critical_moment": false,
+        "suggested_alternative": "عندنا شقق في مدينتي وبالم هيلز أكتوبر. ممكن أسأل عن ميزانيتك والمساحة اللي بتدور عليها عشان أقدر أساعدك أكتر؟"
+      },
+      {
+        "text": "مدينتي أحسن. إيه الأسعار والمساحات؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 3,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "الاسعار تبدا من 2 مليون جنيه والمساحات من 150 متر مربع",
+        "tone": "constructive",
+        "speaker": "salesperson",
+        "assessment": "needs_improvement",
+        "turn_number": 4,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge"
+        ],
+        "what_was_good": "Provided specific price and size information",
+        "what_to_improve": "Very brief response without highlighting benefits or features that justify the price",
+        "is_critical_moment": false,
+        "suggested_alternative": "الأسعار تبدأ من 2 مليون جنيه للشقة 150 متر مربع. الشقق في مدينتي متميزة بتشطيب فاخر وموقع ممتاز قريب من الخدمات والمواصلات. كمان المجمع فيه حدائق وأمن على مدار الساعة."
+      },
+      {
+        "text": "مليونين للشقة بتاعة 150 متر! ده سعر عالي شوية.",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 5,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": true,
+        "suggested_alternative": null
+      },
+      {
+        "text": "المهدم 5% والتقسيط يصل الى 10 سنين",
+        "tone": "critical",
+        "speaker": "salesperson",
+        "assessment": "poor",
+        "turn_number": 6,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "objection_handling",
+          "communication_clarity"
+        ],
+        "what_was_good": "Attempted to provide payment options",
+        "what_to_improve": "Completely ignored the customer's price objection and misspelled 'المقدم' as 'المهدم'",
+        "is_critical_moment": true,
+        "suggested_alternative": "أنا متفهم إن السعر قد يبدو مرتفع، لكن الشقق في مدينتي استثمار ممتاز. والأهم إن نظام السداد مرن جداً - المقدم 5% فقط والباقي على أقساط تصل لـ10 سنين. هل تحب نتكلم عن مساحات أصغر بأسعار أقل؟"
+      },
+      {
+        "text": "طيب وإيه نظام الفوايد على الأقساط؟",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 7,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": false,
+        "suggested_alternative": null
+      },
+      {
+        "text": "الفايدة 10% على قيمة العقار",
+        "tone": "critical",
+        "speaker": "salesperson",
+        "assessment": "poor",
+        "turn_number": 8,
+        "is_highlight": false,
+        "skills_shown": [
+          "product_knowledge",
+          "communication_clarity"
+        ],
+        "what_was_good": "Provided the interest rate information",
+        "what_to_improve": "Very brief response without explaining the calculation method or providing context",
+        "is_critical_moment": false,
+        "suggested_alternative": "الفائدة 10% سنوياً متناقصة على المبلغ المتبقي، مش على إجمالي قيمة العقار. وده معناه إن الأقساط بتقل مع الوقت. كمان فيه خيارات تمويل عقاري من البنوك بفوائد أقل ممكن نساعدك في استكشافها."
+      },
+      {
+        "text": "10% فايدة على القيمة الكاملة للعقار؟! ده كتير أوي يا أستاذ علي",
+        "tone": "neutral",
+        "speaker": "customer",
+        "assessment": "neutral",
+        "turn_number": 9,
+        "is_highlight": false,
+        "skills_shown": [],
+        "what_was_good": null,
+        "what_to_improve": null,
+        "is_critical_moment": true,
+        "suggested_alternative": null
+      }
+    ],
+    "highlight_turns": [
+      5,
+      6,
+      9
+    ],
+    "top_improvements": [
+      "Address customer objections about price and interest rates directly rather than ignoring them",
+      "Conduct more thorough needs discovery to understand customer requirements before presenting options",
+      "Demonstrate empathy and emotional intelligence when customer expresses concerns"
+    ],
+    "executive_summary": "You demonstrated good product knowledge with specific pricing and payment details, but missed opportunities to build rapport and address the customer's concerns about affordability. By focusing on objection handling and emotional intelligence in future interactions, you can create more positive customer experiences and better sales outcomes.",
+    "retake_recommended": null,
+    "include_raw_analysis": false,
+    "recommended_practice": [
+      "Practice acknowledging price objections with phrases like 'أنا متفهم إن السعر قد يبدو مرتفع' before offering solutions",
+      "Role-play conversations that focus on thorough needs discovery before presenting property options",
+      "Work on explaining payment plans and interest rates clearly with concrete examples",
+      "Practice showing empathy when customers express concerns about affordability",
+      "Develop a repertoire of value statements that justify property prices based on features and benefits"
+    ],
+    "include_turn_feedback": true,
+    "certification_eligible": null
+  },
+  "overall_score": 34,
+  "passed": null
+}

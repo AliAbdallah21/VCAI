@@ -91,6 +91,24 @@ def synthesizer_node(state: EvaluationState) -> EvaluationState:
         if error or report is None:
             return mark_failed(state, f"Synthesizer JSON validation failed: {error}")
 
+        # Overwrite LLM-hallucinated metadata with real values from state
+        session_info = state.get("session_info") or {}
+        if session_info:
+            from datetime import datetime as _dt
+            real_session_id  = str(session_info.get("session_id",  report.session_id))
+            real_user_id     = str(session_info.get("user_id",     report.user_id))
+            real_persona_id  = str(session_info.get("persona_id",  report.persona_id))
+            real_persona_name = str(session_info.get("persona_name", report.persona_name))
+            real_report_id   = f"RPT-{_dt.utcnow().strftime('%Y-%m-%d-%H-%M-%S')}"
+            report = report.model_copy(update={
+                "report_id":    real_report_id,
+                "session_id":   real_session_id,
+                "user_id":      real_user_id,
+                "persona_id":   real_persona_id,
+                "persona_name": real_persona_name,
+            })
+            print(f"[SYNTHESIZER] Filled metadata: session={real_session_id[:8]}... user={real_user_id[:8]}... persona={real_persona_id}")
+
         state["final_report"] = report
         state["synthesis_raw_response"] = llm_response_text
 

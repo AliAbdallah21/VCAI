@@ -212,12 +212,34 @@ def _gather_fact_check_context(transcript: list) -> dict:
     try:
         result = fact_check_transcript(transcript)
         errors = result.get("errors", [])
+        claims_checked = result.get("claims_checked", 0)
         logger.info(
             "[Evaluation] Fact-check complete: %d claims checked, %d errors found, accuracy_rate=%.1f%%",
-            result.get("claims_checked", 0),
+            claims_checked,
             len(errors),
             result.get("accuracy_rate", 1.0) * 100,
         )
+        # Debug print so it's visible in terminal during evaluation
+        print(f"\n{'='*60}")
+        print(f"[FACT-CHECK DEBUG] claims_checked={claims_checked}")
+        print(f"[FACT-CHECK DEBUG] accurate={result.get('accurate_count', 0)}")
+        print(f"[FACT-CHECK DEBUG] inaccurate={result.get('inaccurate_count', 0)}")
+        print(f"[FACT-CHECK DEBUG] unverifiable={len(result.get('unverifiable_claims', []))}")
+        print(f"[FACT-CHECK DEBUG] accuracy_rate={result.get('accuracy_rate', 1.0)*100:.1f}%")
+        if errors:
+            print(f"[FACT-CHECK DEBUG] ERRORS:")
+            for err in errors:
+                print(f"  [{err.get('severity','?').upper()}] turn={err.get('turn_number')} "
+                      f"type={err.get('claim_type')} property={err.get('property_name')} "
+                      f"claimed={err.get('claimed_value')} correct={err.get('correct_value')}")
+                print(f"    {err.get('explanation_ar','')}")
+        if result.get("unverifiable_claims"):
+            print(f"[FACT-CHECK DEBUG] UNVERIFIABLE claims (no KB match):")
+            for uv in result.get("unverifiable_claims", []):
+                print(f"  turn={uv.get('turn_number')} type={uv.get('claim_type')} "
+                      f"value={uv.get('claimed_value')} hint={uv.get('property_hint')} "
+                      f"reason={uv.get('reason')}")
+        print(f"{'='*60}\n")
         return result
     except Exception as exc:
         logger.warning("[MANAGER] Fact-check failed: %s — evaluation continues without it", exc)
@@ -270,8 +292,8 @@ class EvaluationManager:
             ValueError: If session not found or invalid mode
             RuntimeError: If evaluation pipeline fails
         """
-        self._log(f"[MENNA] Starting evaluation for session {session_id}")
-        self._log(f"[MENNA] Mode: {mode}")
+        self._log(f" Starting evaluation for session {session_id}")
+        self._log(f" Mode: {mode}")
         
         try:
             # Step 1: Gather inputs from database
@@ -348,7 +370,7 @@ class EvaluationManager:
         Returns:
             FinalReport with complete evaluation results
         """
-        self._log(f"[MENNA] Starting async evaluation for session {session_id}")
+        self._log(f" Starting async evaluation for session {session_id}")
         
         try:
             # Gather inputs (this is sync, but fast)
@@ -376,7 +398,7 @@ class EvaluationManager:
             if not final_report:
                 raise RuntimeError("Pipeline completed but no final report generated")
             
-            self._log(f"[MENNA] Async evaluation complete! Score: {final_report.overall_score}/100")
+            self._log(f" Async evaluation complete! Score: {final_report.overall_score}/100")
             
             return final_report
             
