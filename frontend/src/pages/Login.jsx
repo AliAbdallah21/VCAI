@@ -1,14 +1,14 @@
-﻿import { useState } from 'react';
+import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Login() {
-  const [email, setEmail] = useState('');
+  const [email, setEmail]       = useState('');
   const [password, setPassword] = useState('');
-  const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
-  const { login } = useAuth();
-  const navigate = useNavigate();
+  const [error, setError]       = useState('');
+  const [loading, setLoading]   = useState(false);
+  const { login }  = useAuth();
+  const navigate   = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,72 +25,131 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen flex">
-      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-blue-600 via-purple-600 to-indigo-700 p-12 flex-col justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-12 h-12 bg-white/20 rounded-xl flex items-center justify-center">
-            <span className="text-white font-bold text-2xl">V</span>
-          </div>
-          <span className="text-white font-bold text-2xl">VCAI</span>
-        </div>
-        <div>
-          <h1 className="text-4xl font-bold text-white mb-4">Master Sales Through AI-Powered Training</h1>
-          <p className="text-blue-100 text-lg">Practice with virtual customers and become a sales champion.</p>
-        </div>
-        <div className="text-blue-200 text-sm">© 2024 VCAI - MIU Thesis Project</div>
+    <div
+      className="min-h-screen flex items-center justify-center relative overflow-hidden p-4"
+      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(37,99,235,0.15) 0%, #030712 60%)' }}
+    >
+      {/* Background orbs */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+        <div
+          className="absolute rounded-full blur-3xl opacity-20"
+          style={{
+            width: 600, height: 600,
+            top: '-20%', left: '-10%',
+            background: 'radial-gradient(circle, #2563eb 0%, transparent 70%)',
+          }}
+        />
+        <div
+          className="absolute rounded-full blur-3xl opacity-15"
+          style={{
+            width: 500, height: 500,
+            bottom: '-15%', right: '-10%',
+            background: 'radial-gradient(circle, #7c3aed 0%, transparent 70%)',
+          }}
+        />
+        {/* Grid texture */}
+        <div
+          className="absolute inset-0 opacity-[0.03]"
+          style={{
+            backgroundImage: `
+              linear-gradient(rgba(255,255,255,0.5) 1px, transparent 1px),
+              linear-gradient(90deg, rgba(255,255,255,0.5) 1px, transparent 1px)
+            `,
+            backgroundSize: '60px 60px',
+          }}
+        />
       </div>
-      <div className="w-full lg:w-1/2 flex items-center justify-center p-8 bg-slate-50">
-        <div className="w-full max-w-md">
-          <div className="lg:hidden text-center mb-8">
-            <div className="inline-flex items-center gap-3">
-              <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-xl flex items-center justify-center">
-                <span className="text-white font-bold text-2xl">V</span>
-              </div>
-              <span className="font-bold text-2xl text-slate-800">VCAI</span>
-            </div>
+
+      <div className="w-full max-w-sm relative z-10">
+        {/* Logo mark */}
+        <div className="text-center mb-10 fade-in">
+          <div
+            className="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-5"
+            style={{
+              background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+              boxShadow: '0 0 30px rgba(37,99,235,0.4)',
+            }}
+          >
+            <span className="heading text-white font-bold text-2xl">V</span>
           </div>
-          <div className="bg-white rounded-2xl shadow-xl p-8">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold text-slate-800">Welcome back</h2>
-              <p className="text-slate-500 mt-2">Sign in to continue</p>
-            </div>
-            <form onSubmit={handleSubmit} className="space-y-5">
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Email</label>
-                <input 
-                  type="email" 
-                  value={email} 
-                  onChange={(e) => setEmail(e.target.value)} 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" 
-                  placeholder="you@company.com" 
-                  required 
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-slate-700 mb-2">Password</label>
-                <input 
-                  type="password" 
-                  value={password} 
-                  onChange={(e) => setPassword(e.target.value)} 
-                  className="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500" 
-                  placeholder="********" 
-                  required 
-                />
-              </div>
-              {error && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm">{error}</div>}
-              <button 
-                type="submit" 
-                disabled={loading} 
-                className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-3 rounded-xl font-medium hover:opacity-90 disabled:opacity-50"
-              >
-                {loading ? 'Signing in...' : 'Sign In'}
-              </button>
-            </form>
-            <p className="text-center mt-6 text-slate-500">
-              Do not have an account? <Link to="/register" className="text-blue-600 font-medium hover:underline">Create one</Link>
-            </p>
-          </div>
+          <h1 className="heading text-2xl font-bold text-white mb-1">Welcome back</h1>
+          <p className="text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
+            Sign in to continue your training
+          </p>
         </div>
+
+        {/* Card */}
+        <div className="glass rounded-2xl p-7 slide-up">
+          <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+              <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'rgba(148,163,184,0.7)' }}>
+                Email
+              </label>
+              <input
+                type="email"
+                value={email}
+                onChange={e => setEmail(e.target.value)}
+                className="input-dark w-full px-4 py-3 rounded-xl text-sm"
+                placeholder="you@company.com"
+                required
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs font-semibold mb-2 tracking-wide uppercase" style={{ color: 'rgba(148,163,184,0.7)' }}>
+                Password
+              </label>
+              <input
+                type="password"
+                value={password}
+                onChange={e => setPassword(e.target.value)}
+                className="input-dark w-full px-4 py-3 rounded-xl text-sm"
+                placeholder="••••••••"
+                required
+              />
+            </div>
+
+            {error && (
+              <div
+                className="px-4 py-3 rounded-xl text-sm"
+                style={{
+                  background: 'rgba(239,68,68,0.08)',
+                  border: '1px solid rgba(239,68,68,0.2)',
+                  color: '#fca5a5',
+                }}
+              >
+                {error}
+              </div>
+            )}
+
+            <button
+              type="submit"
+              disabled={loading}
+              className="btn-primary w-full py-3 rounded-xl text-sm font-semibold text-white"
+            >
+              {loading ? (
+                <span className="flex items-center justify-center gap-2">
+                  <svg className="w-4 h-4 spin-ring" viewBox="0 0 24 24" fill="none">
+                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)" strokeWidth="3"/>
+                    <path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                  </svg>
+                  Signing in…
+                </span>
+              ) : 'Sign In'}
+            </button>
+          </form>
+
+          <p className="text-center mt-6 text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>
+            No account?{' '}
+            <Link to="/register" className="text-blue-400 font-medium hover:text-blue-300 transition-colors">
+              Create one
+            </Link>
+          </p>
+        </div>
+
+        <p className="text-center mt-6 text-xs" style={{ color: 'rgba(148,163,184,0.2)' }}>
+          © 2024 VCAI · MIU Thesis Project
+        </p>
       </div>
     </div>
   );

@@ -70,7 +70,8 @@ def list_sessions(
             difficulty=session.difficulty,
             started_at=session.started_at,
             duration_seconds=session.duration_seconds,
-            overall_score=session.overall_score
+            overall_score=session.overall_score,
+            turn_count=session.turn_count or 0
         ))
     
     return SessionListResponse(sessions=summaries, total=total)
@@ -147,8 +148,22 @@ def end_training_session(
             detail=f"Session is already {session.status}"
         )
     
-    # End session (evaluation would be added here)
-    # For now, just end without evaluation
     session = end_session(db, session_id)
-    
+    return SessionResponse.model_validate(session)
+
+
+@router.post("/{session_id}/reactivate", response_model=SessionResponse)
+def reactivate_session(
+    session_id: UUID,
+    current_user: User = Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+    """Reactivate an ended/completed session so the user can resume the conversation."""
+    session = get_session(db, session_id)
+    if session.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Access denied")
+    session.status = "active"
+    session.ended_at = None
+    db.commit()
+    db.refresh(session)
     return SessionResponse.model_validate(session)

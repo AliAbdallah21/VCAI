@@ -1,0 +1,283 @@
+{
+  "report_id": "RPT-2026-05-13-08-22-54",
+  "session_id": "ba61e06b-7edc-4b47-847d-d69d1e48187b",
+  "user_id": "b7eb2e79-094f-4a1f-bc76-64e4d1c37387",
+  "persona_id": "rushed_customer",
+  "persona_name": "العميل المستعجل",
+  "mode": "training",
+  "created_at": "2024-05-16T12:05:00Z",
+  "quick_stats": {
+    "duration_seconds": 47,
+    "duration_formatted": "00:47",
+    "total_turns": 3,
+    "salesperson_turns": 2,
+    "customer_turns": 1,
+    "final_customer_emotion": "angry",
+    "emotion_improved": false,
+    "checkpoints_achieved": 0,
+    "checkpoints_total": 6,
+    "checkpoint_list": [],
+    "call_outcome": "customer_disengaged"
+  },
+  "scores": {
+    "overall_score": 3,
+    "pass_threshold": 75,
+    "status": "failed",
+    "points_from_passing": -72,
+    "skills": [
+      {
+        "skill_name": "Rapport Building",
+        "skill_key": "rapport_building",
+        "score": 5,
+        "weight": 0.2,
+        "weighted_contribution": 1.0,
+        "was_tested": true,
+        "summary": "The conversation started with a standard greeting, but an unprofessional comment quickly damaged the connection with the customer.",
+        "strengths": [
+          "Your initial greeting was polite and followed a standard opening."
+        ],
+        "areas_to_improve": [
+          "Avoid making confusing jokes or comments that can alienate the customer, especially at the beginning of a call.",
+          "Focus on creating a professional and trusting atmosphere from the very first interaction to build a solid foundation."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Active Listening",
+        "skill_key": "active_listening",
+        "score": 0,
+        "weight": 0.2,
+        "weighted_contribution": 0.0,
+        "was_tested": true,
+        "summary": "There was a critical missed opportunity to listen to the customer's direct request for a specific location.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Pay close attention to the customer's exact words. They explicitly asked for 'El Tagamoa', but this was ignored.",
+          "Acknowledge what the customer has said before presenting an offer. This shows you are listening and value their input."
+        ],
+        "evidence_turns": [
+          2
+        ]
+      },
+      {
+        "skill_name": "Needs Discovery",
+        "skill_key": "needs_discovery",
+        "score": 0,
+        "weight": 0.23,
+        "weighted_contribution": 0.0,
+        "was_tested": true,
+        "summary": "The customer provided a key piece of information about their needs, but no discovery questions were asked to explore it further.",
+        "strengths": [],
+        "areas_to_improve": [
+          "When a customer volunteers a crucial detail like their desired location, use it as a starting point for more questions.",
+          "Ask open-ended questions to understand the customer's budget, preferences, and motivations."
+        ],
+        "evidence_turns": [
+          0
+        ]
+      },
+      {
+        "skill_name": "Product Knowledge",
+        "skill_key": "product_knowledge",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Objection Handling",
+        "skill_key": "objection_handling",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Emotional Intelligence",
+        "skill_key": "emotional_intelligence",
+        "score": 0,
+        "weight": 0.2,
+        "weighted_contribution": 0.0,
+        "was_tested": true,
+        "summary": "The customer's frustration was not recognized, and the conversation continued in a way that increased their annoyance.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Listen for tones of confusion or annoyance. The customer's question 'هو إيه مارش مش ماتش' was a clear signal of a problem.",
+          "When you sense a negative emotion, pause and address it. Ignoring it will likely make the situation worse."
+        ],
+        "evidence_turns": [
+          1,
+          2
+        ]
+      },
+      {
+        "skill_name": "Closing Skills",
+        "skill_key": "closing_skills",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Communication Clarity",
+        "skill_key": "communication_clarity",
+        "score": 10,
+        "weight": 0.17,
+        "weighted_contribution": 1.7,
+        "was_tested": true,
+        "summary": "While the introduction was clear, a subsequent comment was nonsensical and caused a complete communication breakdown.",
+        "strengths": [
+          "The initial introduction of your name and company was clear."
+        ],
+        "areas_to_improve": [
+          "Ensure all communication is professional and easy to understand. Avoid ambiguous phrasing or inside jokes.",
+          "Every statement should aim to move the conversation forward productively."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      }
+    ],
+    "skills_tested": 5,
+    "skills_passed": 0,
+    "strongest_skill": "Communication Clarity",
+    "weakest_skill": "Active Listening"
+  },
+  "checkpoints": [
+    {
+      "name": "Rapport Established",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Building a positive connection with the customer at the start of the call.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "An unprofessional comment in the first turn confused the customer and prevented a positive connection from forming.",
+      "how_to_achieve": "Focus on being professional, clear, and friendly. Ask for the customer's name in a standard way, like 'ممكن أعرف اسم حضرتك؟'."
+    },
+    {
+      "name": "Needs Identified",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Understanding the customer's primary requirements and preferences.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The customer's primary need (location: El Tagamoa) was stated but immediately ignored. No follow-up questions were asked.",
+      "how_to_achieve": "When a customer states a need, repeat it back to confirm you heard them (e.g., 'تمام، حضرتك بتدور في التجمع') and then ask clarifying questions."
+    },
+    {
+      "name": "Value Demonstrated",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Clearly explaining how your product/service meets the customer's needs.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The call ended before any relevant properties or value could be discussed due to the initial communication breakdown.",
+      "how_to_achieve": "First, establish rapport and understand needs. Only then can you effectively present solutions that demonstrate value to the customer."
+    },
+    {
+      "name": "Objection Handled",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Effectively addressing any concerns or hesitations from the customer.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation didn't progress far enough for the customer to raise any objections about a specific product.",
+      "how_to_achieve": "This checkpoint comes later in the call. Focus on mastering the opening and discovery stages first."
+    },
+    {
+      "name": "Closing Signal Recognized",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Identifying cues that the customer is ready to move forward.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The customer was frustrated and disengaged, so they did not show any buying signals.",
+      "how_to_achieve": "Closing signals appear when a customer is interested. By improving listening and rapport, you create opportunities for these signals to emerge."
+    },
+    {
+      "name": "Commitment Achieved",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Securing a clear next step, like a meeting or follow-up call.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The call ended abruptly with the customer disengaging, so no next steps could be established.",
+      "how_to_achieve": "A commitment, like a follow-up call, is the result of a successful conversation. Build a strong foundation in the earlier stages to earn this."
+    }
+  ],
+  "executive_summary": "This was a challenging start, but every call is a fantastic learning opportunity. The key takeaway from this session is the importance of the first few moments in a call. By focusing on active listening and maintaining professionalism, you can build the trust needed for a successful conversation.",
+  "top_strengths": [
+    "You began the call with a polite and professional introduction.",
+    "You clearly stated your name and company.",
+    "You showed a willingness to engage with the customer right away."
+  ],
+  "top_improvements": [
+    "Actively listen to the customer's specific requests, such as their desired location, and address them directly.",
+    "Maintain a professional tone and avoid confusing humor that can damage rapport.",
+    "Pay attention to the customer's emotional cues and adjust your approach to de-escalate any frustration."
+  ],
+  "turn_feedback": [
+    {
+      "turn_number": 1,
+      "speaker": "salesperson",
+      "text": "اسم حضرتك ايه مارش مش ماتش كويس",
+      "assessment": "poor",
+      "tone": "constructive",
+      "what_was_good": null,
+      "what_to_improve": "This comment was confusing and unprofessional, which immediately damaged the conversation. It's best to stick to professional and clear language to build trust with a new customer.",
+      "suggested_alternative": "بالتأكيد، يسعدني أساعدك. قبل ما نشوف العقارات المتاحة في التجمع، ممكن أعرف اسم حضرتك؟",
+      "skills_shown": [
+        "rapport_building",
+        "communication_clarity",
+        "emotional_intelligence"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    },
+    {
+      "turn_number": 2,
+      "speaker": "salesperson",
+      "text": "حضرتك تحب تسمع الوفرز بتاعتنا في مدينتي",
+      "assessment": "poor",
+      "tone": "constructive",
+      "what_was_good": null,
+      "what_to_improve": "This response completely ignored the customer's direct question about 'El Tagamoa' and offered something irrelevant. This action confirmed to the customer that you weren't listening, which increased their frustration.",
+      "suggested_alternative": "تمام يا فندم، التجمع طبعاً. عشان أقدر أرشحلك الأنسب، ممكن أعرف إيه طبيعة الوحدة اللي بتدور عليها أو أي تفاصيل تانية تهمك؟",
+      "skills_shown": [
+        "active_listening",
+        "needs_discovery"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    }
+  ],
+  "include_turn_feedback": true,
+  "highlight_turns": [
+    1,
+    2
+  ],
+  "recommended_practice": [
+    "Practice a scenario where the customer immediately states their primary need (like a location). Your goal is to ask 3 follow-up questions about that need before offering any solution.",
+    "Start a new conversation and focus only on building professional rapport in the first 2-3 turns. Practice asking for the customer's name and confirming you heard them correctly.",
+    "Try a recovery scenario: The customer sounds annoyed or confused. Your goal is to acknowledge their feeling (e.g., 'أعتذر لو كلامي مكنش واضح') and then steer the conversation back to their original request."
+  ],
+  "passed": null,
+  "certification_eligible": null,
+  "retake_recommended": null,
+  "include_raw_analysis": false,
+  "raw_analysis": null
+}

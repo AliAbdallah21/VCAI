@@ -38,14 +38,16 @@ export const personasAPI = {
 
 export const sessionsAPI = {
   create: (personaId, difficulty) => api.post('/sessions', { persona_id: personaId, difficulty }).then(r => r.data),
-  getAll: (limit = 20) => api.get(`/sessions?limit=${limit}`).then(r => r.data),
+  getAll: (limit = 20, offset = 0) => api.get(`/sessions?limit=${limit}&offset=${offset}`).then(r => r.data),
   getById: (id) => api.get(`/sessions/${id}`).then(r => r.data),
+  getMessages: (id) => api.get(`/sessions/${id}/messages`).then(r => r.data),
   end: (id) => api.post(`/sessions/${id}/end`).then(r => r.data),
+  reactivate: (id) => api.post(`/sessions/${id}/reactivate`).then(r => r.data),
 };
 
 export const evaluationAPI = {
-  triggerEvaluation: (sessionId, mode = 'training') =>
-    api.post(`/sessions/${sessionId}/evaluate?mode=${mode}`).then(r => r.data),
+  triggerEvaluation: (sessionId, mode = 'training', force = false) =>
+    api.post(`/sessions/${sessionId}/evaluate?mode=${mode}&force=${force}`).then(r => r.data),
   getStatus: (sessionId) =>
     api.get(`/sessions/${sessionId}/eval-status`).then(r => r.data),
   getQuickStats: (sessionId) =>

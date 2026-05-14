@@ -50,36 +50,51 @@ EGYPTIAN_EXAMPLES = [
 def _extract_already_mentioned(memory: dict) -> list:
     """
     Extract topics/information already mentioned in the conversation.
-    This helps prevent the LLM from asking about things already discussed.
+    Looks at BOTH recent messages and checkpoint summaries so long
+    conversations don't lose track of what was discussed. Also scans
+    assistant (VC) messages so the AI doesn't repeat its own questions.
     """
-    mentioned = []
-    recent_messages = memory.get("recent_messages", [])
-    
-    # Keywords to detect what info was already given
-    price_keywords = ["سعر", "مليون", "ألف", "جنيه", "تمن", "بكام", "كام"]
-    size_keywords = ["متر", "مساحة", "قد إيه", "حجم"]
-    location_keywords = ["فين", "مكان", "منطقة", "عنوان", "مدينة نصر", "التجمع", "الشيخ زايد"]
-    floor_keywords = ["دور", "طابق", "أرضي"]
-    payment_keywords = ["مقدم", "تقسيط", "قسط", "دفع"]
-    
-    for msg in recent_messages:
-        text = msg.get("text", "").lower()
-        speaker = msg.get("speaker", "")
-        
-        # Only check salesperson messages for information given
-        if speaker == "salesperson":
-            if any(kw in text for kw in price_keywords):
-                mentioned.append("السعر")
-            if any(kw in text for kw in size_keywords):
-                mentioned.append("المساحة")
-            if any(kw in text for kw in location_keywords):
-                mentioned.append("المكان")
-            if any(kw in text for kw in floor_keywords):
-                mentioned.append("الدور/الطابق")
-            if any(kw in text for kw in payment_keywords):
-                mentioned.append("المقدم/التقسيط")
-    
-    return list(set(mentioned))  # Remove duplicates
+    # Topic → keywords. Match if ANY keyword present in the text.
+    TOPIC_KEYWORDS = {
+        "السعر":             ["سعر", "مليون", "ألف", "جنيه", "تمن", "بكام", "كام", "غالي", "رخيص"],
+        "المساحة":           ["متر", "مساحة", "قد إيه", "حجم"],
+        "المكان":            ["فين", "مكان", "منطقة", "عنوان", "مدينة نصر", "التجمع", "الشيخ زايد", "القاهرة الجديدة"],
+        "الدور/الطابق":      ["دور", "طابق", "أرضي"],
+        "المقدم/التقسيط":    ["مقدم", "تقسيط", "قسط", "كاش", "دفع", "فايدة", "فوايد"],
+        "الأسانسير":         ["أسانسير", "اسانسير", "أسنسير", "asansir", "elevator", "مصعد"],
+        "الحمامات":          ["حمام", "حمامات", "تواليت"],
+        "الغرف":             ["غرف", "غرفة", "أوضة", "أوض", "غراف", "نوم"],
+        "المطبخ":            ["مطبخ", "مطابخ"],
+        "البلكونة/الشرفة":   ["بلكونة", "شرفة", "تراس", "بلكون"],
+        "التكييف":           ["تكييف", "تكيف", "مكيف", "كنديشن"],
+        "التسليم/الأوراق":   ["تسليم", "استلام", "عقد", "عقود", "أوراق", "ملكية", "مالك", "تسجيل"],
+        "الصيانة":           ["صيانة", "اشتراك شهري", "خدمة شهرية"],
+        "المواصلات":         ["مواصلات", "اتوبيس", "مترو", "مدارس", "مدرسة", "مستشفى"],
+    }
+
+    def _scan(text: str, bag: set) -> None:
+        if not text:
+            return
+        t = text.lower()
+        for topic, kws in TOPIC_KEYWORDS.items():
+            if any(kw in t for kw in kws):
+                bag.add(topic)
+
+    mentioned: set = set()
+
+    # 1. Recent messages — both speakers count (we don't want the AI to
+    #    re-ask about something it already asked itself either).
+    for msg in memory.get("recent_messages", []) or []:
+        _scan(msg.get("text", ""), mentioned)
+
+    # 2. Checkpoint summaries + key points — long conversations rely on
+    #    these once raw messages roll out of the recent window.
+    for cp in memory.get("checkpoints", []) or []:
+        _scan(cp.get("summary", ""), mentioned)
+        for kp in cp.get("key_points", []) or []:
+            _scan(str(kp), mentioned)
+
+    return sorted(mentioned)
 
 
 def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, rag_context: dict) -> str:
@@ -135,10 +150,70 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
 ردودك لازم تكون متعلقة بالمحادثة، مش ردود عامة."""
 
 
+# Seller phrases that signal "let's close" — when any of these appears in the
+# salesperson's latest message, the customer should stop asking and decide.
+_CLOSURE_CUES = [
+    "نمضي العقد", "نمضى العقد", "نمضو العقد", "نمضو العقود",
+    "تشرفنا في المكتب", "تشرفنا بالمكتب", "تيجي المكتب",
+    "تيجي تشوف", "تعالى المكتب", "تعالا المكتب",
+    "نتفق", "نتقابل", "ميعاد العقد",
+    "هنوقع", "هنمضي", "نوقع العقد",
+]
+
+
+def _seller_is_closing(salesperson_text: str) -> bool:
+    if not salesperson_text:
+        return False
+    t = salesperson_text.lower()
+    return any(cue in t for cue in _CLOSURE_CUES)
+
+
+def _build_turn_instruction(topic_count: int, seller_closing: bool) -> str:
+    """
+    Build the per-turn instruction. Switches mode based on how much
+    of the deal has already been covered — early conversation defaults
+    to questions; once enough is on the table the model is pushed to
+    a decision instead.
+    """
+    if seller_closing:
+        # Seller has explicitly invited closure — strongest signal to decide.
+        return (
+            "[البياع بيعرض عليك تقفل الصفقة دلوقتي. لازم تختار:\n"
+            "1. لو راضي بالعرض حسب معايير شخصيتك (متى توافق): قول 'تمام، أنا موافق' "
+            "أو 'يلا نمشي للعقد'.\n"
+            "2. لو في حاجة مش مناسبة (متى ترفض): قول 'شكراً، هفكر تاني' أو "
+            "'العرض ده مش هياخده'.\n"
+            "ممنوع تسأل سؤال جديد. لازم تقرر دلوقتي. الرد جملة لجملتين بحد أقصى.]"
+        )
+
+    if topic_count >= 5:
+        # Plenty already discussed — bias toward decision, allow at most one
+        # last question if absolutely needed.
+        return (
+            f"[في {topic_count} موضوع اتغطّى من المحادثة. الحالة دلوقتي:\n"
+            "اختار واحد:\n"
+            "1. لو المعلومات كافية حسب شخصيتك (راجع 'متى توافق'): اقفل الصفقة. "
+            "قول 'تمام، أنا موافق' أو 'يلا نتفق'.\n"
+            "2. لو لقيت حاجة فوق حدودك (راجع 'متى ترفض'): اعتذر بأدب وامشي.\n"
+            "3. لو فعلاً ضروري سؤال أخير واحد بس عن حاجة لسه ما اتكلمتش عنها: اسأل، "
+            "بس بعدها لازم تقرر في الرد اللي بعده.\n"
+            "ممنوع تكرر نفس النوع من الأسئلة. الرد جملة لجملتين بحد أقصى.]"
+        )
+
+    # Early conversation — gather information naturally.
+    return (
+        "[رد طبيعي حسب شخصيتك وحالة المحادثة:\n"
+        "• علّق على اللي قاله البياع، واسأل سؤال جديد عن حاجة لسه ما اتكلمتش عنها.\n"
+        "• لو لقيت إن العرض كله عاجبك حسب 'متى توافق': اقفل الصفقة دلوقتي.\n"
+        "• لو في حاجة فوق ميزانيتك أو غير واضحة: اعتذر بأدب وامشي.\n"
+        "الرد جملة لجملتين بحد أقصى. ممنوع ترد بكلمة واحدة لوحدها.]"
+    )
+
+
 def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> list:
     """
     Build message list for chat completion.
-    
+
     IMPORTANT: Includes checkpoint summaries + recent messages
     so the LLM remembers the full conversation context.
     """
@@ -196,31 +271,31 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
             messages.append({"role": "assistant", "content": text})
     
     # ══════════════════════════════════════════════════════════════════════════
-    # 3. ADD REMINDER ABOUT WHAT WAS ALREADY MENTIONED
+    # 3. CONTEXT-AWARE PER-TURN INSTRUCTION
+    # The instruction adapts to conversation state — early turns ask questions,
+    # later turns push for a decision. Also detects when the seller has invited
+    # closure and forces an immediate decide-or-walk-away response.
+    # Putting this at the decision point (not just in the system prompt) is
+    # essential — with streaming, the model commits to a path before fully
+    # consuming a long system prompt.
     # ══════════════════════════════════════════════════════════════════════════
     already_mentioned = _extract_already_mentioned(memory)
-    
-    # ══════════════════════════════════════════════════════════════════════════
-    # 4. ADD CURRENT SALESPERSON MESSAGE WITH PER-TURN INSTRUCTION
-    # The instruction is injected here (not just in the system prompt) because
-    # with streaming the model starts generating before fully processing a long
-    # system prompt — putting the constraint at the decision point forces compliance.
-    # ══════════════════════════════════════════════════════════════════════════
+    seller_closing = _seller_is_closing(salesperson_text)
+    turn_instruction = _build_turn_instruction(len(already_mentioned), seller_closing)
+
     repeat_warning = ""
     if already_mentioned:
         mentioned_str = "، ".join(already_mentioned)
-        repeat_warning = f"[البياع ذكر {mentioned_str} قبل كده، اسأل عن حاجة تانية]\n"
+        repeat_warning = (
+            f"[المواضيع اللي اتغطّت قبل كده: {mentioned_str}. "
+            f"ممنوع تسأل عن أي حاجة منها تاني.]\n"
+        )
 
     messages.append({
         "role": "user",
-        "content": (
-            f"{repeat_warning}"
-            f"البياع: {salesperson_text}\n\n"
-            f"[ردك لازم جملتين: الأولى تعلّق على اللي البياع قاله، "
-            f"الثانية سؤال محدد عنه. ممنوع ترد بكلمة واحدة زي تمام أو أوك.]"
-        )
+        "content": f"{repeat_warning}البياع: {salesperson_text}\n\n{turn_instruction}",
     })
-    
+
     return messages
 
 

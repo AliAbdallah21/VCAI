@@ -8,7 +8,6 @@ from evaluation.state import (
     EvaluationProgress,
     update_state_status,
     record_node_timing,
-    add_error,
     mark_failed,
 )
 from evaluation.schemas import AnalysisReport
@@ -91,8 +90,7 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         state = update_state_status(state, "analyzing", EvaluationProgress.ANALYSIS_COMPLETE)
 
     except Exception as e:
-        state = add_error(state, f"Analyzer exception: {str(e)}")
-        return mark_failed(state, str(e))
+        return mark_failed(state, f"Analyzer exception: {str(e)}")
 
     finally:
         state = record_node_timing(state, "analyzer_node", time.perf_counter() - t0)

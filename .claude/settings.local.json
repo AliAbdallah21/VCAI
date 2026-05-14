@@ -20,7 +20,20 @@
       "Bash(C:\\\\Users\\\\11\\\\anaconda3\\\\envs\\\\vcai\\\\python.exe -c \"import requests; login=requests.post\\('http://localhost:8000/api/auth/login', data={'username':'ali@test.com','password':'123456'}\\); token=login.json\\(\\)['access_token']; headers={'Authorization':f'Bearer {token}'}; resp=requests.get\\('http://localhost:8000/api/sessions',headers=headers\\); print\\(type\\(resp.json\\(\\)\\),resp.json\\(\\) if isinstance\\(resp.json\\(\\),list\\) else list\\(resp.json\\(\\).keys\\(\\)\\)\\)\" 2>&1)",
       "Bash(/c/Users/11/anaconda3/envs/vcai/python.exe -c \"import requests; r=requests.post\\('http://localhost:8000/api/auth/login', data={'username':'ali@test.com','password':'123456'}\\); t=r.json\\(\\)['access_token']; h={'Authorization':'Bearer '+t}; s=requests.get\\('http://localhost:8000/api/sessions',headers=h\\); d=s.json\\(\\); print\\(type\\(d\\)\\); print\\(list\\(d.keys\\(\\)\\) if isinstance\\(d,dict\\) else \\(str\\(len\\(d\\)\\)+' items, first keys: '+str\\(list\\(d[0].keys\\(\\)\\)\\) if d else 'empty list'\\)\\)\" 2>&1)",
       "Bash(/c/Users/11/anaconda3/envs/vcai/python.exe trigger_eval.py 2>&1)",
-      "Bash(/c/Users/11/anaconda3/envs/vcai/python.exe -c \"\nimport sys\nsys.path.insert\\(0, '.'\\)\nfrom evaluation.manager import gather_evaluation_inputs, _gather_fact_check_context\n\nsession_id = 'cb60af5b-10fe-43bd-b4a7-2c195a68f399'\nprint\\('Gathering inputs...'\\)\ninputs = gather_evaluation_inputs\\(session_id\\)\ntranscript = inputs['transcript']\nprint\\(f'Got {len\\(transcript\\)} messages'\\)\nprint\\(\\)\nprint\\('--- SALESPERSON TURNS ---'\\)\nfor t in transcript:\n    if t['speaker'] == 'salesperson':\n        print\\(f'  Turn {t[\\\\\"turn_number\\\\\"]}: {t[\\\\\"text\\\\\"]}'\\)\nprint\\(\\)\nprint\\('Running fact-check...'\\)\nresult = _gather_fact_check_context\\(transcript\\)\n\" 2>&1)"
+      "Bash(/c/Users/11/anaconda3/envs/vcai/python.exe -c \"\nimport sys\nsys.path.insert\\(0, '.'\\)\nfrom evaluation.manager import gather_evaluation_inputs, _gather_fact_check_context\n\nsession_id = 'cb60af5b-10fe-43bd-b4a7-2c195a68f399'\nprint\\('Gathering inputs...'\\)\ninputs = gather_evaluation_inputs\\(session_id\\)\ntranscript = inputs['transcript']\nprint\\(f'Got {len\\(transcript\\)} messages'\\)\nprint\\(\\)\nprint\\('--- SALESPERSON TURNS ---'\\)\nfor t in transcript:\n    if t['speaker'] == 'salesperson':\n        print\\(f'  Turn {t[\\\\\"turn_number\\\\\"]}: {t[\\\\\"text\\\\\"]}'\\)\nprint\\(\\)\nprint\\('Running fact-check...'\\)\nresult = _gather_fact_check_context\\(transcript\\)\n\" 2>&1)",
+      "Bash(mkdir -p ~/.claude/skills/frontend-design)",
+      "Bash(curl -o ~/.claude/skills/frontend-design/SKILL.md https://raw.githubusercontent.com/anthropics/claude-code/main/plugins/frontend-design/skills/frontend-design/SKILL.md)",
+      "Bash(npm run *)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3000)",
+      "Bash(python -c \"from evaluation.manager import EvaluationLLMWrapper; print\\('manager OK'\\)\")",
+      "Bash(python -c \"from evaluation.pipeline.analyzer import analyzer_node; print\\('analyzer OK'\\)\")",
+      "Bash(grep -A 30 \"class Session\" echo \"---\" cat /c/VCAI/backend/services/__init__.py)",
+      "Bash(python -c \"from backend.services.session_service import get_user_sessions; print\\('OK'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('backend/services/session_service.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('backend/services/evaluation_service.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(python -c \"import ast; ast.parse\\(open\\('backend/routers/evaluation.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
+      "Bash(python *)",
+      "Bash(C:/Users/11/anaconda3/envs/vcai/python.exe *)"
     ]
   }
 }

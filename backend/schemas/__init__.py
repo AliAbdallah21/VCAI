@@ -139,6 +139,7 @@ class SessionSummary(BaseModel):
     started_at: datetime
     duration_seconds: Optional[int]
     overall_score: Optional[int]
+    turn_count: int = 0
 
 
 class SessionListResponse(BaseModel):

@@ -3,7 +3,7 @@
 Session service - handles training session management.
 """
 
-from datetime import datetime, timezone
+from datetime import datetime, timezone, timedelta
 from typing import Optional, List
 from uuid import UUID
 
@@ -11,6 +11,7 @@ from sqlalchemy.orm import Session
 from fastapi import HTTPException, status
 
 from backend.models import Session as TrainingSession, Message, EmotionLog, Persona, User
+from backend.models.evaluation import EvaluationReport
 from backend.schemas import SessionCreate, SessionResponse, MessageCreate, EmotionState, session
 
 
@@ -76,16 +77,68 @@ def get_session(db: Session, session_id: UUID) -> TrainingSession:
     return session
 
 
+_STALE_THRESHOLD = timedelta(hours=2)
+
+
+def _auto_end_stale(db: Session, session: TrainingSession) -> None:
+    """End a session that has been stuck as 'active' with no recent activity."""
+    now = datetime.now(timezone.utc)
+    # Use timestamp of last message as the real end time, fall back to started_at
+    last_msg = (
+        db.query(Message)
+        .filter(Message.session_id == session.id)
+        .order_by(Message.created_at.desc())
+        .first()
+    )
+    end_time = last_msg.created_at if (last_msg and last_msg.created_at) else session.started_at
+    if end_time and end_time.tzinfo is None:
+        end_time = end_time.replace(tzinfo=timezone.utc)
+    session.status = "ended"
+    session.ended_at = end_time
+    session.duration_seconds = max(0, int((end_time - session.started_at.replace(tzinfo=timezone.utc) if session.started_at.tzinfo is None else end_time - session.started_at).total_seconds()))
+    db.commit()
+
+
 def get_user_sessions(
     db: Session,
     user_id: UUID,
     limit: int = 20,
     offset: int = 0
 ) -> tuple[List[TrainingSession], int]:
-    """Get sessions for a user."""
+    """Get sessions for a user. Auto-ends sessions stuck as active for over 2 hours."""
+    now = datetime.now(timezone.utc)
+    stale_cutoff = now - _STALE_THRESHOLD
+    stale = (
+        db.query(TrainingSession)
+        .filter(
+            TrainingSession.user_id == user_id,
+            TrainingSession.status == "active",
+            TrainingSession.started_at < stale_cutoff,
+        )
+        .all()
+    )
+    for s in stale:
+        _auto_end_stale(db, s)
+
     query = db.query(TrainingSession).filter(TrainingSession.user_id == user_id)
     total = query.count()
     sessions = query.order_by(TrainingSession.started_at.desc()).offset(offset).limit(limit).all()
+
+    # Sync overall_score from EvaluationReport for sessions that are missing it
+    needs_commit = False
+    for s in sessions:
+        if s.overall_score is None:
+            report = (
+                db.query(EvaluationReport)
+                .filter(EvaluationReport.session_id == s.id, EvaluationReport.status == "completed")
+                .first()
+            )
+            if report and report.overall_score is not None:
+                s.overall_score = report.overall_score
+                needs_commit = True
+    if needs_commit:
+        db.commit()
+
     return sessions, total
 
 
@@ -181,4 +234,4 @@ def get_session_messages(db: Session, session_id: UUID) -> List[Message]:
     """Get all messages for a session."""
     return db.query(Message).filter(
         Message.session_id == session_id
-    ).order_by(Message.turn_number).all()
+    ).order_by(Message.created_at).all()

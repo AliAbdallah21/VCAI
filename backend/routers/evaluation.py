@@ -21,6 +21,7 @@ from backend.services.evaluation_service import (
     create_evaluation_report,
     compute_quick_stats,
     run_evaluation_background,
+    get_eval_stage,
 )
 
 
@@ -50,37 +51,46 @@ def start_evaluation(
     session_id: UUID,
     background_tasks: BackgroundTasks,
     mode: str = "training",
+    force: bool = False,
     current_user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
 ):
     """
     Trigger evaluation for a completed session.
-
-    Immediately returns {"status": "started", "session_id": ...}.
-    The full LLM pipeline (EvaluationManager → LangGraph) runs in the background.
-    Poll GET /report to check progress.
-
-    mode: "training" (encouraging feedback) | "testing" (pass/fail)
+    Pass force=true to re-run evaluation even if a report already exists.
     """
+    from datetime import datetime, timezone
+    from backend.services.session_service import _auto_end_stale
     training_session = _require_session(db, session_id, current_user)
 
-    # Only completed/ended sessions can be evaluated
+    # Auto-end active sessions so they can be evaluated
+    if training_session.status == "active":
+        _auto_end_stale(db, training_session)
+        db.refresh(training_session)
+
     if training_session.status not in ("completed", "ended"):
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail=(
-                f"Session status is '{training_session.status}'. "
-                "End the session before requesting evaluation."
-            ),
+            detail=f"Session status is '{training_session.status}'. End the session first.",
         )
 
-    # Get or create the report row (handles race conditions internally)
+    # Force re-evaluation: reset existing report
+    if force:
+        existing = get_evaluation_report_by_session(db, session_id)
+        if existing:
+            existing.status = "pending"
+            existing.progress = 0
+            existing.report_json = None
+            existing.overall_score = None
+            existing.passed = None
+            existing.error_message = None
+            existing.started_at = None
+            existing.completed_at = None
+            db.commit()
+
     report = create_evaluation_report(db, session_id, mode)
 
-    # Decide whether to dispatch background work
     if report.status == "failed":
-        # Reset so we can retry
-        from datetime import datetime, timezone
         report.status = "pending"
         report.progress = 0
         report.error_message = None
@@ -89,10 +99,10 @@ def start_evaluation(
         db.commit()
 
     if report.status in ("pending",):
-        # FastAPI will run this after the response is sent
-        background_tasks.add_task(run_evaluation_background, session_id, mode)
+        live = get_eval_stage(session_id)
+        if not live:
+            background_tasks.add_task(run_evaluation_background, session_id, mode)
 
-    # Always return immediately — frontend polls GET /report
     return {"status": "started", "session_id": str(session_id)}
 
 
@@ -137,10 +147,12 @@ def get_report(
             "error": report.error_message or "Evaluation failed — check server logs.",
         }
 
-    # pending or processing
+    # pending or processing — include live stage message from tracker
+    live = get_eval_stage(session_id)
     return {
         "status": report.status,
-        "progress": report.progress or 0,
+        "progress": live.get("progress", report.progress or 0),
+        "stage":    live.get("stage", "Initializing..."),
     }
 
 

@@ -36,6 +36,15 @@ class EvaluationLLMWrapper:
     Wrapper using OpenRouter for evaluation.
     """
     
+    # Models tried in order when the primary fails with 4xx.
+    # All confirmed available on OpenRouter and strong enough for evaluation.
+    FALLBACK_MODELS = [
+        "google/gemini-2.5-pro",           # Best: strong JSON, Arabic, ~$1-2.50/M in
+        "deepseek/deepseek-chat",           # V3: excellent JSON, very cheap
+        "google/gemini-2.5-flash",          # Fast, cheap, decent quality
+        "google/gemini-2.0-flash-exp:free", # Free tier last resort
+    ]
+
     def __init__(self):
         self.api_key = os.environ.get("OPENROUTER_API_KEY")
         if not self.api_key:
@@ -44,35 +53,65 @@ class EvaluationLLMWrapper:
                 "Set it in your .env file or shell environment."
             )
         self.base_url = "https://openrouter.ai/api/v1/chat/completions"
-        # Try these models in order:
-        # 1. "anthropic/claude-3.5-sonnet" (best, costs credits)
-        # 2. "google/gemini-2.0-flash-exp:free" (free, good)
-        # 3. "meta-llama/llama-3.1-70b-instruct" (cheap, decent)
-        self.model = os.environ.get("OPENROUTER_MODEL", "anthropic/claude-3.7-sonnet")
-    
-    def generate(self, *, system_prompt: str, user_prompt: str) -> str:
-        """Generate response using OpenRouter."""
-        
+        # EVAL_LLM_MODEL overrides OPENROUTER_MODEL specifically for evaluation.
+        # Default: anthropic/claude-3.5-sonnet (confirmed working on OpenRouter).
+        self.model = (
+            os.environ.get("EVAL_LLM_MODEL")
+            or os.environ.get("OPENROUTER_MODEL")
+            or "anthropic/claude-3.5-sonnet"
+        )
+        print(f"[LLM] Evaluation LLM initialised — model: {self.model}")
+
+    def _call_openrouter(self, model: str, system_prompt: str, user_prompt: str) -> str:
+        """Make a single blocking call to OpenRouter and return the text content."""
         headers = {
             "Authorization": f"Bearer {self.api_key}",
             "Content-Type": "application/json",
         }
-        
         payload = {
-            "model": self.model,
+            "model": model,
             "messages": [
                 {"role": "system", "content": system_prompt},
-                {"role": "user", "content": user_prompt}
+                {"role": "user",   "content": user_prompt},
             ],
             "temperature": 0.3,
-            "max_tokens": 8192,  # Much higher than your local model
+            "max_tokens": 8192,
         }
-        
-        response = requests.post(self.base_url, json=payload, headers=headers)
-        response.raise_for_status()
-        
+        print(f"[LLM] → POST {self.base_url}  model={model}  prompt_chars={len(user_prompt)}")
+        response = requests.post(
+            self.base_url, json=payload, headers=headers,
+            timeout=(15, 180),
+        )
+        if not response.ok:
+            try:
+                err_body = response.json()
+            except Exception:
+                err_body = response.text[:600]
+            print(f"[LLM] ✗ HTTP {response.status_code} from OpenRouter: {err_body}")
+            response.raise_for_status()
+
         data = response.json()
-        return data["choices"][0]["message"]["content"]
+        content = data["choices"][0]["message"]["content"]
+        print(f"[LLM] ← response  model={model}  chars={len(content)}")
+        return content
+
+    def generate(self, *, system_prompt: str, user_prompt: str) -> str:
+        """Generate response using OpenRouter, with model fallback on 4xx."""
+        models_to_try = [self.model] + [m for m in self.FALLBACK_MODELS if m != self.model]
+        last_exc = None
+        for model in models_to_try:
+            try:
+                return self._call_openrouter(model, system_prompt, user_prompt)
+            except requests.exceptions.HTTPError as exc:
+                status = exc.response.status_code if exc.response is not None else 0
+                if status in (404, 422, 400):
+                    print(f"[LLM] Model {model!r} rejected (HTTP {status}) — trying next fallback")
+                    last_exc = exc
+                    continue
+                raise  # non-retryable error (401, 429, 500, …)
+        raise RuntimeError(
+            f"All OpenRouter models failed. Last error: {last_exc}"
+        ) from last_exc
 
 
 # Singleton LLM wrapper
@@ -89,6 +128,89 @@ def get_evaluation_llm() -> EvaluationLLMWrapper:
 # ═══════════════════════════════════════════════════════════════════════════════
 # Data Gathering Functions
 # ═══════════════════════════════════════════════════════════════════════════════
+
+def gather_evaluation_inputs_db_only(session_id: str) -> dict:
+    """
+    Gather ONLY database data (transcript, emotions, session_info).
+    Does NOT run the fact-check. Call _gather_fact_check_context separately.
+    Used by run_evaluation_background to emit granular progress stages.
+    """
+    from backend.database import get_db_context
+    from backend.models import Session as TrainingSession, Message, EmotionLog
+    from backend.models.persona import Persona as PersonaModel
+    from uuid import UUID
+
+    logger.info(f"[MANAGER] DB-only gather for session {session_id}")
+
+    with get_db_context() as db:
+        session = db.query(TrainingSession).filter(
+            TrainingSession.id == UUID(session_id)
+        ).first()
+        if not session:
+            raise ValueError(f"Session {session_id} not found")
+
+        messages = db.query(Message).filter(
+            Message.session_id == UUID(session_id)
+        ).order_by(Message.turn_number.asc()).all()
+
+        transcript = [
+            {
+                "turn_number": msg.turn_number,
+                "speaker": msg.speaker,
+                "text": msg.text,
+                "timestamp": msg.created_at.isoformat() if msg.created_at else None,
+                "detected_emotion": getattr(msg, 'detected_emotion', None),
+                "emotion_confidence": None,
+            }
+            for msg in messages
+        ]
+
+        emotion_logs = db.query(EmotionLog).filter(
+            EmotionLog.session_id == UUID(session_id)
+        ).order_by(EmotionLog.id.asc()).all()
+
+        emotion_log = [
+            {
+                "turn_number": i + 1,
+                "emotion": log.customer_emotion,
+                "confidence": 1.0,
+                "mood_score": log.customer_mood_score,
+                "risk_level": log.risk_level,
+                "trend": log.emotion_trend,
+            }
+            for i, log in enumerate(emotion_logs)
+        ]
+
+        duration_seconds = 0
+        if session.duration_seconds:
+            duration_seconds = session.duration_seconds
+        elif session.started_at and session.ended_at:
+            duration_seconds = int((session.ended_at - session.started_at).total_seconds())
+
+        persona = db.query(PersonaModel).filter(
+            PersonaModel.id == session.persona_id
+        ).first()
+        persona_name = (persona.name_ar or persona.name_en) if persona else session.persona_id
+        persona_difficulty = persona.difficulty if persona else "medium"
+
+        session_info = {
+            "session_id": str(session.id),
+            "user_id": str(session.user_id),
+            "persona_id": session.persona_id,
+            "persona_name": persona_name,
+            "persona_difficulty": persona_difficulty,
+            "started_at": session.started_at.isoformat() if session.started_at else None,
+            "ended_at": session.ended_at.isoformat() if session.ended_at else None,
+            "duration_seconds": duration_seconds,
+        }
+
+    logger.info(f"[MANAGER] DB gather done: {len(transcript)} messages, {len(emotion_log)} emotions")
+    return {
+        "transcript": transcript,
+        "emotion_log": emotion_log,
+        "session_info": session_info,
+    }
+
 
 def gather_evaluation_inputs(session_id: str) -> dict:
     """

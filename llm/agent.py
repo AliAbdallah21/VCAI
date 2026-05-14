@@ -31,7 +31,7 @@ from llm.prompts import build_system_prompt, build_messages
 # Switch between Qwen (local) and OpenRouter (cloud)
 USE_OPENROUTER = os.getenv("USE_OPENROUTER", "false").lower() == "true"
 OPENROUTER_API_KEY = os.getenv("OPENROUTER_API_KEY", "")
-OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "anthropic/claude-3.5-sonnet")
+OPENROUTER_MODEL = os.getenv("OPENROUTER_MODEL", "google/gemini-2.5-pro")
 
 # Debug flag - set to True to see full message content sent to LLM
 DEBUG_PROMPTS = True
@@ -334,9 +334,12 @@ def _stream_openrouter_sentences(messages: list, **kwargs) -> Generator[str, Non
 
     def _worker():
         buffer = ""
+        first_sentence_yielded = False
 
         def _flush_sentences(buf: str) -> str:
             """Extract all complete sentences from buf, enqueue them, return remainder."""
+            nonlocal first_sentence_yielded
+
             while True:
                 # Primary: scan for . ؟ ! followed by space or end-of-buffer
                 split_pos = -1
@@ -351,17 +354,22 @@ def _stream_openrouter_sentences(messages: list, **kwargs) -> Generator[str, Non
                     sentence = buf[:split_pos].strip()
                     if len(sentence) > 3:
                         sentence_q.put(sentence)
+                        first_sentence_yielded = True
                     buf = buf[split_pos:].lstrip()
                     continue  # keep scanning remaining buffer
 
-                # Secondary: ، after 15+ words
+                # Secondary: Arabic comma split
+                # First sentence: cut at 4+ words (fast first audio)
+                # Subsequent sentences: cut at 7+ words
+                comma_threshold = 4 if not first_sentence_yielded else 7
                 comma_idx = buf.find("،")
                 if comma_idx > 0:
                     words_before = len(buf[:comma_idx].split())
-                    if words_before >= 15:
+                    if words_before >= comma_threshold:
                         sentence = buf[:comma_idx + 1].strip()
                         if len(sentence) > 3:
                             sentence_q.put(sentence)
+                            first_sentence_yielded = True
                         buf = buf[comma_idx + 1:].lstrip()
                         continue
 
@@ -472,7 +480,7 @@ def generate_response_streaming(
                 print(f"  {i+1}. [{msg['role']}]: {preview}")
             print("=" * 60 + "\n")
 
-        yield from _stream_openrouter_sentences(messages, temperature=0.7, max_tokens=300)
+        yield from _stream_openrouter_sentences(messages, temperature=0.7, max_tokens=150)
         return
     
     # Qwen: True token-by-token streaming

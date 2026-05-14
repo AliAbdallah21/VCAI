@@ -1,0 +1,297 @@
+{
+  "report_id": "RPT-2026-05-13-23-14-35",
+  "session_id": "53e2d322-db01-4ece-8640-247e7ed6463d",
+  "user_id": "b7eb2e79-094f-4a1f-bc76-64e4d1c37387",
+  "persona_id": "price_focused_customer",
+  "persona_name": "العميل المهتم بالسعر",
+  "mode": "training",
+  "created_at": "2024-05-21T12:00:01Z",
+  "quick_stats": {
+    "duration_seconds": 361,
+    "duration_formatted": "06:01",
+    "total_turns": 4,
+    "salesperson_turns": 2,
+    "customer_turns": 2,
+    "final_customer_emotion": "angry",
+    "emotion_improved": false,
+    "checkpoints_achieved": 1,
+    "checkpoints_total": 6,
+    "checkpoint_list": [
+      "❌ Rapport Established",
+      "✅ Needs Identified",
+      "❌ Value Demonstrated",
+      "❌ Objection Handled",
+      "❌ Closing Signal Recognized",
+      "❌ Commitment Achieved"
+    ],
+    "call_outcome": "unknown"
+  },
+  "scores": {
+    "overall_score": 55,
+    "pass_threshold": 75,
+    "status": "failed",
+    "points_from_passing": -20,
+    "skills": [
+      {
+        "skill_name": "Rapport Building",
+        "skill_key": "rapport_building",
+        "score": 35,
+        "weight": 0.162,
+        "weighted_contribution": 5.67,
+        "was_tested": true,
+        "summary": "The conversation started on a weak note due to an unclear opening, missing the chance to build a connection.",
+        "strengths": [],
+        "areas_to_improve": [
+          "The opening was garbled and difficult to understand, which can create a poor first impression.",
+          "The interaction was purely transactional with no attempt to build a personal connection."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Active Listening",
+        "skill_key": "active_listening",
+        "score": 70,
+        "weight": 0.162,
+        "weighted_contribution": 11.34,
+        "was_tested": true,
+        "summary": "You effectively heard and answered the customer's direct question about the number of rooms available.",
+        "strengths": [
+          "Demonstrated listening by providing a direct answer to the customer's question in turn 3."
+        ],
+        "areas_to_improve": [
+          "While you answered the factual part of the question, you missed the angry tone behind it."
+        ],
+        "evidence_turns": [
+          3
+        ]
+      },
+      {
+        "skill_name": "Needs Discovery",
+        "skill_key": "needs_discovery",
+        "score": 75,
+        "weight": 0.189,
+        "weighted_contribution": 14.175,
+        "was_tested": true,
+        "summary": "Great job asking an open-ended question that successfully uncovered the customer's main requirement.",
+        "strengths": [
+          "Effectively transitioned from answering a question to asking a great discovery question: 'إيه المناسب بالنسبة لحضرتك'.",
+          "Quickly identified a key customer need (3 rooms)."
+        ],
+        "areas_to_improve": [
+          "This was a strong start. To build on this, you can ask more questions about budget, location preferences, and timeline to get a complete picture."
+        ],
+        "evidence_turns": [
+          3
+        ]
+      },
+      {
+        "skill_name": "Product Knowledge",
+        "skill_key": "product_knowledge",
+        "score": 80,
+        "weight": 0.189,
+        "weighted_contribution": 15.12,
+        "was_tested": true,
+        "summary": "You correctly stated the available range of rooms when asked by the customer.",
+        "strengths": [
+          "Provided accurate, basic product information about the available room options."
+        ],
+        "areas_to_improve": [
+          "This was good. In future calls, be ready to share more details about what makes each option unique."
+        ],
+        "evidence_turns": [
+          3
+        ]
+      },
+      {
+        "skill_name": "Objection Handling",
+        "skill_key": "objection_handling",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Emotional Intelligence",
+        "skill_key": "emotional_intelligence",
+        "score": 15,
+        "weight": 0.162,
+        "weighted_contribution": 2.43,
+        "was_tested": true,
+        "summary": "This is a key area for growth; the customer's angry tone was not acknowledged during the call.",
+        "strengths": [],
+        "areas_to_improve": [
+          "The customer's anger (noted in the emotion log) was not addressed, leading to a purely transactional and cold interaction.",
+          "Adapting your tone to show empathy can de-escalate situations and build trust."
+        ],
+        "evidence_turns": [
+          1,
+          3
+        ]
+      },
+      {
+        "skill_name": "Closing Skills",
+        "skill_key": "closing_skills",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Communication Clarity",
+        "skill_key": "communication_clarity",
+        "score": 45,
+        "weight": 0.135,
+        "weighted_contribution": 6.075,
+        "was_tested": true,
+        "summary": "Your second statement was clear, but the initial greeting was garbled, impacting the first impression.",
+        "strengths": [
+          "Your question in turn 3 was clear and easy to understand."
+        ],
+        "areas_to_improve": [
+          "The first impression was weakened by an unclear opening. Clarity from the very first second is crucial."
+        ],
+        "evidence_turns": [
+          1,
+          3
+        ]
+      }
+    ],
+    "skills_tested": 6,
+    "skills_passed": 3,
+    "strongest_skill": "Product Knowledge",
+    "weakest_skill": "Emotional Intelligence"
+  },
+  "checkpoints": [
+    {
+      "name": "Rapport Established",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Building a personal connection and trust with the customer at the beginning of the call.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The call began with an unclear greeting and moved directly to business without any warm-up or small talk.",
+      "how_to_achieve": "Start with a clear, confident greeting and your name/company. Consider a brief, warm question like 'كيف حالك اليوم؟' before diving into business."
+    },
+    {
+      "name": "Needs Identified",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Discovering the customer's primary requirements for their property search.",
+      "achieved_at_turn": 4,
+      "how_achieved": "You asked a great open-ended question, 'إيه المناسب بالنسبة لحضرتك', which led the customer to state their need for 3 rooms.",
+      "why_missed": null,
+      "how_to_achieve": null
+    },
+    {
+      "name": "Value Demonstrated",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Connecting the customer's needs to specific features and benefits of your properties.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation was too short to reach this stage. After identifying the need for 3 rooms, the call ended before you could present a relevant property.",
+      "how_to_achieve": "Once you know the customer needs 3 rooms, you can say, 'ممتاز، لدينا وحدة من 3 غرف تتميز بـ[ميزة]، وهذا سيوفر لك [فائدة].'"
+    },
+    {
+      "name": "Objection Handled",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Effectively addressing any concerns or hesitations raised by the customer.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The customer did not raise any specific objections during this brief conversation.",
+      "how_to_achieve": "When a customer raises a concern, first acknowledge it ('أتفهم قلقك بخصوص...'), then ask questions to understand it better before offering a solution."
+    },
+    {
+      "name": "Closing Signal Recognized",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Identifying cues from the customer that they are ready to move forward.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation did not progress to a point where the customer would show interest in next steps.",
+      "how_to_achieve": "Listen for questions about payment, availability ('متى يمكنني استلامها؟'), or next steps. These are strong signals to propose a closing action."
+    },
+    {
+      "name": "Commitment Achieved",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Securing a firm agreement from the customer for a next step.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The call ended before any next steps could be discussed or agreed upon.",
+      "how_to_achieve": "Always aim to end the call with a clear next step, such as 'هل يناسبك أن نحدد موعدًا للمعاينة يوم الخميس؟' or 'سأرسل لك الآن الكتيبات على الواتساب.'"
+    }
+  ],
+  "executive_summary": "This was a solid first attempt where you did a great job uncovering the customer's primary need with a well-phrased question. For your next call, focus on making a stronger first impression with a clear opening and on acknowledging the customer's feelings to build trust earlier.",
+  "top_strengths": [
+    "Successfully uncovered the customer's core need (3 rooms) by asking a great open-ended question.",
+    "Provided accurate product information about the range of rooms available.",
+    "Directly answered the customer's question before asking one of your own."
+  ],
+  "top_improvements": [
+    "Work on a clearer, more professional opening statement to build confidence from the first second.",
+    "Improve emotional intelligence by learning to recognize and acknowledge the customer's emotional state (e.g., anger or frustration).",
+    "Focus on building rapport at the start of the call before jumping into discovery questions."
+  ],
+  "turn_feedback": [
+    {
+      "turn_number": 1,
+      "speaker": "salesperson",
+      "text": "أيها السلام عليكم أكاري عبدالله من جكرت حسن علم لتسوئر عقوري",
+      "assessment": "poor",
+      "tone": "constructive",
+      "what_was_good": null,
+      "what_to_improve": "The greeting was unclear and sounded rushed, which can make a poor first impression. It's important to state your name and company clearly and confidently.",
+      "suggested_alternative": "A clearer, more professional opening would be: 'السلام عليكم، معك عبدالله من شركة [اسم الشركة]. كيف أقدر أساعدك اليوم؟'",
+      "skills_shown": [
+        "rapport_building",
+        "communication_clarity"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": false
+    },
+    {
+      "turn_number": 3,
+      "speaker": "salesperson",
+      "text": "بتبدأ من أول غرفتين لحد أربع غرف. إيه المناسب بالنسبة لحضرتك",
+      "assessment": "good",
+      "tone": "positive",
+      "what_was_good": "Excellent work here! You answered the customer's question directly and then seamlessly transitioned into a perfect open-ended discovery question. This is a highly effective technique.",
+      "what_to_improve": "To take this from good to great, you could briefly acknowledge the customer's frustrated tone before asking your question. A little empathy builds a lot of trust.",
+      "suggested_alternative": "For example: 'بالتأكيد، الوحدات تبدأ من غرفتين إلى أربع. وحتى أساعدك بشكل أفضل، ما هي المساحة التي تبحث عنها بالضبط؟'",
+      "skills_shown": [
+        "active_listening",
+        "product_knowledge",
+        "needs_discovery"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": false
+    }
+  ],
+  "include_turn_feedback": true,
+  "highlight_turns": [
+    1,
+    3
+  ],
+  "recommended_practice": [
+    "Practice your opening statement out loud 5 times before your next call to ensure it's smooth, clear, and confident.",
+    "In your next simulation, focus on identifying the customer's emotion in their first sentence and try to acknowledge it with a simple phrase like 'يبدو أنك مستعجل اليوم' or 'أتفهم إحباطك'.",
+    "Try a role-play scenario where the customer is impatient. Your goal is to calm them down by showing empathy before you start asking questions."
+  ],
+  "passed": null,
+  "certification_eligible": null,
+  "retake_recommended": null,
+  "include_raw_analysis": false,
+  "raw_analysis": null
+}

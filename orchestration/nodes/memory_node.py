@@ -6,6 +6,7 @@ Handles message storage, retrieval, and checkpoint creation.
 
 import time
 from datetime import datetime
+from threading import Thread
 import uuid
 
 from orchestration.state import ConversationState
@@ -151,13 +152,23 @@ def memory_save_node(
                 print(f"[MEMORY SAVE] Stored VC message: {state['llm_response'][:50]}...")
         
         # ══════════════════════════════════════════════════════════════════
-        # 3. Check if checkpoint needed
+        # 3. Check if checkpoint needed — fire in background, don't block
         # ══════════════════════════════════════════════════════════════════
         if config and config.enable_checkpoints:
             if _should_create_checkpoint(turn_count, config):
                 if config.verbose:
-                    print(f"[MEMORY SAVE] Creating checkpoint at turn {turn_count}...")
-                _create_checkpoint(state, config)
+                    print(f"[MEMORY SAVE] Checkpoint scheduled in background (turn {turn_count})...")
+                # Snapshot the data the checkpoint needs — state mutates after this returns
+                _snapshot = {
+                    "session_id": session_id,
+                    "turn_count": turn_count,
+                    "history": list(state.get("history", [])),
+                }
+                Thread(
+                    target=_create_checkpoint,
+                    args=(_snapshot, config),
+                    daemon=True,
+                ).start()
         
         # ══════════════════════════════════════════════════════════════════
         # 4. Increment turn count
@@ -201,54 +212,42 @@ def _should_create_checkpoint(turn_count: int, config: OrchestrationConfig) -> b
     return turn_count > 0 and turn_count % interval == 0
 
 
-def _create_checkpoint(state: ConversationState, config: OrchestrationConfig) -> None:
+def _create_checkpoint(snapshot: dict, config: OrchestrationConfig) -> None:
     """
     Create a memory checkpoint from recent messages.
-    
-    Uses LLM to summarize conversation and extract key points.
-    
+    Runs in a background thread — must not reference live state.
+
     Args:
-        state: Current state
+        snapshot: dict with session_id, turn_count, history (copied before thread start)
         config: Configuration
     """
     try:
+        session_id = snapshot["session_id"]
+        turn_count = snapshot["turn_count"]
+        history    = snapshot["history"]
+
         # Get functions based on config
         if config and config.use_mocks:
             from orchestration.mocks import store_checkpoint
-            # Mock summarization
-            summary = "ملخص المحادثة"
+            summary    = "ملخص المحادثة"
             key_points = ["نقطة 1", "نقطة 2"]
         else:
             from memory.agent import store_checkpoint
             from llm.agent import summarize_conversation, extract_key_points
-            
-            # Get messages to summarize
-            session_id = state.get("session_id")
-            turn_count = state.get("turn_count", 0)
-            history = state.get("history", [])
-            
-            # Get last N messages (based on checkpoint interval)
+
             interval = config.checkpoint_interval if config else 5
-            messages_to_summarize = history[-(interval * 2):]  # *2 because each turn has 2 messages
-            
+            messages_to_summarize = history[-(interval * 2):]
+
             if not messages_to_summarize:
-                if config.verbose:
-                    print("[MEMORY SAVE] No messages to summarize")
+                print("[MEMORY SAVE] No messages to summarize")
                 return
-            
-            # Use LLM to summarize
-            if config.verbose:
-                print(f"[MEMORY SAVE] Summarizing {len(messages_to_summarize)} messages...")
-            
-            summary = summarize_conversation(messages_to_summarize)
+
+            print(f"[MEMORY SAVE] Summarizing {len(messages_to_summarize)} messages...")
+            summary    = summarize_conversation(messages_to_summarize)
             key_points = extract_key_points(messages_to_summarize)
-            
-            if config.verbose:
-                print(f"[MEMORY SAVE] Summary: {summary[:100]}...")
-                print(f"[MEMORY SAVE] Key points: {key_points}")
-        
-        session_id = state.get("session_id")
-        turn_count = state.get("turn_count", 0)
+            print(f"[MEMORY SAVE] Summary: {summary[:100]}...")
+            print(f"[MEMORY SAVE] Key points: {key_points}")
+
         interval = config.checkpoint_interval if config else 5
         
         # Create checkpoint
