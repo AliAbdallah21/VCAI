@@ -76,13 +76,20 @@ def _check_rag() -> dict[str, str]:
 
 
 def _check_memory() -> dict[str, str]:
-    """Issue a trivial SELECT 1 to confirm PostgreSQL is reachable."""
+    """Issue a trivial SELECT 1 to confirm PostgreSQL is reachable + measure latency."""
     try:
+        import time
         from backend.database import get_db_context
         from sqlalchemy import text
+        t0 = time.perf_counter()
         with get_db_context() as db:
             db.execute(text("SELECT 1"))
-        return {"status": "ok", "message": "PostgreSQL connected"}
+        latency_ms = round((time.perf_counter() - t0) * 1000, 1)
+        return {
+            "status": "ok",
+            "message": f"PostgreSQL connected ({latency_ms}ms)",
+            "latency_ms": latency_ms,
+        }
     except Exception as e:
         return {"status": "error", "message": f"DB unreachable: {e}"}
 

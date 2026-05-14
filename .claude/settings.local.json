@@ -35,7 +35,8 @@
       "Bash(python *)",
       "Bash(C:/Users/11/anaconda3/envs/vcai/python.exe *)",
       "Bash(git -C C:/VCAI status --short)",
-      "Bash(git -C C:/VCAI diff --stat HEAD)"
+      "Bash(git -C C:/VCAI diff --stat HEAD)",
+      "Bash(set PYTHONIOENCODING=utf-8)"
     ]
   }
 }

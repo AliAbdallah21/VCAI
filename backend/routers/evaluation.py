@@ -10,10 +10,11 @@ URL structure (all under /api prefix set in main.py):
 """
 
 from uuid import UUID
-from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Request, status
 from sqlalchemy.orm import Session
 
 from backend.database import get_db
+from backend.rate_limit import limiter
 from backend.services.auth_service import get_current_user
 from backend.models import User, Session as TrainingSession
 from backend.services.evaluation_service import (
@@ -47,7 +48,9 @@ def _require_session(db: Session, session_id: UUID, user: User) -> TrainingSessi
 # ─────────────────────────────────────────────────────────────────────────────
 
 @router.post("/{session_id}/evaluate")
+@limiter.limit("10/minute")  # tighter than the global 60/min — each call burns 2 Gemini requests
 def start_evaluation(
+    request: Request,
     session_id: UUID,
     background_tasks: BackgroundTasks,
     mode: str = "training",
