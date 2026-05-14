@@ -49,17 +49,19 @@ from .report_schema import (
     EvaluationMode,
     PassFailStatus,
     FeedbackTone,
-    
+
     # Sub-models
     TurnFeedback,
     SkillScoreDetail,
     ScoreBreakdown,
     CheckpointSummary,
     QuickStats,
-    
+    FactCheckError,
+    FactCheckSummary,
+
     # Main models
     FinalReport,
-    
+
     # API responses
     EvaluationStatusResponse,
     EvaluationTriggerResponse,

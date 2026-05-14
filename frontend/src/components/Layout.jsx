@@ -34,11 +34,18 @@ const IconLogout = () => (
   </svg>
 );
 
+const IconCompare = () => (
+  <svg width="17" height="17" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M3 6h6m0 0v12m0-12L6 9m12 9h-6m0 0V6m0 12l3-3" />
+  </svg>
+);
+
 const NAV = [
-  { path: '/dashboard', label: 'Dashboard',      Icon: IconDashboard, accent: '#60a5fa', accentBg: 'rgba(37,99,235,0.1)',   accentBorder: 'rgba(37,99,235,0.18)'  },
-  { path: '/setup',     label: 'New Session',    Icon: IconMic,       accent: '#a78bfa', accentBg: 'rgba(124,58,237,0.1)', accentBorder: 'rgba(124,58,237,0.18)' },
-  { path: '/sessions',  label: 'Resume a Call',  Icon: IconPhone,     accent: '#34d399', accentBg: 'rgba(16,185,129,0.1)', accentBorder: 'rgba(16,185,129,0.18)' },
-  { path: '/evaluate',  label: 'Evaluate a Call',Icon: IconChart,     accent: '#fbbf24', accentBg: 'rgba(245,158,11,0.1)', accentBorder: 'rgba(245,158,11,0.18)' },
+  { path: '/dashboard', label: 'Dashboard',       Icon: IconDashboard, accent: '#60a5fa', accentBg: 'rgba(37,99,235,0.1)',   accentBorder: 'rgba(37,99,235,0.18)'  },
+  { path: '/setup',     label: 'New Session',     Icon: IconMic,       accent: '#a78bfa', accentBg: 'rgba(124,58,237,0.1)', accentBorder: 'rgba(124,58,237,0.18)' },
+  { path: '/sessions',  label: 'Resume a Call',   Icon: IconPhone,     accent: '#34d399', accentBg: 'rgba(16,185,129,0.1)', accentBorder: 'rgba(16,185,129,0.18)' },
+  { path: '/evaluate',  label: 'Evaluate a Call', Icon: IconChart,     accent: '#fbbf24', accentBg: 'rgba(245,158,11,0.1)', accentBorder: 'rgba(245,158,11,0.18)' },
+  { path: '/compare',   label: 'Compare',         Icon: IconCompare,   accent: '#f472b6', accentBg: 'rgba(236,72,153,0.1)', accentBorder: 'rgba(236,72,153,0.18)' },
 ];
 
 export default function Layout({ children }) {

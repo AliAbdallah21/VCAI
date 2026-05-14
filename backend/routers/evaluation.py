@@ -98,10 +98,31 @@ def start_evaluation(
         report.completed_at = None
         db.commit()
 
-    if report.status in ("pending",):
-        live = get_eval_stage(session_id)
-        if not live:
+    # Atomic claim: only the request that successfully transitions the row
+    # from pending → processing (with started_at flipping from NULL to NOW)
+    # gets to fire the background task. The other concurrent request loses
+    # the race and returns quietly. This prevents the double-eval pattern
+    # we saw where two browser tabs both fired Gemini and burned quota.
+    if report.status == "pending":
+        from datetime import datetime, timezone
+        # Use UPDATE...WHERE...started_at IS NULL as the atomic gate.
+        from sqlalchemy import update
+        from backend.models.evaluation import EvaluationReport as _ER
+        now = datetime.now(timezone.utc)
+        result = db.execute(
+            update(_ER)
+            .where(_ER.id == report.id)
+            .where(_ER.started_at.is_(None))
+            .values(status="processing", started_at=now, progress=1)
+        )
+        db.commit()
+        if result.rowcount == 1:
+            # We won the race — fire the background task.
             background_tasks.add_task(run_evaluation_background, session_id, mode)
+            print(f"[EVAL] Claimed evaluation lock for {session_id} — firing background task.")
+        else:
+            # Another request already claimed it; do nothing.
+            print(f"[EVAL] Lost evaluation race for {session_id} — another request is processing.")
 
     return {"status": "started", "session_id": str(session_id)}
 

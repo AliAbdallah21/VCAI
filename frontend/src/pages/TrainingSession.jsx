@@ -258,6 +258,19 @@ export default function TrainingSession() {
       mr.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       mr.onstop = () => {
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+
+        // Guard accidental quick taps — opus webm of < ~0.4s of speech is
+        // typically under 3KB. Lets "أوك" / "تمام" / "لا" through, blocks
+        // 0.1s clicks. Don't send, don't lock the UI, just nudge the user.
+        if (blob.size < 3000) {
+          stream.getTracks().forEach(t => t.stop());
+          setIsProcessing(false);
+          clearProcessingWatchdog();
+          setStuckRecovery('التسجيل قصير جداً — اضغط واتكلم لثانية على الأقل.');
+          setTimeout(() => setStuckRecovery(null), 3000);
+          return;
+        }
+
         // Use FileReader for base64 encoding — spreading a 60KB Uint8Array
         // into String.fromCharCode(...bytes) overflows the JS call stack on
         // longer recordings. FileReader handles arbitrary sizes natively.

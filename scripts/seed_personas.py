@@ -354,6 +354,16 @@ PERSONAS = [
 # Seed function
 # ─────────────────────────────────────────────────────────────────────────────
 
+def _default_avatar_url(persona_id: str) -> str:
+    """
+    Generate a deterministic illustrated avatar URL for a persona.
+    Uses DiceBear (free, no API key). Each persona_id produces a unique
+    consistent avatar across reloads. Swap to /avatars/<id>.jpg later
+    if you want real photos.
+    """
+    return f"https://api.dicebear.com/7.x/personas/svg?seed={persona_id}&backgroundColor=1e293b,334155,475569"
+
+
 def seed(db) -> None:
     for data in PERSONAS:
         row = db.query(Persona).filter(Persona.id == data["id"]).first()
@@ -374,8 +384,12 @@ def seed(db) -> None:
         row.emotion_sensitivity = data["emotion_sensitivity"]
         row.traits = data["traits"]
         row.is_active = True
+        # Only set avatar_url if it's currently empty — never overwrite a
+        # manually-set image path.
+        if not getattr(row, "avatar_url", None):
+            row.avatar_url = _default_avatar_url(data["id"])
 
-        print(f"  [{action}] {data['id']} ({data['difficulty']})")
+        print(f"  [{action}] {data['id']} ({data['difficulty']})  avatar={row.avatar_url[:60]}...")
 
     db.commit()
     print(f"\nSeeded {len(PERSONAS)} personas successfully.")

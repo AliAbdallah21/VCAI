@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { personasAPI, sessionsAPI } from '../services/api';
 import Layout from '../components/Layout';
+import Avatar from '../components/Avatar';
 
 const DIFFICULTIES = [
   {
@@ -179,15 +180,7 @@ export default function SessionSetup() {
                     }}
                   >
                     <div className="flex items-start gap-3">
-                      <div
-                        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0 text-sm font-bold"
-                        style={{
-                          background: active ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.06)',
-                          color: active ? '#93c5fd' : 'rgba(148,163,184,0.5)',
-                        }}
-                      >
-                        {p.name_en?.charAt(0) || '?'}
-                      </div>
+                      <Avatar src={p.avatar_url} name={p.name_en} size={40} active={active} />
                       <div className="min-w-0">
                         <p className="font-semibold text-sm text-white mb-1">{p.name_en}</p>
                         <p className="text-xs leading-relaxed" style={{ color: 'rgba(148,163,184,0.5)' }}>
@@ -208,12 +201,7 @@ export default function SessionSetup() {
             className="rounded-2xl p-4 mb-5 flex items-center gap-4"
             style={{ background: 'rgba(37,99,235,0.07)', border: '1px solid rgba(37,99,235,0.2)' }}
           >
-            <div
-              className="w-10 h-10 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-              style={{ background: 'rgba(37,99,235,0.2)', color: '#93c5fd' }}
-            >
-              {selected.name_en?.charAt(0)}
-            </div>
+            <Avatar src={selected.avatar_url} name={selected.name_en} size={40} active />
             <div>
               <p className="font-semibold text-sm text-white">{selected.name_en}</p>
               <p className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>

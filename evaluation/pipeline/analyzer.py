@@ -78,10 +78,39 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             user_prompt=prompt,
         )
 
-        # Validate JSON against AnalysisReport schema (doc requirement)
+        # Validate JSON against AnalysisReport schema
         analysis, error = validate_analysis_json(llm_response_text, AnalysisReport)
+
+        # One repair retry on JSON failure (Gemini occasionally truncates /
+        # produces stray commas in long JSON outputs).
         if error or analysis is None:
-            return mark_failed(state, f"Analyzer JSON validation failed: {error}")
+            print(f"[ANALYZER] First JSON parse failed: {error}. Retrying with repair prompt...")
+            repair_system = (
+                "You are a strict JSON repairer. You will receive a JSON document "
+                "that failed parsing and the parser error. Return ONLY the corrected "
+                "JSON document — no prose, no markdown fences, no explanation. "
+                "Preserve every field and value; only fix syntax."
+            )
+            repair_user = (
+                f"PARSER ERROR:\n{error}\n\n"
+                f"BROKEN JSON (return a fixed version of this, nothing else):\n"
+                f"{llm_response_text}"
+            )
+            try:
+                repaired_text = llm.generate(
+                    system_prompt=repair_system,
+                    user_prompt=repair_user,
+                )
+                print(f"[ANALYZER] Repair response received ({len(repaired_text)} chars), revalidating...")
+                analysis, error = validate_analysis_json(repaired_text, AnalysisReport)
+                if not (error or analysis is None):
+                    llm_response_text = repaired_text
+                    print("[ANALYZER] JSON repair SUCCEEDED.")
+            except Exception as repair_exc:
+                print(f"[ANALYZER] Repair call itself failed: {repair_exc}")
+
+        if error or analysis is None:
+            return mark_failed(state, f"Analyzer JSON validation failed (after 1 repair retry): {error}")
 
         # Write outputs to state
         state["analysis_report"] = analysis

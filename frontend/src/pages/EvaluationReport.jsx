@@ -654,6 +654,99 @@ export default function EvaluationReport() {
                   </div>
                 )}
 
+                {/* ── Fact-check accuracy (against KB) ── */}
+                {rep.fact_check && rep.fact_check.claims_checked > 0 && (() => {
+                  const fc = rep.fact_check;
+                  const pct = Math.round((fc.accuracy_rate || 0) * 100);
+                  const tone = pct >= 80
+                    ? { ring: '#34d399', bg: 'rgba(16,185,129,0.05)', border: 'rgba(16,185,129,0.18)', label: 'Accurate' }
+                    : pct >= 50
+                      ? { ring: '#fbbf24', bg: 'rgba(245,158,11,0.05)', border: 'rgba(245,158,11,0.18)', label: 'Mixed' }
+                      : { ring: '#f87171', bg: 'rgba(239,68,68,0.05)', border: 'rgba(239,68,68,0.18)', label: 'Inaccurate' };
+                  return (
+                    <div className="rounded-2xl p-6 mb-5"
+                      style={{ background: tone.bg, border: `1px solid ${tone.border}` }}>
+                      <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
+                        <div>
+                          <h3 className="heading text-sm font-bold text-white mb-1">Factual Accuracy (vs. Knowledge Base)</h3>
+                          <p className="text-xs" style={{ color: 'rgba(148,163,184,0.55)' }}>
+                            Salesperson claims about prices, sizes, delivery, and features, verified against the property database.
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-3 flex-shrink-0">
+                          <div className="text-right">
+                            <p className="text-2xl font-bold" style={{ color: tone.ring }}>{pct}%</p>
+                            <p className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>{tone.label}</p>
+                          </div>
+                          <div className="text-right text-xs leading-tight" style={{ color: 'rgba(148,163,184,0.6)' }}>
+                            <p>{fc.accurate_count} accurate</p>
+                            <p>{fc.inaccurate_count} wrong</p>
+                            {fc.unverifiable_count > 0 && <p>{fc.unverifiable_count} unverifiable</p>}
+                          </div>
+                        </div>
+                      </div>
+
+                      {fc.properties_discussed?.length > 0 && (
+                        <div className="mb-3 flex flex-wrap gap-1.5">
+                          {fc.properties_discussed.map((name, i) => (
+                            <span key={i} className="text-xs px-2 py-0.5 rounded-lg"
+                              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(148,163,184,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                              {name}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+
+                      {fc.errors?.length > 0 ? (
+                        <div className="space-y-2.5">
+                          {fc.errors.map((err, i) => (
+                            <div key={i} className="rounded-xl p-3.5"
+                              style={{
+                                background: 'rgba(0,0,0,0.25)',
+                                border: `1px solid ${err.severity === 'critical' ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.2)'}`,
+                              }}>
+                              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                                <span className="text-xs px-2 py-0.5 rounded font-medium capitalize"
+                                  style={{
+                                    background: err.severity === 'critical' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
+                                    color: err.severity === 'critical' ? '#f87171' : '#fbbf24',
+                                  }}>
+                                  {err.severity}
+                                </span>
+                                <span className="text-xs px-2 py-0.5 rounded font-medium"
+                                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(148,163,184,0.7)' }}>
+                                  {err.claim_type}
+                                </span>
+                                {err.turn_number != null && (
+                                  <span className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>Turn {err.turn_number}</span>
+                                )}
+                                {err.property_name && (
+                                  <span className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>· {err.property_name}</span>
+                                )}
+                              </div>
+                              <p className="text-sm mb-1" style={{ color: '#f87171' }}>
+                                <span className="opacity-60">Said:</span> "{err.claimed_value}"
+                              </p>
+                              <p className="text-sm mb-1" style={{ color: '#34d399' }}>
+                                <span className="opacity-60">KB says:</span> {err.correct_value}
+                              </p>
+                              {err.explanation_ar && (
+                                <p className="text-xs mt-2" style={{ color: 'rgba(148,163,184,0.65)' }} dir="rtl">
+                                  {err.explanation_ar}
+                                </p>
+                              )}
+                            </div>
+                          ))}
+                        </div>
+                      ) : (
+                        <p className="text-sm" style={{ color: '#34d399' }}>
+                          ✓ All checked claims match the knowledge base.
+                        </p>
+                      )}
+                    </div>
+                  );
+                })()}
+
                 {/* ── Top strengths + improvements ── */}
                 <div className="grid md:grid-cols-2 gap-4 mb-5">
                   {rep.top_strengths?.length > 0 && (

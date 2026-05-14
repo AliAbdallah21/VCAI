@@ -86,10 +86,40 @@ def _extract_json_candidate(text: str) -> str:
 def parse_json(text: str) -> Any:
     """
     Parses JSON from LLM output, with best-effort extraction.
-    Raises json.JSONDecodeError if parsing fails.
+
+    Tries strict json.loads first (fast path). If that fails — which happens
+    often with long Gemini outputs that include trailing commas, missing
+    commas between objects, or unescaped newlines in Arabic strings — falls
+    back to the `json_repair` library, which fixes most LLM-output syntax
+    bugs deterministically without another LLM call.
+
+    Raises json.JSONDecodeError only if BOTH strict parse and repaired
+    parse fail.
     """
     candidate = _extract_json_candidate(text)
-    return json.loads(candidate)
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError as strict_err:
+        try:
+            import json_repair  # type: ignore
+            repaired = json_repair.loads(candidate)
+            # json_repair returns the parsed object directly (or {} when
+            # truly unrecoverable). Treat empty {} on a non-empty document
+            # as a failure so we surface a real error.
+            if repaired == {} and candidate.strip() not in ("{}", ""):
+                raise strict_err
+            print(f"[parse_json] json_repair recovered LLM output ({strict_err.msg} at char {strict_err.pos})")
+            return repaired
+        except json.JSONDecodeError:
+            raise
+        except ImportError:
+            # json_repair not installed — propagate the original error.
+            raise strict_err
+        except Exception as repair_err:
+            # Any other failure during repair → re-raise the original JSONDecodeError
+            # so the caller sees the actual parse problem, not the repair tool's bug.
+            print(f"[parse_json] json_repair itself errored: {repair_err}")
+            raise strict_err
 
 
 def extract_json_from_response(text: str) -> Any:
