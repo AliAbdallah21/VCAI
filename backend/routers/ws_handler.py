@@ -31,6 +31,11 @@ class ConversationHandler:
         self.audio_buffer: list[np.ndarray] = []
         self.is_processing = False
 
+        # Raw audio of the salesperson's latest turn (for replay storage).
+        # Cleared each turn by ws_pipeline once written to disk.
+        self.pending_salesperson_audio_bytes: bytes | None = None
+        self.pending_salesperson_audio_format: str = "webm"
+
         # Customer mood tracking (0–100, 50 = neutral)
         self.customer_mood = 50
         self.emotion_history: list[float] = []

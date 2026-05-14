@@ -43,6 +43,12 @@ export const sessionsAPI = {
   getMessages: (id) => api.get(`/sessions/${id}/messages`).then(r => r.data),
   end: (id) => api.post(`/sessions/${id}/end`).then(r => r.data),
   reactivate: (id) => api.post(`/sessions/${id}/reactivate`).then(r => r.data),
+  // Build a fully-qualified audio URL with the JWT in the query string —
+  // HTML5 <audio> tags can't send Authorization headers.
+  messageAudioUrl: (sessionId, messageId) => {
+    const token = localStorage.getItem('token') || '';
+    return `${API_URL}/sessions/${sessionId}/messages/${messageId}/audio?token=${encodeURIComponent(token)}`;
+  },
 };
 
 export const evaluationAPI = {

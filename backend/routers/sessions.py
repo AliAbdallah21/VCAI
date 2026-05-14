@@ -108,16 +108,76 @@ def get_messages(
     Get all messages from a session.
     """
     session = get_session(db, session_id)
-    
+
     # Verify ownership
     if session.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_403_FORBIDDEN,
             detail="You don't have access to this session"
         )
-    
+
     messages = get_session_messages(db, session_id)
     return [MessageResponse.model_validate(m) for m in messages]
+
+
+@router.get("/{session_id}/messages/{message_id}/audio")
+def get_message_audio(
+    session_id: UUID,
+    message_id: UUID,
+    token: str = Query(..., description="JWT token (HTML5 <audio> can't send the Authorization header)"),
+    db: Session = Depends(get_db),
+):
+    """
+    Stream the saved audio for one message of a session.
+
+    HTML5 <audio> tags don't include the Authorization header, so this
+    endpoint authenticates via the `?token=` query parameter instead of
+    the usual `Depends(get_current_user)`. The session's user_id is
+    verified to match the token owner.
+    """
+    from fastapi.responses import FileResponse
+    from backend.services.auth_service import decode_token
+    from backend.services.audio_storage import resolve_audio_path
+    from backend.models import Message
+
+    # ── Auth: validate token from query, find user ──
+    token_data = decode_token(token)
+    if token_data is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+    user = db.query(User).filter(User.id == token_data.user_id).first()
+    if user is None or not user.is_active:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token")
+
+    # ── Verify session ownership ──
+    session = get_session(db, session_id)
+    if session.user_id != user.id:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="You don't have access to this session")
+
+    # ── Look up the message and its audio path ──
+    msg = (
+        db.query(Message)
+        .filter(Message.id == message_id, Message.session_id == session_id)
+        .first()
+    )
+    if msg is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Message not found")
+    if not msg.audio_path:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="No audio saved for this message")
+
+    abs_path = resolve_audio_path(msg.audio_path)
+    if abs_path is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Audio file not available on disk")
+
+    suffix = abs_path.suffix.lower()
+    media_type = {
+        ".wav":  "audio/wav",
+        ".webm": "audio/webm",
+        ".mp3":  "audio/mpeg",
+        ".ogg":  "audio/ogg",
+    }.get(suffix, "application/octet-stream")
+
+    return FileResponse(str(abs_path), media_type=media_type, filename=abs_path.name)
 
 
 @router.post("/{session_id}/end", response_model=SessionResponse)

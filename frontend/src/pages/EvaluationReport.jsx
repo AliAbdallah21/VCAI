@@ -299,6 +299,33 @@ export default function EvaluationReport() {
   const [reportVisible, setReportVisible] = useState(false);
   const [reEvaluating, setReEvaluating]   = useState(false);
 
+  // Map: turn_number → { salesperson: message_id|null, customer: message_id|null }.
+  // Populated once per session so the turn-by-turn feedback can render
+  // play buttons that resolve to /messages/{message_id}/audio.
+  const [messagesByTurn, setMessagesByTurn] = useState({});
+
+  // Shared "currently playing" id so only one audio plays at a time.
+  const [playingId, setPlayingId] = useState(null);
+  const audioRef = useRef(null);
+
+  const playAudio = useCallback((id, url) => {
+    // Stop any prior playback.
+    if (audioRef.current) {
+      try { audioRef.current.pause(); } catch {}
+      audioRef.current = null;
+    }
+    if (playingId === id) {
+      setPlayingId(null);
+      return;
+    }
+    const el = new Audio(url);
+    el.onended = () => { setPlayingId(null); audioRef.current = null; };
+    el.onerror = () => { setPlayingId(null); audioRef.current = null; };
+    el.play().catch(() => { setPlayingId(null); audioRef.current = null; });
+    audioRef.current = el;
+    setPlayingId(id);
+  }, [playingId]);
+
   const handleReEvaluate = async () => {
     setReEvaluating(true);
     try {
@@ -360,6 +387,35 @@ export default function EvaluationReport() {
     const t = setTimeout(() => setReportVisible(true), 600);
     return () => clearTimeout(t);
   }, [evaluation?.status]);
+
+  // Load messages once after the report is available so play buttons know
+  // which message_id maps to which (turn_number, speaker). Best-effort —
+  // failure silently disables audio replay but doesn't break the report.
+  useEffect(() => {
+    if (!sessionId || evaluation?.status !== 'completed') return;
+    sessionsAPI.getMessages(sessionId).then(msgs => {
+      const map = {};
+      for (const m of msgs || []) {
+        const turn = m.turn_number ?? -1;
+        if (turn < 0) continue;
+        if (!map[turn]) map[turn] = { salesperson: null, customer: null };
+        const role = m.speaker === 'salesperson' ? 'salesperson' : 'customer';
+        // Only set if there's saved audio for this message
+        if (m.audio_path) map[turn][role] = m.id;
+      }
+      setMessagesByTurn(map);
+    }).catch(() => setMessagesByTurn({}));
+  }, [sessionId, evaluation?.status]);
+
+  // Cleanup: stop any playing audio on unmount.
+  useEffect(() => {
+    return () => {
+      if (audioRef.current) {
+        try { audioRef.current.pause(); } catch {}
+        audioRef.current = null;
+      }
+    };
+  }, []);
 
   const formatDuration = (s) => {
     if (!s) return '0:00';
@@ -787,15 +843,60 @@ export default function EvaluationReport() {
                     <div className="space-y-3">
                       {rep.turn_feedback.filter(t => t.speaker === 'salesperson').map((t, i) => {
                         const aColor = { excellent: '#34d399', good: '#60a5fa', adequate: '#94a3b8', needs_improvement: '#fbbf24', poor: '#f87171' }[t.assessment] || '#94a3b8';
+                        const turnMsgs = messagesByTurn[t.turn_number] || {};
+                        const youId = turnMsgs.salesperson;
+                        const customerId = turnMsgs.customer;
+                        const youPlayId = youId ? `sp-${youId}` : null;
+                        const customerPlayId = customerId ? `vc-${customerId}` : null;
+                        const youUrl = youId ? sessionsAPI.messageAudioUrl(sessionId, youId) : null;
+                        const customerUrl = customerId ? sessionsAPI.messageAudioUrl(sessionId, customerId) : null;
                         return (
                           <div key={i} className="rounded-xl p-4"
                             style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
-                            <div className="flex items-center gap-2 mb-2">
+                            <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <span className="text-xs px-2 py-0.5 rounded-lg font-medium capitalize"
                                 style={{ background: `${aColor}15`, color: aColor, border: `1px solid ${aColor}30` }}>
                                 {t.assessment?.replace(/_/g, ' ') || 'neutral'}
                               </span>
                               <span className="text-xs" style={{ color: 'rgba(148,163,184,0.35)' }}>Turn {t.turn_number}</span>
+                              {youUrl && (
+                                <button
+                                  onClick={() => playAudio(youPlayId, youUrl)}
+                                  className="ml-auto flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150"
+                                  style={{
+                                    background: playingId === youPlayId ? 'rgba(96,165,250,0.18)' : 'rgba(255,255,255,0.04)',
+                                    color: playingId === youPlayId ? '#60a5fa' : 'rgba(148,163,184,0.7)',
+                                    border: `1px solid ${playingId === youPlayId ? 'rgba(96,165,250,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                  }}
+                                  title="Play your audio for this turn"
+                                >
+                                  {playingId === youPlayId ? (
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                                  ) : (
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                  )}
+                                  You
+                                </button>
+                              )}
+                              {customerUrl && (
+                                <button
+                                  onClick={() => playAudio(customerPlayId, customerUrl)}
+                                  className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150 ${youUrl ? '' : 'ml-auto'}`}
+                                  style={{
+                                    background: playingId === customerPlayId ? 'rgba(167,139,250,0.18)' : 'rgba(255,255,255,0.04)',
+                                    color: playingId === customerPlayId ? '#a78bfa' : 'rgba(148,163,184,0.7)',
+                                    border: `1px solid ${playingId === customerPlayId ? 'rgba(167,139,250,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                  }}
+                                  title="Play AI customer audio for this turn"
+                                >
+                                  {playingId === customerPlayId ? (
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                                  ) : (
+                                    <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+                                  )}
+                                  Customer
+                                </button>
+                              )}
                             </div>
                             <p className="text-xs italic mb-2" style={{ color: 'rgba(148,163,184,0.5)' }}>"{t.text}"</p>
                             {t.what_was_good && (

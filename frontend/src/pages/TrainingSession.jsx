@@ -38,6 +38,24 @@ export default function TrainingSession() {
   const processingWatchdogRef = useRef(null);
   const [stuckRecovery, setStuckRecovery] = useState(null);
 
+  // Replay audio (one shared element so only one plays at a time)
+  const replayAudioRef = useRef(null);
+  const [playingId, setPlayingId] = useState(null);
+
+  const playReplay = useCallback((id, url) => {
+    if (replayAudioRef.current) {
+      try { replayAudioRef.current.pause(); } catch {}
+      replayAudioRef.current = null;
+    }
+    if (playingId === id) { setPlayingId(null); return; }
+    const el = new Audio(url);
+    el.onended = () => { setPlayingId(null); replayAudioRef.current = null; };
+    el.onerror = () => { setPlayingId(null); replayAudioRef.current = null; };
+    el.play().catch(() => { setPlayingId(null); replayAudioRef.current = null; });
+    replayAudioRef.current = el;
+    setPlayingId(id);
+  }, [playingId]);
+
   // Watchdog: if processing doesn't complete within 60s, force-unlock the UI.
   // Prevents the user from being permanently locked out when the server drops
   // the processing:completed message for any reason.
@@ -183,6 +201,20 @@ export default function TrainingSession() {
           } else {
             setIsProcessing(false);
             clearProcessingWatchdog();
+            // After a turn completes, refetch the persisted message list so
+            // the latest two messages get their real ids + audio_paths
+            // (needed for the inline replay buttons).
+            sessionsAPI.getMessages(sessionId)
+              .then(msgs => {
+                if (!msgs?.length) return;
+                setMessages(msgs.map(m => ({
+                  id: m.id,
+                  speaker: m.speaker === 'salesperson' ? 'you' : 'customer',
+                  text: m.text,
+                  audioPath: m.audio_path,
+                })));
+              })
+              .catch(() => {});
           }
           break;
         case 'info':
@@ -224,13 +256,16 @@ export default function TrainingSession() {
     unmountedRef.current = false;
     reconnectAttemptsRef.current = 0;
 
-    // Load existing messages so resumed sessions show previous conversation
+    // Load existing messages so resumed sessions show previous conversation.
+    // Keep id+audioPath so the replay buttons work.
     sessionsAPI.getMessages(sessionId)
       .then(msgs => {
         if (msgs?.length > 0) {
           setMessages(msgs.map(m => ({
+            id: m.id,
             speaker: m.speaker === 'salesperson' ? 'you' : 'customer',
             text: m.text,
+            audioPath: m.audio_path,
           })));
         }
       })
@@ -244,6 +279,10 @@ export default function TrainingSession() {
       clearProcessingWatchdog();
       if (wsRef.current?.readyState <= WebSocket.OPEN) wsRef.current.close(1000, 'Component unmounting');
       if (audioContextRef.current?.state !== 'closed') audioContextRef.current?.close();
+      if (replayAudioRef.current) {
+        try { replayAudioRef.current.pause(); } catch {}
+        replayAudioRef.current = null;
+      }
     };
   }, [sessionId]);
 
@@ -449,8 +488,12 @@ export default function TrainingSession() {
 
           {messages.map((m, i) => {
             const isYou = m.speaker === 'you';
+            const hasAudio = !!(m.id && m.audioPath);
+            const playId = m.id ? `msg-${m.id}` : null;
+            const audioUrl = hasAudio ? sessionsAPI.messageAudioUrl(sessionId, m.id) : null;
+            const isPlaying = playId && playingId === playId;
             return (
-              <div key={i} className={`flex ${isYou ? 'justify-end' : 'justify-start'} slide-up`}>
+              <div key={m.id || i} className={`flex ${isYou ? 'justify-end' : 'justify-start'} slide-up`}>
                 <div
                   className="max-w-[76%] px-4 py-3 rounded-2xl text-sm leading-relaxed"
                   style={isYou ? {
@@ -465,9 +508,35 @@ export default function TrainingSession() {
                     borderBottomLeftRadius: '6px',
                   }}
                 >
-                  <p className="text-xs mb-1.5 font-medium" style={{ opacity: 0.5 }}>
-                    {isYou ? 'You' : 'Customer'}
-                  </p>
+                  <div className="flex items-center justify-between gap-2 mb-1.5">
+                    <p className="text-xs font-medium" style={{ opacity: 0.5 }}>
+                      {isYou ? 'You' : 'Customer'}
+                    </p>
+                    {hasAudio && (
+                      <button
+                        onClick={() => playReplay(playId, audioUrl)}
+                        title={isPlaying ? 'Stop playback' : 'Replay this turn'}
+                        className="flex items-center justify-center transition-all duration-150"
+                        style={{
+                          width: 22, height: 22, borderRadius: 6,
+                          background: isPlaying ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
+                          color: isPlaying ? '#ffffff' : 'rgba(255,255,255,0.65)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                        }}
+                      >
+                        {isPlaying ? (
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                            <rect x="6" y="5" width="4" height="14" rx="1"/>
+                            <rect x="14" y="5" width="4" height="14" rx="1"/>
+                          </svg>
+                        ) : (
+                          <svg width="11" height="11" viewBox="0 0 24 24" fill="currentColor">
+                            <path d="M8 5v14l11-7z"/>
+                          </svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
                   {m.text}
                 </div>
               </div>

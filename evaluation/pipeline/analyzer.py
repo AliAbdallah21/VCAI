@@ -55,6 +55,12 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         emotion_log = state.get("emotion_log", [])
         structured_fact_check = state.get("structured_fact_check", {})
 
+        # ended_by_user: defaults to True because the overwhelmingly common
+        # end-path is the user clicking "End Session". The session_info dict
+        # can override this for sessions auto-ended by inactivity/timeout.
+        session_info = state.get("session_info") or {}
+        ended_by_user = session_info.get("ended_by_user", True)
+
         # Build analyzer prompt (doc requirement: use skills + checkpoints)
         prompt = build_analyzer_prompt(
             transcript=transcript,
@@ -63,6 +69,7 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             skill_configs=[cfg.model_dump() for cfg in SKILL_CONFIGS.values()],
             checkpoint_configs=[cfg.model_dump() for cfg in CHECKPOINT_CONFIGS.values()],
             AnalysisReport=AnalysisReport,
+            ended_by_user=ended_by_user,
         )
 
         # LLM call (doc requires LLM here; interface provided by infra)

@@ -183,6 +183,11 @@ async def websocket_endpoint(
                         os.unlink(tmp_in)
                         os.unlink(tmp_out)
                         handler.audio_buffer = [audio_arr]
+                        # Stash the raw bytes + format on the handler so the
+                        # pipeline can persist them for replay after we know
+                        # the turn number.
+                        handler.pending_salesperson_audio_bytes = audio_bytes
+                        handler.pending_salesperson_audio_format = audio_format
                     except Exception as e:
                         print(f"[WS] Audio conversion error: {e}")
                         await websocket.send_json({"type": "error", "data": {"message": "Audio conversion failed"}})

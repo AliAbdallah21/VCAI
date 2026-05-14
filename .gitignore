@@ -30,6 +30,11 @@ data/voices/*
 !data/voices/.gitkeep
 *.wav
 *.mp3
+*.webm
+
+# Evaluation reports (generated artifacts, not source)
+reports/*
+!reports/.gitkeep
 
 # Logs
 *.log

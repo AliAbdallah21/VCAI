@@ -33,7 +33,9 @@
       "Bash(python -c \"import ast; ast.parse\\(open\\('backend/services/evaluation_service.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
       "Bash(python -c \"import ast; ast.parse\\(open\\('backend/routers/evaluation.py'\\).read\\(\\)\\); print\\('syntax OK'\\)\")",
       "Bash(python *)",
-      "Bash(C:/Users/11/anaconda3/envs/vcai/python.exe *)"
+      "Bash(C:/Users/11/anaconda3/envs/vcai/python.exe *)",
+      "Bash(git -C C:/VCAI status --short)",
+      "Bash(git -C C:/VCAI diff --stat HEAD)"
     ]
   }
 }

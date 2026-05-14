@@ -243,6 +243,36 @@ async def process_turn_streaming(
         })
         print(f"[WS] ✅ Streaming done: {chunk_count} chunks in {llm_tts_elapsed:.2f}s")
 
+        # ── 4b. Persist per-turn audio to disk for replay ────────────────
+        # Done BEFORE memory_save so the relative paths land in the new
+        # Message rows. Both calls are best-effort — a save failure must
+        # not break the turn pipeline.
+        try:
+            from backend.services.audio_storage import (
+                save_salesperson_audio, save_customer_audio, TTS_SAMPLE_RATE,
+            )
+            turn_for_audio = state.get("turn_count", handler.turn_count)
+
+            sp_bytes = getattr(handler, "pending_salesperson_audio_bytes", None)
+            if sp_bytes:
+                sp_ext = getattr(handler, "pending_salesperson_audio_format", "webm")
+                sp_path = save_salesperson_audio(
+                    handler.session_id, turn_for_audio, sp_bytes, ext=sp_ext,
+                )
+                if sp_path:
+                    state["audio_path_salesperson"] = sp_path
+                handler.pending_salesperson_audio_bytes = None
+
+            if all_audio_chunks:
+                cust_path = save_customer_audio(
+                    handler.session_id, turn_for_audio, combined,
+                    sample_rate=TTS_SAMPLE_RATE,
+                )
+                if cust_path:
+                    state["audio_path_customer"] = cust_path
+        except Exception as audio_err:
+            print(f"[WS] Audio storage failed (non-critical): {audio_err}")
+
         # ── 5. Memory save ────────────────────────────────────────────────
         t0 = time.perf_counter()
         state = memory_save_node(state, config)

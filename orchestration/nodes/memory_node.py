@@ -119,7 +119,7 @@ def memory_save_node(
                 "speaker": "salesperson",
                 "text": state["transcription"],
                 "emotion": state.get("emotion"),
-                "audio_path": None,
+                "audio_path": state.get("audio_path_salesperson"),
                 "timestamp": datetime.now()
             }
             store_message(session_id, salesperson_msg)
@@ -140,7 +140,7 @@ def memory_save_node(
                 "speaker": "vc",
                 "text": state["llm_response"],
                 "emotion": None,
-                "audio_path": None,
+                "audio_path": state.get("audio_path_customer"),
                 "timestamp": datetime.now()
             }
             store_message(session_id, vc_msg)

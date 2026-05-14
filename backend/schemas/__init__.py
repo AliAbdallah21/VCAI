@@ -175,8 +175,9 @@ class MessageResponse(BaseModel):
     response_quality: Optional[str]
     quality_reason: Optional[str]
     suggestion: Optional[str]
+    audio_path: Optional[str] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 

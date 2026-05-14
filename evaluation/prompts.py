@@ -248,7 +248,8 @@ def build_analyzer_prompt(
     structured_fact_check: Dict[str, Any],
     skill_configs: List[Dict[str, Any]],
     checkpoint_configs: List[Dict[str, Any]],
-    AnalysisReport: Type[BaseModel]
+    AnalysisReport: Type[BaseModel],
+    ended_by_user: bool = True,
 ) -> str:
     """
     Build the complete analyzer prompt.
@@ -262,6 +263,9 @@ def build_analyzer_prompt(
         skill_configs: The 8 skills with name, name_ar, weight, description
         checkpoint_configs: The 6 checkpoints with name, name_ar, criteria
         AnalysisReport: Pydantic model class for schema generation
+        ended_by_user: True if the trainee clicked "End Session" manually. Prevents
+            the analyzer from penalizing the salesperson for not delivering a final
+            closing response when the conversation was simply cut short by the user.
 
     Returns:
         Complete system + user prompt for the analyzer
@@ -273,6 +277,20 @@ def build_analyzer_prompt(
     fact_check_section = _format_fact_check_section(structured_fact_check)
     skills_json = json.dumps(skill_configs, ensure_ascii=False, indent=2)
     checkpoints_json = json.dumps(checkpoint_configs, ensure_ascii=False, indent=2)
+
+    end_reason_note = (
+        "SESSION END CONTEXT:\n"
+        "The trainee manually ended this session by clicking 'End Session'. This means the last\n"
+        "turn in the transcript is NOT necessarily where the salesperson failed to close — the\n"
+        "session was simply terminated by the user. Do NOT penalize Closing Skills or fail the\n"
+        "'Commitment Achieved' checkpoint solely on the basis of '[no final response]' at the\n"
+        "end. Score the closing skill based on signals that ACTUALLY appeared in the transcript\n"
+        "(buying signals recognized, next steps offered, etc.), not on the abrupt ending.\n\n"
+        if ended_by_user else
+        "SESSION END CONTEXT:\n"
+        "This session ended automatically (inactivity timeout or connection drop). Evaluate the\n"
+        "salesperson's performance based on what was actually said.\n\n"
+    )
 
     return (
         f"{_system_style_guardrails()}\n\n"
@@ -301,6 +319,8 @@ def build_analyzer_prompt(
         "═══════════════════════════════════════════════════════════════════\n"
         "CONVERSATION DATA:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
+
+        f"{end_reason_note}"
 
         "TRANSCRIPT (Complete conversation):\n"
         f"{transcript_json}\n\n"
