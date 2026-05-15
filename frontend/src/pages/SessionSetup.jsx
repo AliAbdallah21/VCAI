@@ -90,7 +90,10 @@ export default function SessionSetup() {
     }
   };
 
-  const filtered = personas.filter(p => p.difficulty === difficulty);
+  // Difficulty is decoupled from persona — any persona is playable at any
+  // difficulty, so we show the full persona list regardless of the selected
+  // difficulty. Difficulty controls how much friction the customer puts up.
+  const filtered = personas;
   const activeDiff = DIFFICULTIES.find(d => d.id === difficulty);
 
   return (
@@ -118,7 +121,7 @@ export default function SessionSetup() {
               return (
                 <button
                   key={d.id}
-                  onClick={() => { setDifficulty(d.id); setSelected(null); }}
+                  onClick={() => setDifficulty(d.id)}
                   className="p-4 rounded-xl text-left transition-all duration-200"
                   style={{
                     background: active ? d.bg : 'rgba(255,255,255,0.02)',

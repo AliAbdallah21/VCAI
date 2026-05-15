@@ -199,6 +199,10 @@ def gather_evaluation_inputs_db_only(session_id: str) -> dict:
             "persona_id": session.persona_id,
             "persona_name": persona_name,
             "persona_difficulty": persona_difficulty,
+            # The session's chosen difficulty (what the trainee actually faced).
+            # The evaluator uses this to calibrate scoring — a hard customer
+            # shouldn't be graded on the same closing expectations as an easy one.
+            "difficulty": getattr(session, "difficulty", None) or persona_difficulty,
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
             "duration_seconds": duration_seconds,
@@ -288,6 +292,10 @@ def gather_evaluation_inputs(session_id: str) -> dict:
             "persona_id": session.persona_id,
             "persona_name": persona_name,
             "persona_difficulty": persona_difficulty,
+            # The session's chosen difficulty (what the trainee actually faced).
+            # The evaluator uses this to calibrate scoring — a hard customer
+            # shouldn't be graded on the same closing expectations as an easy one.
+            "difficulty": getattr(session, "difficulty", None) or persona_difficulty,
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
             "duration_seconds": duration_seconds,

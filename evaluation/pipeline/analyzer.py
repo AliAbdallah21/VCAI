@@ -60,6 +60,9 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         # can override this for sessions auto-ended by inactivity/timeout.
         session_info = state.get("session_info") or {}
         ended_by_user = session_info.get("ended_by_user", True)
+        # difficulty: the session's chosen difficulty — calibrates scoring so
+        # a hard customer isn't graded on easy-customer closing expectations.
+        difficulty = session_info.get("difficulty", "medium")
 
         # Build analyzer prompt (doc requirement: use skills + checkpoints)
         prompt = build_analyzer_prompt(
@@ -70,6 +73,7 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             checkpoint_configs=[cfg.model_dump() for cfg in CHECKPOINT_CONFIGS.values()],
             AnalysisReport=AnalysisReport,
             ended_by_user=ended_by_user,
+            difficulty=difficulty,
         )
 
         # LLM call (doc requires LLM here; interface provided by infra)

@@ -254,72 +254,108 @@ def detect_journey_stage(
     return "evaluating"
 
 
-def _build_turn_instruction(stage: str, topic_count: int) -> str:
+# How hard the customer is to move through the journey. This is the SESSION
+# difficulty — orthogonal to persona. It controls the *friction* of advancing:
+# an easy customer forgives a weak opening and decides fast; a hard one demands
+# proof at every stage and can regress or hang up.
+_DIFFICULTY_MODIFIER = {
+    "easy": (
+        "أنت عميل متعاون ومتسامح: لو بداية البياع ضعيفة سامحه واكمل، اتقدّم في "
+        "المحادثة بسهولة، وادي البياع فرصة. لو العرض كويس قرّر بسرعة من غير "
+        "تعقيد."
+    ),
+    "medium": (
+        "أنت عميل عادي: اتعامل بمنطق، اتقدّم في المحادثة لما البياع يقدّملك سبب "
+        "كويس، واسأل أسئلة معقولة قبل ما تقرّر."
+    ),
+    "hard": (
+        "أنت عميل صعب وشكّاك: متشكّك في كل مرحلة، اطلب إثبات وتفاصيل قبل ما "
+        "تتقدّم، ما تتحمّسش بسهولة. لو البياع وعد بحاجة وما وضّحهاش، أو رد بطريقة "
+        "وحشة أو ضغط عليك، ارجع خطوة لورا في حذرك أو هدّد إنك هتنهي المكالمة. "
+        "إقفال الصفقة معاك لازم يتعب البياع."
+    ),
+}
+
+
+def _build_turn_instruction(
+    stage: str,
+    topic_count: int,
+    difficulty: str = "medium",
+) -> str:
     """
     Build the per-turn instruction for the customer, tailored to the current
-    journey stage. Earlier stages are guarded and don't dive into deal details;
-    later stages push toward a decision.
+    journey stage AND the session difficulty. Earlier stages stay guarded;
+    later stages push toward a decision. Difficulty controls how much friction
+    the salesperson meets when trying to advance the customer.
     """
     if stage == "cold":
-        return (
-            "[مرحلة المحادثة: البياع لسه ما عرّفش نفسه كويس وأنت مش متأكد مين ده "
+        core = (
+            "مرحلة المحادثة: البياع لسه ما عرّفش نفسه كويس وأنت مش متأكد مين ده "
             "ولا إيه الموضوع.\n"
             "• رد بحذر طبيعي زي أي حد جاله اتصال مش متوقع: اسأل 'مين معايا؟' أو "
             "'الموضوع إيه؟' أو 'حضرتك بتكلمني في إيه؟'\n"
             "• ممنوع تبدأ تسأل عن شقق أو أسعار أو تفاصيل — أنت لسه مش عارف ده إيه أصلاً.\n"
             "• لو حسيت إن البياع بيضغط أو وحش، تقدر تنهي المكالمة بأدب.\n"
-            "الرد جملة قصيرة واحدة.]"
+            "الرد جملة قصيرة واحدة."
         )
-
-    if stage == "screening":
-        return (
-            "[مرحلة المحادثة: البياع عرّف نفسه وعرفت إنه عرض عقاري. أنت لسه بتقرر "
+    elif stage == "screening":
+        core = (
+            "مرحلة المحادثة: البياع عرّف نفسه وعرفت إنه عرض عقاري. أنت لسه بتقرر "
             "تدّيله وقت ولا لأ.\n"
             "• رد بحذر متحفّظ — مش متحمّس بدري. اسأل سؤال يخلّيه يوضّح الفرصة "
             "(زي 'طيب عندك إيه بالظبط؟' أو 'وليه أهتم؟').\n"
             "• لو البياع بيضغط أو كلامه فاضي، قول إنك مشغول ممكن تنهي المكالمة.\n"
-            "الرد جملة لجملتين قصيرين.]"
+            "الرد جملة لجملتين قصيرين."
         )
-
-    if stage == "engaged":
-        return (
-            "[مرحلة المحادثة: قررت تسمع العرض. ابدأ تجمع المعلومات.\n"
+    elif stage == "engaged":
+        core = (
+            "مرحلة المحادثة: قررت تسمع العرض. ابدأ تجمع المعلومات.\n"
             "• علّق على اللي قاله البياع، واسأل سؤال جديد عن حاجة أساسية تهمّك "
             "(السعر، المكان، المساحة، التقسيط...) لسه ما اتكلمتش عنها.\n"
             "• لو لقيت إن العرض كله عاجبك حسب 'متى توافق': تقدر تقفل الصفقة.\n"
             "• لو في حاجة فوق ميزانيتك أو غير واضحة: اعتذر بأدب وامشي.\n"
-            "الرد جملة لجملتين بحد أقصى. ممنوع ترد بكلمة واحدة لوحدها.]"
+            "الرد جملة لجملتين بحد أقصى. ممنوع ترد بكلمة واحدة لوحدها."
         )
-
-    if stage == "evaluating":
-        return (
-            f"[مرحلة المحادثة: اتغطّى {topic_count} موضوع بالفعل — أنت بتقيّم العرض "
+    elif stage == "evaluating":
+        core = (
+            f"مرحلة المحادثة: اتغطّى {topic_count} موضوع بالفعل — أنت بتقيّم العرض "
             "وقربت تاخد قرار. اختار واحد:\n"
             "1. لو المعلومات كافية حسب شخصيتك (راجع 'متى توافق'): اقفل الصفقة. "
             "قول 'تمام، أنا موافق' أو 'يلا نتفق'.\n"
             "2. لو لقيت حاجة فوق حدودك (راجع 'متى ترفض'): اعتذر بأدب وامشي.\n"
             "3. لو فعلاً ضروري سؤال أخير واحد بس عن حاجة لسه ما اتغطّتش: اسأل، "
             "بس بعدها لازم تقرر في الرد اللي بعده.\n"
-            "ممنوع تكرر نفس النوع من الأسئلة. الرد جملة لجملتين بحد أقصى.]"
+            "ممنوع تكرر نفس النوع من الأسئلة. الرد جملة لجملتين بحد أقصى."
+        )
+    else:  # stage == "decision"
+        core = (
+            "مرحلة المحادثة: البياع بيعرض عليك تقفل الصفقة دلوقتي. لازم تختار:\n"
+            "1. لو راضي بالعرض حسب معايير شخصيتك (متى توافق): قول 'تمام، أنا موافق' "
+            "أو 'يلا نمشي للعقد'.\n"
+            "2. لو في حاجة مش مناسبة (متى ترفض): قول 'شكراً، هفكر تاني' أو "
+            "'العرض ده مش هياخده'.\n"
+            "ممنوع تسأل سؤال جديد. لازم تقرر دلوقتي. الرد جملة لجملتين بحد أقصى."
         )
 
-    # stage == "decision"
-    return (
-        "[مرحلة المحادثة: البياع بيعرض عليك تقفل الصفقة دلوقتي. لازم تختار:\n"
-        "1. لو راضي بالعرض حسب معايير شخصيتك (متى توافق): قول 'تمام، أنا موافق' "
-        "أو 'يلا نمشي للعقد'.\n"
-        "2. لو في حاجة مش مناسبة (متى ترفض): قول 'شكراً، هفكر تاني' أو "
-        "'العرض ده مش هياخده'.\n"
-        "ممنوع تسأل سؤال جديد. لازم تقرر دلوقتي. الرد جملة لجملتين بحد أقصى.]"
-    )
+    diff_line = _DIFFICULTY_MODIFIER.get(difficulty, _DIFFICULTY_MODIFIER["medium"])
+    return f"[طبعك في المحادثة دي: {diff_line}\n\n{core}]"
 
 
-def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> list:
+def build_messages(
+    system_prompt: str,
+    memory: dict,
+    salesperson_text: str,
+    difficulty: str = "medium",
+) -> list:
     """
     Build message list for chat completion.
 
     IMPORTANT: Includes checkpoint summaries + recent messages
     so the LLM remembers the full conversation context.
+
+    Args:
+        difficulty: session difficulty (easy/medium/hard) — controls how much
+            friction the customer puts up at each journey stage.
     """
     messages = [{"role": "system", "content": system_prompt}]
     
@@ -388,7 +424,9 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
     journey_stage = detect_journey_stage(
         memory, salesperson_text, len(already_mentioned), seller_closing
     )
-    turn_instruction = _build_turn_instruction(journey_stage, len(already_mentioned))
+    turn_instruction = _build_turn_instruction(
+        journey_stage, len(already_mentioned), difficulty
+    )
 
     repeat_warning = ""
     if already_mentioned:

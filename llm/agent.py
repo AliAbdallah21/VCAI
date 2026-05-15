@@ -253,7 +253,10 @@ def generate_response(
     
     # Build prompt
     system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
-    messages = build_messages(system_prompt, memory, customer_text)
+    messages = build_messages(
+        system_prompt, memory, customer_text,
+        difficulty=persona.get("difficulty", "medium"),
+    )
     
     # Debug: Print what we're sending to the LLM
     if DEBUG_PROMPTS:
@@ -461,7 +464,10 @@ def generate_response_streaming(
 
     if USE_OPENROUTER:
         system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
-        messages = build_messages(system_prompt, memory, customer_text)
+        messages = build_messages(
+        system_prompt, memory, customer_text,
+        difficulty=persona.get("difficulty", "medium"),
+    )
 
         # Always-on diagnostics so we can verify the prompt is correct
         last_user_msg = next(
@@ -488,7 +494,10 @@ def generate_response_streaming(
 
     # Build prompt (same as non-streaming)
     system_prompt = build_system_prompt(persona, emotion, emotional_context, rag_context)
-    messages = build_messages(system_prompt, memory, customer_text)
+    messages = build_messages(
+        system_prompt, memory, customer_text,
+        difficulty=persona.get("difficulty", "medium"),
+    )
     
     # Debug: Print what we're sending to the LLM
     if DEBUG_PROMPTS:

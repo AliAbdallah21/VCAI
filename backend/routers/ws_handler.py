@@ -57,6 +57,16 @@ class ConversationHandler:
             enable_streaming=_USE_OPENROUTER,
         )
 
+        # difficulty is the SESSION's chosen difficulty (set at session setup),
+        # not the persona's inherent one — this is what makes any persona
+        # playable at any difficulty. Fall back to the persona's difficulty if
+        # the session somehow has none.
+        session_difficulty = (
+            getattr(self.training_session, "difficulty", None)
+            or self.persona.difficulty
+            or "medium"
+        )
+
         persona_dict = {
             "id":                  self.persona.id,
             "name":                self.persona.name_ar,
@@ -65,7 +75,7 @@ class ConversationHandler:
             "personality_prompt":  self.persona.personality_prompt,
             "voice_id":            self.persona.voice_id,
             "default_emotion":     "neutral",
-            "difficulty":          self.persona.difficulty,
+            "difficulty":          session_difficulty,
             "traits":              self.persona.traits or [],
             "avatar_url":          getattr(self.persona, "avatar_url", None),
         }

@@ -250,6 +250,7 @@ def build_analyzer_prompt(
     checkpoint_configs: List[Dict[str, Any]],
     AnalysisReport: Type[BaseModel],
     ended_by_user: bool = True,
+    difficulty: str = "medium",
 ) -> str:
     """
     Build the complete analyzer prompt.
@@ -266,6 +267,9 @@ def build_analyzer_prompt(
         ended_by_user: True if the trainee clicked "End Session" manually. Prevents
             the analyzer from penalizing the salesperson for not delivering a final
             closing response when the conversation was simply cut short by the user.
+        difficulty: session difficulty (easy/medium/hard) — calibrates scoring so
+            a hard customer is not graded on the same closing expectations as an
+            easy one.
 
     Returns:
         Complete system + user prompt for the analyzer
@@ -290,6 +294,29 @@ def build_analyzer_prompt(
         "SESSION END CONTEXT:\n"
         "This session ended automatically (inactivity timeout or connection drop). Evaluate the\n"
         "salesperson's performance based on what was actually said.\n\n"
+    )
+
+    _difficulty_calibration = {
+        "easy": (
+            "DIFFICULTY CONTEXT: This was an EASY customer — receptive, forgiving of a weak\n"
+            "opening, quick to decide. Hold the salesperson to a HIGH standard: with an easy\n"
+            "customer, failing to close or build rapport is a real miss.\n\n"
+        ),
+        "medium": (
+            "DIFFICULTY CONTEXT: This was a MEDIUM-difficulty customer — reasonable, needs a\n"
+            "solid pitch to advance. Score against normal professional expectations.\n\n"
+        ),
+        "hard": (
+            "DIFFICULTY CONTEXT: This was a HARD customer — skeptical at every stage, demands\n"
+            "proof, slow to advance, hard to close by design. Calibrate accordingly: do NOT\n"
+            "punish the salesperson merely for not closing. Credit incremental progress —\n"
+            "earning trust, advancing the customer through stages, handling objections — even\n"
+            "if no sale happened. A 'no close' against a hard customer can still be a strong\n"
+            "performance.\n\n"
+        ),
+    }
+    difficulty_note = _difficulty_calibration.get(
+        (difficulty or "medium").lower(), _difficulty_calibration["medium"]
     )
 
     return (
@@ -321,6 +348,7 @@ def build_analyzer_prompt(
         "═══════════════════════════════════════════════════════════════════\n\n"
 
         f"{end_reason_note}"
+        f"{difficulty_note}"
 
         "TRANSCRIPT (Complete conversation):\n"
         f"{transcript_json}\n\n"
