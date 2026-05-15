@@ -168,45 +168,149 @@ def _seller_is_closing(salesperson_text: str) -> bool:
     return any(cue in t for cue in _CLOSURE_CUES)
 
 
-def _build_turn_instruction(topic_count: int, seller_closing: bool) -> str:
+# ──────────────────────────────────────────────────────────────────────────────
+# Customer journey stages
+#
+# A real cold-call customer doesn't start in "interview mode" — they warm up:
+#   cold       -> doesn't know who is calling or why
+#   screening  -> knows it's a real-estate pitch, deciding whether to give time
+#   engaged    -> willing to listen, asking basic questions
+#   evaluating -> actively weighing the offer against their criteria
+#   decision   -> the seller has invited closure; buy / walk / defer
+#
+# The stage is derived by a cheap heuristic (no extra LLM call) from signals we
+# already track: how many turns in, how many topics covered, whether the seller
+# has identified themselves, and whether the seller is explicitly closing.
+# ──────────────────────────────────────────────────────────────────────────────
+
+# Cues that the salesperson has established WHO they are / WHY they're calling.
+# Once any of these appears, the customer is no longer "cold" — they know this
+# is a real-estate sales contact.
+_INTRO_CUES = [
+    "شركة", "عقار", "عقارات", "سمسار", "مستشار عقاري", "تطوير عقاري",
+    "تسويق عقاري", "كمبوند", "مشروع", "وحدة سكنية", "عرض عقاري",
+    "حسن علام", "بكلمك من", "معاك من", "اسمي", "أنا من",
+]
+
+
+def _count_salesperson_turns(memory: dict) -> int:
+    """How many times the salesperson has spoken so far (recent + checkpointed)."""
+    n = 0
+    for m in memory.get("recent_messages", []) or []:
+        if m.get("speaker") == "salesperson":
+            n += 1
+    # Each checkpoint compresses ~5 turns that have rolled out of the window.
+    n += len(memory.get("checkpoints", []) or []) * 5
+    return n
+
+
+def _seller_introduced(memory: dict, salesperson_text: str) -> bool:
     """
-    Build the per-turn instruction. Switches mode based on how much
-    of the deal has already been covered — early conversation defaults
-    to questions; once enough is on the table the model is pushed to
-    a decision instead.
+    True once the salesperson has identified themselves or their purpose.
+    Scans the current message + all prior salesperson messages. A checkpointed
+    conversation is deep enough that the intro definitely already happened.
     """
+    if memory.get("checkpoints"):
+        return True
+    blob_parts = [salesperson_text or ""]
+    for m in memory.get("recent_messages", []) or []:
+        if m.get("speaker") == "salesperson":
+            blob_parts.append(m.get("text", ""))
+    blob = " ".join(blob_parts).lower()
+    return any(cue in blob for cue in _INTRO_CUES)
+
+
+def detect_journey_stage(
+    memory: dict,
+    salesperson_text: str,
+    topic_count: int,
+    seller_closing: bool,
+) -> str:
+    """
+    Derive the current customer-journey stage. Pure heuristic — no LLM call.
+
+    Returns one of: 'cold', 'screening', 'engaged', 'evaluating', 'decision'.
+    """
+    # Seller explicitly inviting closure overrides everything.
     if seller_closing:
-        # Seller has explicitly invited closure — strongest signal to decide.
+        return "decision"
+
+    introduced = _seller_introduced(memory, salesperson_text)
+    sp_turns = _count_salesperson_turns(memory) + 1  # +1 for the current turn
+
+    # Still cold: salesperson hasn't said who they are / why, and it's early.
+    if not introduced and sp_turns <= 2:
+        return "cold"
+
+    # Knows it's a pitch but barely anything concrete discussed yet.
+    if topic_count <= 1:
+        return "screening"
+
+    # Some basics covered — actively listening and asking.
+    if topic_count <= 4:
+        return "engaged"
+
+    # 5+ topics covered — weighing the offer, close to a decision.
+    return "evaluating"
+
+
+def _build_turn_instruction(stage: str, topic_count: int) -> str:
+    """
+    Build the per-turn instruction for the customer, tailored to the current
+    journey stage. Earlier stages are guarded and don't dive into deal details;
+    later stages push toward a decision.
+    """
+    if stage == "cold":
         return (
-            "[البياع بيعرض عليك تقفل الصفقة دلوقتي. لازم تختار:\n"
-            "1. لو راضي بالعرض حسب معايير شخصيتك (متى توافق): قول 'تمام، أنا موافق' "
-            "أو 'يلا نمشي للعقد'.\n"
-            "2. لو في حاجة مش مناسبة (متى ترفض): قول 'شكراً، هفكر تاني' أو "
-            "'العرض ده مش هياخده'.\n"
-            "ممنوع تسأل سؤال جديد. لازم تقرر دلوقتي. الرد جملة لجملتين بحد أقصى.]"
+            "[مرحلة المحادثة: البياع لسه ما عرّفش نفسه كويس وأنت مش متأكد مين ده "
+            "ولا إيه الموضوع.\n"
+            "• رد بحذر طبيعي زي أي حد جاله اتصال مش متوقع: اسأل 'مين معايا؟' أو "
+            "'الموضوع إيه؟' أو 'حضرتك بتكلمني في إيه؟'\n"
+            "• ممنوع تبدأ تسأل عن شقق أو أسعار أو تفاصيل — أنت لسه مش عارف ده إيه أصلاً.\n"
+            "• لو حسيت إن البياع بيضغط أو وحش، تقدر تنهي المكالمة بأدب.\n"
+            "الرد جملة قصيرة واحدة.]"
         )
 
-    if topic_count >= 5:
-        # Plenty already discussed — bias toward decision, allow at most one
-        # last question if absolutely needed.
+    if stage == "screening":
         return (
-            f"[في {topic_count} موضوع اتغطّى من المحادثة. الحالة دلوقتي:\n"
-            "اختار واحد:\n"
+            "[مرحلة المحادثة: البياع عرّف نفسه وعرفت إنه عرض عقاري. أنت لسه بتقرر "
+            "تدّيله وقت ولا لأ.\n"
+            "• رد بحذر متحفّظ — مش متحمّس بدري. اسأل سؤال يخلّيه يوضّح الفرصة "
+            "(زي 'طيب عندك إيه بالظبط؟' أو 'وليه أهتم؟').\n"
+            "• لو البياع بيضغط أو كلامه فاضي، قول إنك مشغول ممكن تنهي المكالمة.\n"
+            "الرد جملة لجملتين قصيرين.]"
+        )
+
+    if stage == "engaged":
+        return (
+            "[مرحلة المحادثة: قررت تسمع العرض. ابدأ تجمع المعلومات.\n"
+            "• علّق على اللي قاله البياع، واسأل سؤال جديد عن حاجة أساسية تهمّك "
+            "(السعر، المكان، المساحة، التقسيط...) لسه ما اتكلمتش عنها.\n"
+            "• لو لقيت إن العرض كله عاجبك حسب 'متى توافق': تقدر تقفل الصفقة.\n"
+            "• لو في حاجة فوق ميزانيتك أو غير واضحة: اعتذر بأدب وامشي.\n"
+            "الرد جملة لجملتين بحد أقصى. ممنوع ترد بكلمة واحدة لوحدها.]"
+        )
+
+    if stage == "evaluating":
+        return (
+            f"[مرحلة المحادثة: اتغطّى {topic_count} موضوع بالفعل — أنت بتقيّم العرض "
+            "وقربت تاخد قرار. اختار واحد:\n"
             "1. لو المعلومات كافية حسب شخصيتك (راجع 'متى توافق'): اقفل الصفقة. "
             "قول 'تمام، أنا موافق' أو 'يلا نتفق'.\n"
             "2. لو لقيت حاجة فوق حدودك (راجع 'متى ترفض'): اعتذر بأدب وامشي.\n"
-            "3. لو فعلاً ضروري سؤال أخير واحد بس عن حاجة لسه ما اتكلمتش عنها: اسأل، "
+            "3. لو فعلاً ضروري سؤال أخير واحد بس عن حاجة لسه ما اتغطّتش: اسأل، "
             "بس بعدها لازم تقرر في الرد اللي بعده.\n"
             "ممنوع تكرر نفس النوع من الأسئلة. الرد جملة لجملتين بحد أقصى.]"
         )
 
-    # Early conversation — gather information naturally.
+    # stage == "decision"
     return (
-        "[رد طبيعي حسب شخصيتك وحالة المحادثة:\n"
-        "• علّق على اللي قاله البياع، واسأل سؤال جديد عن حاجة لسه ما اتكلمتش عنها.\n"
-        "• لو لقيت إن العرض كله عاجبك حسب 'متى توافق': اقفل الصفقة دلوقتي.\n"
-        "• لو في حاجة فوق ميزانيتك أو غير واضحة: اعتذر بأدب وامشي.\n"
-        "الرد جملة لجملتين بحد أقصى. ممنوع ترد بكلمة واحدة لوحدها.]"
+        "[مرحلة المحادثة: البياع بيعرض عليك تقفل الصفقة دلوقتي. لازم تختار:\n"
+        "1. لو راضي بالعرض حسب معايير شخصيتك (متى توافق): قول 'تمام، أنا موافق' "
+        "أو 'يلا نمشي للعقد'.\n"
+        "2. لو في حاجة مش مناسبة (متى ترفض): قول 'شكراً، هفكر تاني' أو "
+        "'العرض ده مش هياخده'.\n"
+        "ممنوع تسأل سؤال جديد. لازم تقرر دلوقتي. الرد جملة لجملتين بحد أقصى.]"
     )
 
 
@@ -271,17 +375,20 @@ def build_messages(system_prompt: str, memory: dict, salesperson_text: str) -> l
             messages.append({"role": "assistant", "content": text})
     
     # ══════════════════════════════════════════════════════════════════════════
-    # 3. CONTEXT-AWARE PER-TURN INSTRUCTION
-    # The instruction adapts to conversation state — early turns ask questions,
-    # later turns push for a decision. Also detects when the seller has invited
-    # closure and forces an immediate decide-or-walk-away response.
+    # 3. JOURNEY-STAGE-AWARE PER-TURN INSTRUCTION
+    # The instruction adapts to where the customer is in the journey — cold
+    # (doesn't know who's calling) -> screening -> engaged -> evaluating ->
+    # decision. Earlier stages stay guarded; later stages push for a decision.
     # Putting this at the decision point (not just in the system prompt) is
     # essential — with streaming, the model commits to a path before fully
     # consuming a long system prompt.
     # ══════════════════════════════════════════════════════════════════════════
     already_mentioned = _extract_already_mentioned(memory)
     seller_closing = _seller_is_closing(salesperson_text)
-    turn_instruction = _build_turn_instruction(len(already_mentioned), seller_closing)
+    journey_stage = detect_journey_stage(
+        memory, salesperson_text, len(already_mentioned), seller_closing
+    )
+    turn_instruction = _build_turn_instruction(journey_stage, len(already_mentioned))
 
     repeat_warning = ""
     if already_mentioned:

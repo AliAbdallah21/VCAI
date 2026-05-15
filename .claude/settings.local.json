@@ -42,7 +42,8 @@
       "Bash(mkdir -p C:/VCAI/tools)",
       "Bash(curl -L -s -o cloudflared.exe \"https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe\")",
       "Bash(./cloudflared.exe --version)",
-      "Bash(git check-ignore *)"
+      "Bash(git check-ignore *)",
+      "WebSearch"
     ]
   }
 }
