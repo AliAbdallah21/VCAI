@@ -95,7 +95,7 @@ export default function SessionSetup() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-3xl mx-auto">
+      <div className="p-4 md:p-8 max-w-3xl mx-auto">
         <div className="mb-8 slide-up">
           <h1 className="heading text-2xl font-bold text-white mb-1">New Training Session</h1>
           <p className="text-sm" style={{ color: 'rgba(148,163,184,0.55)' }}>

@@ -378,7 +378,7 @@ export default function TrainingSession() {
     <div className="min-h-screen flex flex-col" style={{ background: '#030712' }}>
       {/* Header */}
       <header
-        className="flex justify-between items-center px-6 py-4 flex-shrink-0"
+        className="flex justify-between items-center px-4 md:px-6 py-3 md:py-4 gap-2 flex-shrink-0"
         style={{ background: 'rgba(8,14,28,0.95)', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}
       >
         <div className="flex items-center gap-3">
@@ -432,13 +432,13 @@ export default function TrainingSession() {
 
       {/* Emotion Bar */}
       <div
-        className="px-6 py-4 flex-shrink-0"
+        className="px-4 md:px-6 py-3 md:py-4 flex-shrink-0"
         style={{ background: 'rgba(8,14,28,0.8)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
       >
         <div className="max-w-2xl mx-auto">
-          <div className="flex items-center gap-4">
-            <span className="text-xs font-medium w-28 flex-shrink-0" style={{ color: 'rgba(148,163,184,0.5)' }}>
-              Customer Mood
+          <div className="flex items-center gap-2 md:gap-4">
+            <span className="text-xs font-medium w-16 md:w-28 flex-shrink-0" style={{ color: 'rgba(148,163,184,0.5)' }}>
+              Mood
             </span>
             <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
               <div
@@ -469,8 +469,8 @@ export default function TrainingSession() {
       </div>
 
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto px-6 py-6">
-        <div className="max-w-2xl mx-auto space-y-4">
+      <div className="flex-1 overflow-y-auto px-4 md:px-6 py-4 md:py-6">
+        <div className="max-w-2xl mx-auto space-y-3 md:space-y-4">
           {messages.length === 0 && !isProcessing && (
             <div className="text-center py-16">
               <div
@@ -573,7 +573,7 @@ export default function TrainingSession() {
 
       {/* Controls */}
       <div
-        className="flex-shrink-0 px-6 py-6"
+        className="flex-shrink-0 px-4 md:px-6 py-4 md:py-6"
         style={{ background: 'rgba(8,14,28,0.95)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
         <div className="flex flex-col items-center">

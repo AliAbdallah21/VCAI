@@ -36,7 +36,13 @@
       "Bash(C:/Users/11/anaconda3/envs/vcai/python.exe *)",
       "Bash(git -C C:/VCAI status --short)",
       "Bash(git -C C:/VCAI diff --stat HEAD)",
-      "Bash(set PYTHONIOENCODING=utf-8)"
+      "Bash(set PYTHONIOENCODING=utf-8)",
+      "Bash(where cloudflared *)",
+      "Bash(where winget *)",
+      "Bash(mkdir -p C:/VCAI/tools)",
+      "Bash(curl -L -s -o cloudflared.exe \"https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe\")",
+      "Bash(./cloudflared.exe --version)",
+      "Bash(git check-ignore *)"
     ]
   }
 }

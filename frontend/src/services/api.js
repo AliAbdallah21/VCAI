@@ -1,7 +1,11 @@
 ﻿import axios from 'axios';
 
-const API_URL = 'http://localhost:8000/api';
-const WS_URL = 'ws://localhost:8000';
+// Same-origin URLs so the same build works locally (port 8000) and through
+// a Cloudflare Tunnel (https://*.trycloudflare.com). Override with the
+// VITE_API_URL build-time env if you ever split frontend/backend hosts.
+const _origin = (typeof window !== 'undefined' ? window.location.origin : '').replace(/\/$/, '');
+const API_URL = import.meta.env.VITE_API_URL || `${_origin}/api`;
+const WS_URL = import.meta.env.VITE_WS_URL || _origin.replace(/^http/, 'ws');
 
 const api = axios.create({ 
   baseURL: API_URL,

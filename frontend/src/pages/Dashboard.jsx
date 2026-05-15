@@ -91,7 +91,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-4xl mx-auto">
+      <div className="p-4 md:p-8 max-w-4xl mx-auto">
         {/* Header */}
         <div className="mb-8 slide-up">
           <h1 className="heading text-2xl font-bold text-white mb-1">
@@ -112,17 +112,17 @@ export default function Dashboard() {
         {/* CTA */}
         <Link
           to="/setup"
-          className="flex items-center justify-between rounded-2xl p-7 mb-8 group transition-all duration-300"
+          className="flex items-center justify-between gap-4 rounded-2xl p-5 md:p-7 mb-8 group transition-all duration-300"
           style={{
             background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(124,58,237,0.2) 100%)',
             border: '1px solid rgba(37,99,235,0.25)',
           }}
         >
-          <div>
-            <h3 className="heading text-lg font-bold text-white mb-1 group-hover:text-blue-200 transition-colors">
+          <div className="min-w-0">
+            <h3 className="heading text-base md:text-lg font-bold text-white mb-1 group-hover:text-blue-200 transition-colors">
               Start New Training Session
             </h3>
-            <p className="text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
+            <p className="text-xs md:text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
               Practice with AI-powered virtual customers
             </p>
           </div>

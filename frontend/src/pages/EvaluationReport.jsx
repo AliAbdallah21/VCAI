@@ -168,7 +168,7 @@ function AnalysisPanel({ progress, stage }) {
 
   return (
     <div
-      className="rounded-2xl p-8 mb-6"
+      className="rounded-2xl p-5 md:p-8 mb-6"
       style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
     >
       {/* Header */}
@@ -472,7 +472,7 @@ export default function EvaluationReport() {
   return (
     <Layout>
       <div style={{ background: '#030712', minHeight: '100vh' }}>
-        <div className="max-w-3xl mx-auto px-6 py-10">
+        <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
 
           {/* Page Header */}
           <div className="flex items-start justify-between mb-8">
@@ -524,7 +524,7 @@ export default function EvaluationReport() {
           {/* ── FAILED STATE ── */}
           {isFailed && (
             <div
-              className="rounded-2xl p-8 mb-6 text-center"
+              className="rounded-2xl p-5 md:p-8 mb-6 text-center"
               style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}
             >
               <div
@@ -610,7 +610,7 @@ export default function EvaluationReport() {
 
                 {/* ── Overall score card ── */}
                 <div
-                  className="rounded-2xl p-8 mb-5 flex flex-col md:flex-row items-center gap-8"
+                  className="rounded-2xl p-5 md:p-8 mb-5 flex flex-col md:flex-row items-center gap-5 md:gap-8"
                   style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
                 >
                   <div className="flex-shrink-0">

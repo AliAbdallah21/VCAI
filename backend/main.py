@@ -170,10 +170,9 @@ app.include_router(websocket_router)
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────
 
-@app.get("/")
-def root():
-    """Root endpoint."""
-    return {"status": "online", "service": "VCAI Backend", "version": "1.0.0"}
+# Note: GET / used to return a JSON status. It's now handled by the SPA mount
+# at the bottom of this file — the React app serves at /. Use /health for
+# JSON status or /docs for the API explorer.
 
 
 @app.get("/health")
@@ -201,6 +200,58 @@ def health_check(fresh: bool = False):
     if any_error:
         return JSONResponse(status_code=503, content=payload)
     return payload
+
+
+# ── SPA static frontend ───────────────────────────────────────────────────────
+# Serve the built React app from frontend/dist/ at the root. This mount must
+# come AFTER every API route so /api, /health, /docs, /ws etc. take priority.
+# We don't use StaticFiles directly because it returns 404 for client-side
+# routes like /dashboard or /compare — instead we manually fall back to
+# index.html for any unknown GET so React Router can take over.
+from pathlib import Path as _Path
+from fastapi.responses import FileResponse as _FileResponse
+from fastapi.staticfiles import StaticFiles as _StaticFiles
+
+_FRONTEND_DIST = _Path(__file__).resolve().parent.parent / "frontend" / "dist"
+
+if _FRONTEND_DIST.is_dir():
+    # Bundled JS/CSS/assets — served with the right cache headers automatically
+    _ASSETS_DIR = _FRONTEND_DIST / "assets"
+    if _ASSETS_DIR.is_dir():
+        app.mount("/assets", _StaticFiles(directory=str(_ASSETS_DIR)), name="assets")
+
+    # Other top-level files Vite might emit (favicon, manifest, robots.txt, etc.)
+    @app.get("/{static_file:path}", include_in_schema=False)
+    async def _spa_fallback(static_file: str):
+        """
+        SPA fallback: a top-level file (favicon.svg, robots.txt, ...) is
+        served directly; anything else returns index.html so React Router
+        handles the route on the client.
+        """
+        # Empty path = root → index.html
+        if not static_file:
+            return _FileResponse(str(_FRONTEND_DIST / "index.html"))
+
+        # Direct file hit (only one path segment, e.g. "favicon.svg")
+        candidate = _FRONTEND_DIST / static_file
+        if "/" not in static_file and candidate.is_file():
+            return _FileResponse(str(candidate))
+
+        # Anything else → index.html so the React router handles it
+        return _FileResponse(str(_FRONTEND_DIST / "index.html"))
+
+    print(f"[Startup] SPA mounted from {_FRONTEND_DIST}")
+else:
+    # No build yet — keep a placeholder root so the server doesn't 404 on /
+    @app.get("/")
+    def _no_frontend_root():
+        return {
+            "status": "online",
+            "service": "VCAI Backend",
+            "version": "1.0.0",
+            "note": "Frontend not built. Run `cd frontend && npm run build` then restart.",
+        }
+    print(f"[Startup] No SPA build found at {_FRONTEND_DIST} — API-only mode")
 
 
 # ── Direct run ────────────────────────────────────────────────────────────────

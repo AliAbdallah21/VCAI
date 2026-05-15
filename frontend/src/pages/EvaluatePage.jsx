@@ -61,7 +61,7 @@ export default function EvaluatePage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8 slide-up">
           <h1 className="heading text-2xl font-bold text-white mb-1">Evaluate a Call</h1>

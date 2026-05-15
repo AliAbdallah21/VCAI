@@ -41,11 +41,11 @@ const IconCompare = () => (
 );
 
 const NAV = [
-  { path: '/dashboard', label: 'Dashboard',       Icon: IconDashboard, accent: '#60a5fa', accentBg: 'rgba(37,99,235,0.1)',   accentBorder: 'rgba(37,99,235,0.18)'  },
-  { path: '/setup',     label: 'New Session',     Icon: IconMic,       accent: '#a78bfa', accentBg: 'rgba(124,58,237,0.1)', accentBorder: 'rgba(124,58,237,0.18)' },
-  { path: '/sessions',  label: 'Resume a Call',   Icon: IconPhone,     accent: '#34d399', accentBg: 'rgba(16,185,129,0.1)', accentBorder: 'rgba(16,185,129,0.18)' },
-  { path: '/evaluate',  label: 'Evaluate a Call', Icon: IconChart,     accent: '#fbbf24', accentBg: 'rgba(245,158,11,0.1)', accentBorder: 'rgba(245,158,11,0.18)' },
-  { path: '/compare',   label: 'Compare',         Icon: IconCompare,   accent: '#f472b6', accentBg: 'rgba(236,72,153,0.1)', accentBorder: 'rgba(236,72,153,0.18)' },
+  { path: '/dashboard', label: 'Dashboard',  shortLabel: 'Home',     Icon: IconDashboard, accent: '#60a5fa', accentBg: 'rgba(37,99,235,0.1)',  accentBorder: 'rgba(37,99,235,0.18)'  },
+  { path: '/setup',     label: 'New Session', shortLabel: 'New',      Icon: IconMic,       accent: '#a78bfa', accentBg: 'rgba(124,58,237,0.1)', accentBorder: 'rgba(124,58,237,0.18)' },
+  { path: '/sessions',  label: 'Resume a Call', shortLabel: 'Resume', Icon: IconPhone,     accent: '#34d399', accentBg: 'rgba(16,185,129,0.1)', accentBorder: 'rgba(16,185,129,0.18)' },
+  { path: '/evaluate',  label: 'Evaluate a Call', shortLabel: 'Eval', Icon: IconChart,     accent: '#fbbf24', accentBg: 'rgba(245,158,11,0.1)', accentBorder: 'rgba(245,158,11,0.18)' },
+  { path: '/compare',   label: 'Compare',     shortLabel: 'Compare',  Icon: IconCompare,   accent: '#f472b6', accentBg: 'rgba(236,72,153,0.1)', accentBorder: 'rgba(236,72,153,0.18)' },
 ];
 
 export default function Layout({ children }) {
@@ -57,10 +57,42 @@ export default function Layout({ children }) {
   const initials = user?.full_name?.split(' ').map(n => n[0]).join('').slice(0, 2).toUpperCase() || 'U';
 
   return (
-    <div className="min-h-screen flex" style={{ background: '#030712' }}>
-      {/* ── Sidebar ───────────────────────────────────────── */}
+    <div className="min-h-screen md:flex" style={{ background: '#030712' }}>
+      {/* ── Mobile top bar (logo + logout) ─────────────────── */}
+      <header
+        className="md:hidden sticky top-0 z-30 flex items-center justify-between px-4 py-3"
+        style={{ background: 'rgba(8,14,28,0.96)', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}
+      >
+        <Link to="/dashboard" className="flex items-center gap-2.5">
+          <div
+            className="w-8 h-8 rounded-lg flex items-center justify-center"
+            style={{ background: 'linear-gradient(135deg, #2563eb 0%, #7c3aed 100%)', boxShadow: '0 0 12px rgba(37,99,235,0.35)' }}
+          >
+            <span className="heading text-white font-bold text-xs">V</span>
+          </div>
+          <span className="heading font-bold text-white text-sm tracking-wider">VCAI</span>
+        </Link>
+        <div className="flex items-center gap-2">
+          <div
+            className="w-7 h-7 rounded-full flex items-center justify-center text-xs font-bold text-white"
+            style={{ background: 'linear-gradient(135deg, #3b82f6, #7c3aed)' }}
+            title={user?.email}
+          >
+            {initials}
+          </div>
+          <button
+            onClick={handleLogout}
+            className="px-2.5 py-1.5 rounded-lg text-xs font-medium text-slate-500 hover:text-red-400"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.05)' }}
+          >
+            <IconLogout />
+          </button>
+        </div>
+      </header>
+
+      {/* ── Desktop Sidebar ────────────────────────────────── */}
       <aside
-        className="w-56 flex-shrink-0 flex flex-col sticky top-0 h-screen overflow-y-auto"
+        className="hidden md:flex w-56 flex-shrink-0 flex-col sticky top-0 h-screen overflow-y-auto"
         style={{ background: 'rgba(8, 14, 28, 0.98)', borderRight: '1px solid rgba(255,255,255,0.05)' }}
       >
         {/* Logo */}
@@ -141,7 +173,39 @@ export default function Layout({ children }) {
       </aside>
 
       {/* ── Main Content ──────────────────────────────────── */}
-      <main className="flex-1 overflow-auto">{children}</main>
+      <main className="flex-1 overflow-auto pb-20 md:pb-0">{children}</main>
+
+      {/* ── Mobile Bottom Tab Bar ─────────────────────────── */}
+      <nav
+        className="md:hidden fixed bottom-0 inset-x-0 z-30 flex items-stretch justify-around px-1 pt-1.5 pb-[max(0.5rem,env(safe-area-inset-bottom))]"
+        style={{ background: 'rgba(8,14,28,0.98)', borderTop: '1px solid rgba(255,255,255,0.06)', backdropFilter: 'blur(20px)' }}
+      >
+        {NAV.map(({ path, shortLabel, Icon, accent }) => {
+          const active = location.pathname === path;
+          return (
+            <Link
+              key={path}
+              to={path}
+              className="flex flex-col items-center justify-center gap-0.5 flex-1 py-1.5 rounded-xl transition-all duration-150"
+              style={active
+                ? { color: accent }
+                : { color: 'rgba(148,163,184,0.55)' }
+              }
+            >
+              <span className="flex-shrink-0">
+                <Icon />
+              </span>
+              <span className="text-[10px] font-medium leading-tight">{shortLabel}</span>
+              {active && (
+                <span
+                  className="absolute top-0 w-8 h-0.5 rounded-b-full"
+                  style={{ background: accent, boxShadow: `0 0 6px ${accent}` }}
+                />
+              )}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

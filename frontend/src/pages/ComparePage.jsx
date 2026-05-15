@@ -331,7 +331,7 @@ export default function ComparePage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-6xl mx-auto">
+      <div className="p-4 md:p-8 max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-6 flex items-center justify-between flex-wrap gap-3">
           <div>

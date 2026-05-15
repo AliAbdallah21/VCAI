@@ -70,7 +70,7 @@ export default function SessionsPage() {
 
   return (
     <Layout>
-      <div className="p-8 max-w-5xl mx-auto">
+      <div className="p-4 md:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8 slide-up">
           <h1 className="heading text-2xl font-bold text-white mb-1">Resume a Call</h1>
@@ -135,7 +135,7 @@ export default function SessionsPage() {
                 return (
                   <div
                     key={s.id}
-                    className="flex items-center px-6 py-4 transition-colors duration-150"
+                    className="flex items-center px-4 md:px-6 py-3 md:py-4 gap-2 transition-colors duration-150"
                     style={{
                       borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
                     }}
