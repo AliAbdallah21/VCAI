@@ -63,6 +63,9 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         # difficulty: the session's chosen difficulty — calibrates scoring so
         # a hard customer isn't graded on easy-customer closing expectations.
         difficulty = session_info.get("difficulty", "medium")
+        # scenario: the buyer's real situation — lets the analyzer judge
+        # needs-discovery and budget-fit objectively.
+        scenario = session_info.get("scenario")
 
         # Build analyzer prompt (doc requirement: use skills + checkpoints)
         prompt = build_analyzer_prompt(
@@ -74,6 +77,7 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             AnalysisReport=AnalysisReport,
             ended_by_user=ended_by_user,
             difficulty=difficulty,
+            scenario=scenario,
         )
 
         # LLM call (doc requires LLM here; interface provided by infra)

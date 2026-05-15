@@ -251,6 +251,7 @@ def build_analyzer_prompt(
     AnalysisReport: Type[BaseModel],
     ended_by_user: bool = True,
     difficulty: str = "medium",
+    scenario: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
     Build the complete analyzer prompt.
@@ -270,6 +271,9 @@ def build_analyzer_prompt(
         difficulty: session difficulty (easy/medium/hard) — calibrates scoring so
             a hard customer is not graded on the same closing expectations as an
             easy one.
+        scenario: the buyer scenario (budget / timeline / must-haves /
+            deal-breakers) — lets the evaluator judge whether the salesperson
+            discovered the customer's real needs and respected their budget.
 
     Returns:
         Complete system + user prompt for the analyzer
@@ -319,6 +323,34 @@ def build_analyzer_prompt(
         (difficulty or "medium").lower(), _difficulty_calibration["medium"]
     )
 
+    # The buyer scenario — what the customer actually needed. Lets the analyzer
+    # judge needs-discovery and budget-fit objectively.
+    scenario_note = ""
+    if scenario:
+        bmin = scenario.get("budget_min")
+        bmax = scenario.get("budget_max")
+        budget_line = (
+            f"{bmin:,} - {bmax:,} EGP" if isinstance(bmin, int) and isinstance(bmax, int)
+            else "not specified"
+        )
+        must = "; ".join(scenario.get("must_haves") or []) or "none specified"
+        breakers = "; ".join(scenario.get("deal_breakers") or []) or "none specified"
+        scenario_note = (
+            "CUSTOMER SCENARIO (the customer's real situation — NOT shown to the salesperson):\n"
+            f"- Buyer context: {scenario.get('buyer_context', 'unknown')}\n"
+            f"- Budget: {budget_line}\n"
+            f"- Timeline: {scenario.get('timeline', 'unknown')}\n"
+            f"- Must-haves: {must}\n"
+            f"- Deal-breakers: {breakers}\n"
+            "Use this to judge two things objectively:\n"
+            "1. NEEDS DISCOVERY — did the salesperson ASK enough to uncover these needs, "
+            "or did they pitch blind? A salesperson who never discovered the budget/timeline "
+            "should score low on Needs Discovery even if the call felt smooth.\n"
+            "2. BUDGET FIT — did the salesperson respect the customer's budget ceiling, or "
+            "keep pushing units above it? Pushing well over budget is an objection-handling "
+            "and listening failure.\n\n"
+        )
+
     return (
         f"{_system_style_guardrails()}\n\n"
         "═══════════════════════════════════════════════════════════════════\n"
@@ -349,6 +381,7 @@ def build_analyzer_prompt(
 
         f"{end_reason_note}"
         f"{difficulty_note}"
+        f"{scenario_note}"
 
         "TRANSCRIPT (Complete conversation):\n"
         f"{transcript_json}\n\n"

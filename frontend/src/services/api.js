@@ -41,7 +41,9 @@ export const personasAPI = {
 };
 
 export const sessionsAPI = {
-  create: (personaId, difficulty) => api.post('/sessions', { persona_id: personaId, difficulty }).then(r => r.data),
+  create: (personaId, difficulty, scenario = null) =>
+    api.post('/sessions', { persona_id: personaId, difficulty, scenario }).then(r => r.data),
+  getScenarioPresets: () => api.get('/sessions/scenario-presets').then(r => r.data),
   getAll: (limit = 20, offset = 0) => api.get(`/sessions?limit=${limit}&offset=${offset}`).then(r => r.data),
   getById: (id) => api.get(`/sessions/${id}`).then(r => r.data),
   getMessages: (id) => api.get(`/sessions/${id}/messages`).then(r => r.data),

@@ -64,6 +64,20 @@ const StepBadge = ({ n, active }) => (
   </div>
 );
 
+// Buyer contexts for the "custom" scenario mode (4 fixed values, mirrors
+// shared/scenarios.py BUYER_CONTEXTS).
+const BUYER_CONTEXTS = [
+  { id: 'first_time',     label: 'First-time buyer' },
+  { id: 'investor',       label: 'Property investor' },
+  { id: 'family_upgrade', label: 'Growing family' },
+  { id: 'downsizer',      label: 'Downsizer' },
+];
+const SCENARIO_TIMELINES = [
+  { id: 'urgent',    label: 'Urgent (~1 month)' },
+  { id: 'flexible',  label: 'Flexible (3–6 months)' },
+  { id: 'exploring', label: 'Just exploring' },
+];
+
 export default function SessionSetup() {
   const navigate  = useNavigate();
   const [personas, setPersonas] = useState([]);
@@ -72,17 +86,41 @@ export default function SessionSetup() {
   const [loading, setLoading]   = useState(true);
   const [creating, setCreating] = useState(false);
 
+  // Scenario picker — 3 modes: random | preset | custom
+  const [scenarioMode, setScenarioMode]   = useState('random');
+  const [presets, setPresets]             = useState([]);
+  const [selectedPreset, setSelectedPreset] = useState('');
+  const [customContext, setCustomContext]   = useState('');
+  const [customTimeline, setCustomTimeline] = useState('');
+
   useEffect(() => {
     personasAPI.getAll()
       .then(data => setPersonas(data.personas))
       .finally(() => setLoading(false));
+    sessionsAPI.getScenarioPresets()
+      .then(data => setPresets(data.presets || []))
+      .catch(() => setPresets([]));
   }, []);
+
+  // Build the scenario spec the backend expects from the current picker state.
+  const buildScenarioSpec = () => {
+    if (scenarioMode === 'preset' && selectedPreset) {
+      return { mode: 'preset', preset_id: selectedPreset };
+    }
+    if (scenarioMode === 'custom') {
+      const pins = {};
+      if (customContext)  pins.buyer_context = customContext;
+      if (customTimeline) pins.timeline      = customTimeline;
+      return { mode: 'custom', pins };
+    }
+    return { mode: 'random' };
+  };
 
   const handleStart = async () => {
     if (!selected) return;
     setCreating(true);
     try {
-      const session = await sessionsAPI.create(selected.id, difficulty);
+      const session = await sessionsAPI.create(selected.id, difficulty, buildScenarioSpec());
       navigate(`/session/${session.id}`);
     } catch {
       alert('Failed to create session');
@@ -194,6 +232,103 @@ export default function SessionSetup() {
                   </button>
                 );
               })}
+            </div>
+          )}
+        </div>
+
+        {/* Step 3 — Scenario */}
+        <div
+          className="rounded-2xl p-6 mb-5"
+          style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          <div className="flex items-center gap-3 mb-2">
+            <StepBadge n="3" active />
+            <h2 className="heading font-bold text-white text-sm tracking-wide">Buyer Scenario</h2>
+          </div>
+          <p className="text-xs mb-4" style={{ color: 'rgba(148,163,184,0.5)' }}>
+            The customer's situation — budget, timeline, and what they're looking for.
+          </p>
+
+          {/* Mode toggle */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {[
+              { id: 'random', label: 'Surprise me', desc: 'Fully random' },
+              { id: 'preset', label: 'Pick a preset', desc: 'Curated' },
+              { id: 'custom', label: 'Customize', desc: 'Pin some, rest random' },
+            ].map(m => {
+              const active = scenarioMode === m.id;
+              return (
+                <button
+                  key={m.id}
+                  onClick={() => setScenarioMode(m.id)}
+                  className="p-3 rounded-xl text-left transition-all duration-200"
+                  style={{
+                    background: active ? 'rgba(236,72,153,0.1)' : 'rgba(255,255,255,0.02)',
+                    border: `1px solid ${active ? 'rgba(236,72,153,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                  }}
+                >
+                  <p className="font-semibold text-xs text-white mb-0.5">{m.label}</p>
+                  <p className="text-xs leading-tight" style={{ color: 'rgba(148,163,184,0.5)' }}>{m.desc}</p>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Mode-specific content */}
+          {scenarioMode === 'random' && (
+            <p className="text-xs px-3 py-2.5 rounded-xl"
+              style={{ background: 'rgba(255,255,255,0.02)', color: 'rgba(148,163,184,0.6)' }}>
+              A coherent buyer scenario will be generated for this session.
+            </p>
+          )}
+
+          {scenarioMode === 'preset' && (
+            <select
+              value={selectedPreset}
+              onChange={e => setSelectedPreset(e.target.value)}
+              className="w-full px-3 py-2.5 rounded-xl text-sm"
+              style={{ background: 'rgba(8,14,28,0.9)', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0' }}
+            >
+              <option value="">Select a scenario…</option>
+              {presets.map(p => (
+                <option key={p.preset_id} value={p.preset_id}>{p.label}</option>
+              ))}
+            </select>
+          )}
+
+          {scenarioMode === 'custom' && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'rgba(148,163,184,0.5)' }}>
+                  Buyer type
+                </label>
+                <select
+                  value={customContext}
+                  onChange={e => setCustomContext(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm"
+                  style={{ background: 'rgba(8,14,28,0.9)', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0' }}
+                >
+                  <option value="">Any (random)</option>
+                  {BUYER_CONTEXTS.map(c => <option key={c.id} value={c.id}>{c.label}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className="text-xs font-medium mb-1.5 block" style={{ color: 'rgba(148,163,184,0.5)' }}>
+                  Timeline
+                </label>
+                <select
+                  value={customTimeline}
+                  onChange={e => setCustomTimeline(e.target.value)}
+                  className="w-full px-3 py-2.5 rounded-xl text-sm"
+                  style={{ background: 'rgba(8,14,28,0.9)', border: '1px solid rgba(255,255,255,0.08)', color: '#e2e8f0' }}
+                >
+                  <option value="">Any (random)</option>
+                  {SCENARIO_TIMELINES.map(t => <option key={t.id} value={t.id}>{t.label}</option>)}
+                </select>
+              </div>
+              <p className="text-xs sm:col-span-2" style={{ color: 'rgba(148,163,184,0.4)' }}>
+                Budget and must-haves are drawn to match the buyer type.
+              </p>
             </div>
           )}
         </div>

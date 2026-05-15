@@ -97,13 +97,50 @@ def _extract_already_mentioned(memory: dict) -> list:
     return sorted(mentioned)
 
 
+def _format_scenario_block(scenario: dict) -> str:
+    """
+    Render the buyer scenario as an Arabic prompt section. This is the
+    customer's HARD situation for this call — budget ceiling, timeline,
+    must-haves, deal-breakers — and overrides any generic numbers the
+    persona prompt might mention.
+    """
+    if not scenario:
+        return ""
+
+    lines = ["موقفك الحقيقي في المكالمة دي (ده وضعك — التزم بيه في كل قراراتك):"]
+
+    label = scenario.get("label")
+    if label:
+        lines.append(f"- {label}")
+
+    bmin = scenario.get("budget_min")
+    bmax = scenario.get("budget_max")
+    if isinstance(bmin, int) and isinstance(bmax, int):
+        lines.append(
+            f"- ميزانيتك من {bmin:,} لـ {bmax:,} جنيه. "
+            f"لو السعر النهائي عدّى {bmax:,} جنيه إنت مش هتشتري."
+        )
+
+    must_haves = scenario.get("must_haves") or []
+    if must_haves:
+        lines.append("- لازم يكون فيه: " + "، ".join(must_haves))
+
+    deal_breakers = scenario.get("deal_breakers") or []
+    if deal_breakers:
+        lines.append("- هتمشي وما تشتريش لو: " + "، ".join(deal_breakers))
+
+    lines.append("لما تقرر توافق أو ترفض، اعتمد على الموقف ده — مش على أرقام عامة.")
+    return "\n".join(lines)
+
+
 def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, rag_context: dict) -> str:
     """Build system prompt for the LLM."""
-    
+
     persona_name = persona.get("name", persona.get("name_ar", "عميل"))
     personality = persona.get("personality_prompt", "أنت عميل مصري بتدور على شقة")
     difficulty = persona.get("difficulty", "medium")
     traits = persona.get("traits", [])
+    scenario_block = _format_scenario_block(persona.get("scenario"))
     
     current_emotion = emotion.get("primary_emotion", "neutral")
     
@@ -131,12 +168,14 @@ def build_system_prompt(persona: dict, emotion: dict, emotional_context: dict, r
     # Build examples string
     examples_str = "\n".join([f'- "{ex}"' for ex in EGYPTIAN_EXAMPLES[:10]])
     
+    scenario_section = f"\n{scenario_block}\n" if scenario_block else ""
+
     return f"""أنت عميل مصري اسمك {persona_name} بتدور على شقة تشتريها. أنت العميل مش البياع.
 
 شخصيتك: {personality}
 حالتك: {emotion_guidance}
 {difficulty_guidance}
-
+{scenario_section}
 اللهجة: عامية مصرية قاهرية فقط. قول "إيه/كام/فين/عايز/مفيش/ده/كده" مش الفصحى.
 
 معلومات العقارات: {rag_info if rag_info else "اسأل البياع عن التفاصيل"}

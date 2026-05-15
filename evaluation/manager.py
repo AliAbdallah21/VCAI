@@ -203,6 +203,10 @@ def gather_evaluation_inputs_db_only(session_id: str) -> dict:
             # The evaluator uses this to calibrate scoring — a hard customer
             # shouldn't be graded on the same closing expectations as an easy one.
             "difficulty": getattr(session, "difficulty", None) or persona_difficulty,
+            # The buyer scenario — lets the evaluator score whether the
+            # salesperson discovered the customer's real needs and respected
+            # their budget/timeline.
+            "scenario": getattr(session, "scenario", None),
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
             "duration_seconds": duration_seconds,
@@ -296,6 +300,10 @@ def gather_evaluation_inputs(session_id: str) -> dict:
             # The evaluator uses this to calibrate scoring — a hard customer
             # shouldn't be graded on the same closing expectations as an easy one.
             "difficulty": getattr(session, "difficulty", None) or persona_difficulty,
+            # The buyer scenario — lets the evaluator score whether the
+            # salesperson discovered the customer's real needs and respected
+            # their budget/timeline.
+            "scenario": getattr(session, "scenario", None),
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
             "duration_seconds": duration_seconds,
