@@ -78,6 +78,10 @@ class ConversationHandler:
             "difficulty":          session_difficulty,
             "traits":              self.persona.traits or [],
             "avatar_url":          getattr(self.persona, "avatar_url", None),
+            # Buyer scenario for this session (budget / timeline / must-haves /
+            # deal-breakers). Rides on the persona dict so it reaches the LLM
+            # layer without extra plumbing. Phase 4 makes the prompt act on it.
+            "scenario":            getattr(self.training_session, "scenario", None),
         }
 
         self.agent.start_session(

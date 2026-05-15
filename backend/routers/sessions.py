@@ -77,6 +77,20 @@ def list_sessions(
     return SessionListResponse(sessions=summaries, total=total)
 
 
+@router.get("/scenario-presets")
+def get_scenario_presets(
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Return the curated buyer-scenario presets for the session-setup picker.
+
+    Declared BEFORE /{session_id} so the literal path matches first
+    (a parametrized UUID route would otherwise swallow 'scenario-presets').
+    """
+    from shared.scenarios import list_presets
+    return {"presets": list_presets()}
+
+
 @router.get("/{session_id}", response_model=SessionResponse)
 def get_session_detail(
     session_id: UUID,

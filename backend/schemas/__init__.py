@@ -102,6 +102,13 @@ class SessionCreate(BaseModel):
     """Schema for starting a new session."""
     persona_id: str
     difficulty: str = "medium"
+    # Optional buyer-scenario spec. Resolved server-side via
+    # shared.scenarios.resolve_scenario(). Shapes:
+    #   None / omitted          -> random scenario
+    #   {"mode": "random"}      -> random
+    #   {"mode": "preset", "preset_id": "..."}
+    #   {"mode": "custom", "pins": {...}}
+    scenario: Optional[dict] = None
 
 
 class SessionResponse(BaseModel):
@@ -124,7 +131,8 @@ class SessionResponse(BaseModel):
     strengths: List[str]
     weaknesses: List[str]
     recommendations: List[str]
-    
+    scenario: Optional[dict] = None
+
     class Config:
         from_attributes = True
 

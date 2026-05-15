@@ -50,19 +50,26 @@ def create_session(
     """Create a new training session."""
     # Verify persona exists
     persona = get_persona(db, session_data.persona_id)
-    
+
+    # Resolve the buyer scenario. resolve_scenario() never raises — bad/None
+    # input falls back to a fully random scenario — so the session always
+    # gets a coherent scenario.
+    from shared.scenarios import resolve_scenario
+    scenario = resolve_scenario(session_data.scenario)
+
     # Create session
     session = TrainingSession(
         user_id=user.id,
         persona_id=session_data.persona_id,
         difficulty=session_data.difficulty,
-        status="active"
+        status="active",
+        scenario=scenario,
     )
-    
+
     db.add(session)
     db.commit()
     db.refresh(session)
-    
+
     return session
 
 
