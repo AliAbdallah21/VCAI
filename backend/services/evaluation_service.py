@@ -239,8 +239,22 @@ def compute_quick_stats(db: Session, session_id: UUID) -> Dict[str, Any]:
                 emotion_journey.append(emo)
                 prev = emo
     
+    # Prefer first→last message span over stored value (avoids idle pre-session time)
+    msgs_with_ts = sorted([m for m in messages if m.created_at], key=lambda m: m.created_at)
+    if len(msgs_with_ts) >= 2:
+        from datetime import timezone as _tz
+        t0 = msgs_with_ts[0].created_at
+        t1 = msgs_with_ts[-1].created_at
+        if t0.tzinfo is None:
+            t0 = t0.replace(tzinfo=_tz.utc)
+        if t1.tzinfo is None:
+            t1 = t1.replace(tzinfo=_tz.utc)
+        duration_seconds = max(0, int((t1 - t0).total_seconds()))
+    else:
+        duration_seconds = training_session.duration_seconds or 0
+
     quick_stats = {
-        "duration_seconds": training_session.duration_seconds or 0,
+        "duration_seconds": duration_seconds,
         "total_turns": len(messages),
         "salesperson_turns": len(salesperson_turns),
         "customer_turns": len(customer_turns),
@@ -413,10 +427,26 @@ def run_evaluation_background(session_id: UUID, mode: str):
                 r.status          = "completed"
                 r.progress        = 100
                 r.completed_at    = datetime.now(timezone.utc)
-                # Write score back to session so list endpoints can show it
+                # Write scores back to session for learning service queries
                 s = db.query(TrainingSession).filter(TrainingSession.id == session_id).first()
                 if s and overall is not None:
                     s.overall_score = overall
+                    # Map eval skill keys → session skill columns
+                    skill_rows = {
+                        sk.get("skill_key"): sk.get("score")
+                        for sk in report_dict.get("scores", {}).get("skills", [])
+                        if sk.get("skill_key") and sk.get("score") is not None
+                    }
+                    _EVAL_TO_SESSION = {
+                        "communication_clarity": "communication_score",
+                        "product_knowledge":     "product_knowledge_score",
+                        "objection_handling":    "objection_handling_score",
+                        "rapport_building":      "rapport_score",
+                        "closing_skills":        "closing_score",
+                    }
+                    for eval_key, col in _EVAL_TO_SESSION.items():
+                        if eval_key in skill_rows:
+                            setattr(s, col, skill_rows[eval_key])
                 db.commit()
 
         score = report_dict.get("scores", {}).get("overall_score", "?")
