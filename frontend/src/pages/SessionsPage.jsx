@@ -11,18 +11,18 @@ const TABS = [
 ];
 
 const statusStyle = {
-  active:    { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)',  label: 'Live'      },
-  ended:     { bg: 'rgba(148,163,184,0.08)', text: '#94a3b8', border: 'rgba(148,163,184,0.15)', label: 'Ended'    },
-  completed: { bg: 'rgba(148,163,184,0.08)', text: '#94a3b8', border: 'rgba(148,163,184,0.15)', label: 'Ended'   },
+  active:    { bg: 'rgba(165,214,167,0.1)',  text: '#a5d6a7', border: 'rgba(165,214,167,0.2)',  label: 'Live'      },
+  ended:     { bg: 'rgba(152,141,157,0.08)', text: 'var(--text-muted)', border: 'rgba(152,141,157,0.15)', label: 'Ended'    },
+  completed: { bg: 'rgba(152,141,157,0.08)', text: 'var(--text-muted)', border: 'rgba(152,141,157,0.15)', label: 'Ended'   },
 };
 
 const diffStyle = {
-  easy:   { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)'  },
-  medium: { bg: 'rgba(245,158,11,0.1)',  text: '#fbbf24', border: 'rgba(245,158,11,0.2)'  },
-  hard:   { bg: 'rgba(239,68,68,0.1)',   text: '#f87171', border: 'rgba(239,68,68,0.2)'   },
+  easy:   { bg: 'rgba(165,214,167,0.1)',  text: '#a5d6a7', border: 'rgba(165,214,167,0.2)'  },
+  medium: { bg: 'rgba(233,196,106,0.1)',  text: '#e9c46a', border: 'rgba(233,196,106,0.2)'  },
+  hard:   { bg: 'rgba(255,180,171,0.1)',  text: '#ffb4ab', border: 'rgba(255,180,171,0.2)'  },
 };
 
-const scoreColor = s => s >= 80 ? '#34d399' : s >= 60 ? '#fbbf24' : '#f87171';
+const scoreColor = s => s >= 80 ? '#a5d6a7' : s >= 60 ? '#e9c46a' : '#ffb4ab';
 
 const fmtDate = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 const fmtDuration = s => { if (!s) return '—'; const m = Math.floor(s / 60); const sec = s % 60; return `${m}:${String(sec).padStart(2,'0')}`; };
@@ -73,8 +73,8 @@ export default function SessionsPage() {
       <div className="p-4 md:p-8 max-w-5xl mx-auto">
         {/* Header */}
         <div className="mb-8 slide-up">
-          <h1 className="heading text-2xl font-bold text-white mb-1">Resume a Call</h1>
-          <p className="text-sm" style={{ color: 'rgba(148,163,184,0.55)' }}>
+          <h1 className="heading text-2xl font-bold mb-1" style={{ color: 'var(--text-primary)' }}>Resume a Call</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Continue any previous session or start where you left off
           </p>
         </div>
@@ -90,8 +90,8 @@ export default function SessionsPage() {
               onClick={() => setTab(t.key)}
               className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150"
               style={tab === t.key
-                ? { background: 'rgba(37,99,235,0.2)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.25)' }
-                : { color: 'rgba(148,163,184,0.5)', border: '1px solid transparent' }
+                ? { background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid rgba(222,183,255,0.25)' }
+                : { color: 'var(--text-muted)', border: '1px solid transparent' }
               }
             >
               {t.label}
@@ -109,17 +109,17 @@ export default function SessionsPage() {
         {/* Sessions list */}
         <div
           className="rounded-2xl overflow-hidden"
-          style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
         >
           {loading && offset === 0 ? (
             <div className="p-14 text-center">
-              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: '#3b82f6', borderRadius: '50%' }} />
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>Loading sessions…</p>
+              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: 'var(--primary-container)', borderRadius: '50%' }} />
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading sessions…</p>
             </div>
           ) : filtered.length === 0 ? (
             <div className="p-14 text-center">
-              <p className="font-medium text-slate-400 mb-1">No sessions found</p>
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>
+              <p className="font-medium mb-1" style={{ color: 'var(--text-muted)' }}>No sessions found</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 {tab === 'active' ? 'No active calls right now' : 'Try a different filter'}
               </p>
             </div>
@@ -148,25 +148,25 @@ export default function SessionsPage() {
                         className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
                         style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
                       >
-                        <svg width="15" height="15" fill="none" stroke="rgba(148,163,184,0.5)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                        <svg width="15" height="15" fill="none" stroke="var(--text-muted)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                           <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
                         </svg>
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-2 flex-wrap">
-                          <p className="text-sm font-medium text-slate-200">{s.persona_name || 'Unknown Persona'}</p>
+                          <p className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>{s.persona_name || 'Unknown Persona'}</p>
                           {isActive && (
                             <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-                              style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
-                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                              style={{ background: 'rgba(165,214,167,0.12)', color: '#a5d6a7', border: '1px solid rgba(165,214,167,0.2)' }}>
+                              <span className="w-1.5 h-1.5 rounded-full animate-pulse inline-block" style={{ background: '#a5d6a7' }} />
                               Live
                             </span>
                           )}
                         </div>
                         <div className="flex items-center gap-3 mt-0.5">
-                          <p className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>{fmtDate(s.started_at)}</p>
+                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{fmtDate(s.started_at)}</p>
                           {s.duration_seconds > 0 && (
-                            <p className="text-xs" style={{ color: 'rgba(148,163,184,0.35)' }}>
+                            <p className="text-xs" style={{ color: 'var(--text-subtle)' }}>
                               {fmtDuration(s.duration_seconds)}
                             </p>
                           )}
@@ -182,7 +182,7 @@ export default function SessionsPage() {
                       </span>
                       {s.turn_count > 0 && (
                         <span className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                          style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(148,163,184,0.6)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.07)' }}>
                           {s.turn_count} turns
                         </span>
                       )}
@@ -200,9 +200,9 @@ export default function SessionsPage() {
                         onClick={() => handleResume(s)}
                         disabled={isResuming}
                         className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 disabled:opacity-50"
-                        style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}
-                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.22)'; }}
-                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
+                        style={{ background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid rgba(222,183,255,0.2)' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-soft-hover)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'var(--primary-soft)'; }}
                       >
                         {isResuming ? '…' : isActive ? 'Resume →' : 'Continue →'}
                       </button>
@@ -213,8 +213,8 @@ export default function SessionsPage() {
                           onClick={() => navigate(`/evaluation/${s.id}`)}
                           className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150"
                           style={evaluated
-                            ? { background: 'rgba(37,99,235,0.12)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.2)' }
-                            : { background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }
+                            ? { background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid rgba(222,183,255,0.2)' }
+                            : { background: 'rgba(233,196,106,0.1)', color: '#e9c46a', border: '1px solid rgba(233,196,106,0.2)' }
                           }
                           onMouseEnter={e => { e.currentTarget.style.opacity = '0.8'; }}
                           onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
@@ -234,7 +234,7 @@ export default function SessionsPage() {
                     onClick={() => load(sessions.length)}
                     disabled={loading}
                     className="px-6 py-2 rounded-xl text-sm font-medium transition-all duration-150 disabled:opacity-40"
-                    style={{ background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.08)' }}
                   >
                     {loading ? 'Loading…' : `Load more (${total - sessions.length} remaining)`}
                   </button>

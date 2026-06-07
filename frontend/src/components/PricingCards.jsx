@@ -27,29 +27,28 @@ function PlanCard({ plan, annual, recommended, onSelect }) {
 
   return (
     <div
-      className={`relative flex flex-col bg-white rounded-2xl p-6 shadow-sm ${
-        recommended ? 'border-2 border-blue-600' : 'border border-slate-100'
-      }`}
+      className="relative flex flex-col ds-card p-6"
+      style={recommended ? { border: '2px solid #b472f1', background: 'var(--primary-soft)' } : undefined}
     >
       {recommended && (
-        <span className="absolute -top-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-purple-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+        <span className="absolute -top-3 left-1/2 -translate-x-1/2 btn-primary text-xs font-semibold px-3 py-1 rounded-full">
           Most popular
         </span>
       )}
 
-      <h3 className="text-lg font-bold text-slate-800">{plan.display_name}</h3>
+      <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{plan.display_name}</h3>
 
       <div className="mt-4 mb-6">
-        <span className="text-4xl font-bold text-slate-800">{price}</span>
+        <span className="text-4xl font-bold" style={{ color: 'var(--text-primary)' }}>{price}</span>
         {showPeriod && (
-          <span className="text-slate-500 text-sm ml-1">/ {annual ? 'year' : 'month'}</span>
+          <span className="text-sm ml-1" style={{ color: 'var(--text-muted)' }}>/ {annual ? 'year' : 'month'}</span>
         )}
       </div>
 
       <ul className="space-y-3 mb-6 flex-1">
         {planFeatures(plan).map((feature) => (
-          <li key={feature} className="flex items-start gap-2 text-sm text-slate-600">
-            <span className="text-blue-600 mt-0.5">✓</span>
+          <li key={feature} className="flex items-start gap-2 text-sm" style={{ color: 'var(--text-secondary)' }}>
+            <span className="mt-0.5" style={{ color: 'var(--primary)' }}>✓</span>
             <span>{feature}</span>
           </li>
         ))}
@@ -58,11 +57,8 @@ function PlanCard({ plan, annual, recommended, onSelect }) {
       <button
         type="button"
         onClick={() => onSelect(plan.name)}
-        className={`w-full py-3 rounded-xl font-medium transition ${
-          recommended
-            ? 'bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90'
-            : 'bg-slate-100 text-slate-800 hover:bg-slate-200'
-        }`}
+        className={`w-full ${recommended ? 'btn-primary' : 'btn-secondary'}`}
+        style={{ padding: '12px 0' }}
       >
         {isEnterprise ? 'Contact us' : 'Get started'}
       </button>
@@ -92,7 +88,7 @@ export default function PricingCards({ plans, onSelect }) {
   return (
     <div>
       <div className="flex items-center justify-center gap-4 mb-10">
-        <span className={`text-sm font-medium ${annual ? 'text-slate-400' : 'text-slate-800'}`}>
+        <span className="text-sm font-medium" style={{ color: annual ? 'var(--text-muted)' : 'var(--text-primary)' }}>
           Monthly
         </span>
         <button
@@ -100,9 +96,8 @@ export default function PricingCards({ plans, onSelect }) {
           role="switch"
           aria-checked={annual}
           onClick={() => setAnnual((v) => !v)}
-          className={`relative w-14 h-7 rounded-full transition ${
-            annual ? 'bg-blue-600' : 'bg-slate-300'
-          }`}
+          className="relative w-14 h-7 rounded-full transition"
+          style={{ background: annual ? '#b472f1' : 'var(--surface-container-highest)' }}
         >
           <span
             className={`absolute top-0.5 left-0.5 w-6 h-6 bg-white rounded-full shadow transition-transform ${
@@ -110,26 +105,27 @@ export default function PricingCards({ plans, onSelect }) {
             }`}
           />
         </button>
-        <span className={`text-sm font-medium ${annual ? 'text-slate-800' : 'text-slate-400'}`}>
+        <span className="text-sm font-medium" style={{ color: annual ? 'var(--text-primary)' : 'var(--text-muted)' }}>
           Annual
-          <span className="ml-2 text-xs text-emerald-600 font-semibold">save ~2 months</span>
+          <span className="ml-2 text-xs font-semibold" style={{ color: 'var(--success-green)' }}>save ~2 months</span>
         </span>
       </div>
 
       {freePlan && (
-        <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 bg-white border border-slate-100 rounded-2xl px-6 py-5 shadow-sm">
+        <div className="mb-8 flex flex-col sm:flex-row items-center justify-between gap-4 ds-card px-6 py-5">
           <div>
-            <h3 className="text-lg font-bold text-slate-800">{freePlan.display_name}</h3>
-            <p className="text-sm text-slate-500 mt-1">
+            <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{freePlan.display_name}</h3>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>
               {planFeatures(freePlan).join(' · ')}
             </p>
           </div>
           <div className="flex items-center gap-4 shrink-0">
-            <span className="text-2xl font-bold text-slate-800">{fmtPrice(freePlan, annual)}</span>
+            <span className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>{fmtPrice(freePlan, annual)}</span>
             <button
               type="button"
               onClick={() => handleSelect(freePlan.name)}
-              className="px-5 py-2.5 rounded-xl font-medium bg-slate-100 text-slate-800 hover:bg-slate-200 transition"
+              className="btn-secondary"
+              style={{ padding: '10px 20px' }}
             >
               Get started
             </button>

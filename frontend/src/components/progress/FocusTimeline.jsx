@@ -6,7 +6,7 @@ export default function FocusTimeline({ periods, skillConfig }) {
 
   return (
     <div>
-      <h3 className="text-xs font-semibold mb-3" style={{ color: 'rgba(148,163,184,0.5)' }}>
+      <h3 className="text-xs font-semibold mb-3" style={{ color: 'var(--text-muted)' }}>
         Session Focus History
       </h3>
 
@@ -15,8 +15,8 @@ export default function FocusTimeline({ periods, skillConfig }) {
         <div className="flex items-start gap-0 min-w-max">
           {periods.map((period, i) => {
             const color = period.focus_skill
-              ? colorBySkill[period.focus_skill] ?? 'rgba(148,163,184,0.3)'
-              : 'rgba(148,163,184,0.2)';
+              ? colorBySkill[period.focus_skill] ?? 'var(--text-subtle)'
+              : 'rgba(152,141,157,0.2)';
             const label = period.focus_skill ? labelBySkill[period.focus_skill] : null;
 
             return (
@@ -33,7 +33,7 @@ export default function FocusTimeline({ periods, skillConfig }) {
                   />
                   <span
                     className="text-center mt-1.5 leading-none"
-                    style={{ color: 'rgba(148,163,184,0.35)', fontSize: 10, width: 32 }}
+                    style={{ color: 'var(--text-subtle)', fontSize: 10, width: 32 }}
                   >
                     {i + 1}
                   </span>
@@ -63,13 +63,13 @@ export default function FocusTimeline({ periods, skillConfig }) {
           .map(s => (
             <div key={s.key} className="flex items-center gap-1.5">
               <div className="w-2.5 h-2.5 rounded-full" style={{ background: s.color }} />
-              <span className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>{s.label}</span>
+              <span className="text-xs" style={{ color: 'var(--text-muted)' }}>{s.label}</span>
             </div>
           ))}
         {periods.some(p => !p.focus_skill) && (
           <div className="flex items-center gap-1.5">
-            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(148,163,184,0.2)' }} />
-            <span className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>Free session</span>
+            <div className="w-2.5 h-2.5 rounded-full" style={{ background: 'rgba(152,141,157,0.2)' }} />
+            <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Free session</span>
           </div>
         )}
       </div>

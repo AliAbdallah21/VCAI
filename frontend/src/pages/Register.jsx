@@ -31,12 +31,12 @@ export default function Register() {
   };
 
   const inputClass = 'input-dark w-full px-4 py-2.5 rounded-xl text-sm';
-  const labelClass = 'block text-xs font-semibold mb-1.5 tracking-wide uppercase';
+  const labelClass = 'label-sm block mb-1.5';
 
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden p-4"
-      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(5,150,105,0.12) 0%, #030712 60%)' }}
+      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(180,114,241,0.13) 0%, #0e0e10 60%)' }}
     >
       {/* Background */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">
@@ -45,7 +45,7 @@ export default function Register() {
           style={{
             width: 550, height: 550,
             top: '-20%', right: '-10%',
-            background: 'radial-gradient(circle, #059669 0%, transparent 70%)',
+            background: 'radial-gradient(circle, #b472f1 0%, transparent 70%)',
           }}
         />
         <div
@@ -53,7 +53,7 @@ export default function Register() {
           style={{
             width: 450, height: 450,
             bottom: '-15%', left: '-5%',
-            background: 'radial-gradient(circle, #2563eb 0%, transparent 70%)',
+            background: 'radial-gradient(circle, #deb7ff 0%, transparent 70%)',
           }}
         />
         <div
@@ -74,14 +74,14 @@ export default function Register() {
           <div
             className="inline-flex w-14 h-14 rounded-2xl items-center justify-center mb-4"
             style={{
-              background: 'linear-gradient(135deg, #059669, #0284c7)',
-              boxShadow: '0 0 28px rgba(5,150,105,0.35)',
+              background: 'linear-gradient(135deg, #b472f1, #deb7ff)',
+              boxShadow: '0 0 28px rgba(180,114,241,0.35)',
             }}
           >
-            <span className="heading text-white font-bold text-2xl">V</span>
+            <span className="heading font-bold text-2xl" style={{ color: '#4a007f' }}>V</span>
           </div>
-          <h1 className="heading text-2xl font-bold text-white mb-1">Create account</h1>
-          <p className="text-sm" style={{ color: 'rgba(148,163,184,0.55)' }}>
+          <h1 className="headline-md mb-1" style={{ color: 'var(--text-primary)' }}>Create account</h1>
+          <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
             Start your sales training journey
           </p>
         </div>
@@ -90,30 +90,30 @@ export default function Register() {
         <div className="glass rounded-2xl p-7 slide-up">
           <form onSubmit={handleSubmit} className="space-y-3.5">
             <div>
-              <label className={labelClass} style={{ color: 'rgba(148,163,184,0.6)' }}>Full Name</label>
+              <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>Full Name</label>
               <input type="text" name="full_name" value={form.full_name} onChange={handleChange}
                 className={inputClass} placeholder="John Doe" required />
             </div>
             <div>
-              <label className={labelClass} style={{ color: 'rgba(148,163,184,0.6)' }}>Email</label>
+              <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>Email</label>
               <input type="email" name="email" value={form.email} onChange={handleChange}
                 className={inputClass} placeholder="you@company.com" required />
             </div>
             <div>
-              <label className={labelClass} style={{ color: 'rgba(148,163,184,0.6)' }}>
-                Company <span style={{ color: 'rgba(148,163,184,0.35)' }}>(optional)</span>
+              <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>
+                Company <span style={{ color: 'var(--text-subtle)' }}>(optional)</span>
               </label>
               <input type="text" name="company" value={form.company} onChange={handleChange}
                 className={inputClass} placeholder="Your company" />
             </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className={labelClass} style={{ color: 'rgba(148,163,184,0.6)' }}>Password</label>
+                <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>Password</label>
                 <input type="password" name="password" value={form.password} onChange={handleChange}
                   className={inputClass} placeholder="••••••" required />
               </div>
               <div>
-                <label className={labelClass} style={{ color: 'rgba(148,163,184,0.6)' }}>Confirm</label>
+                <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>Confirm</label>
                 <input type="password" name="confirmPassword" value={form.confirmPassword} onChange={handleChange}
                   className={inputClass} placeholder="••••••" required />
               </div>
@@ -122,7 +122,7 @@ export default function Register() {
             {error && (
               <div
                 className="px-4 py-3 rounded-xl text-sm"
-                style={{ background: 'rgba(239,68,68,0.08)', border: '1px solid rgba(239,68,68,0.2)', color: '#fca5a5' }}
+                style={{ background: 'rgba(255,180,171,0.08)', border: '1px solid rgba(255,180,171,0.25)', color: 'var(--error)' }}
               >
                 {error}
               </div>
@@ -131,18 +131,13 @@ export default function Register() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 rounded-xl text-sm font-semibold text-white transition-all"
-              style={{
-                background: 'linear-gradient(135deg, #059669, #0284c7)',
-                boxShadow: '0 4px 24px rgba(5,150,105,0.25)',
-                opacity: loading ? 0.5 : 1,
-              }}
+              className="btn-primary w-full py-3 rounded-xl text-sm font-semibold"
             >
               {loading ? (
                 <span className="flex items-center justify-center gap-2">
                   <svg className="w-4 h-4 spin-ring" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(255,255,255,0.25)" strokeWidth="3"/>
-                    <path d="M12 2a10 10 0 0110 10" stroke="white" strokeWidth="3" strokeLinecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="rgba(74,0,127,0.25)" strokeWidth="3"/>
+                    <path d="M12 2a10 10 0 0110 10" stroke="#4a007f" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
                   Creating…
                 </span>
@@ -150,15 +145,15 @@ export default function Register() {
             </button>
           </form>
 
-          <p className="text-center mt-5 text-xs" style={{ color: 'rgba(148,163,184,0.4)' }}>
+          <p className="text-center mt-5 text-xs" style={{ color: 'var(--text-muted)' }}>
             Already have an account?{' '}
-            <Link to="/login" className="text-emerald-400 font-medium hover:text-emerald-300 transition-colors">
+            <Link to="/login" className="font-medium transition-colors" style={{ color: 'var(--primary)' }}>
               Sign in
             </Link>
           </p>
         </div>
 
-        <p className="text-center mt-5 text-xs" style={{ color: 'rgba(148,163,184,0.18)' }}>
+        <p className="text-center mt-5 text-xs" style={{ color: 'var(--text-subtle)' }}>
           © 2024 VCAI · MIU Thesis Project
         </p>
       </div>

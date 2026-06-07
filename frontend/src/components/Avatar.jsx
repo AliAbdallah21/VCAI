@@ -27,8 +27,8 @@ export default function Avatar({ src, name = '?', size = 40, active = false, cla
         width: px,
         height: px,
         fontSize: Math.max(12, Math.round(size * 0.36)),
-        background: active ? 'rgba(37,99,235,0.25)' : 'rgba(255,255,255,0.06)',
-        color: active ? '#93c5fd' : 'rgba(148,163,184,0.6)',
+        background: active ? 'rgba(222,183,255,0.18)' : 'rgba(255,255,255,0.06)',
+        color: active ? '#deb7ff' : 'var(--text-muted)',
         border: '1px solid rgba(255,255,255,0.05)',
       }}
     >

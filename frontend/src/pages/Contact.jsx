@@ -2,26 +2,27 @@ import { Link } from 'react-router-dom';
 
 export default function Contact() {
   return (
-    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-8">
-      <div className="bg-white rounded-2xl shadow-sm border border-slate-100 p-10 max-w-md text-center">
+    <div className="min-h-screen flex items-center justify-center p-8" style={{ background: 'var(--bg-app)' }}>
+      <div className="ds-card p-10 max-w-md text-center">
         <div className="inline-flex items-center gap-3 mb-6">
-          <div className="w-10 h-10 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">V</span>
+          <div className="w-10 h-10 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #b472f1, #deb7ff)' }}>
+            <span className="font-bold text-lg" style={{ color: '#4a007f' }}>V</span>
           </div>
-          <span className="font-bold text-xl text-slate-800">VCAI</span>
+          <span className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>VCAI</span>
         </div>
-        <h1 className="text-2xl font-bold text-slate-800">Talk to us about Enterprise</h1>
-        <p className="mt-3 text-slate-500">
+        <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Talk to us about Enterprise</h1>
+        <p className="mt-3" style={{ color: 'var(--text-muted)' }}>
           For enterprise plans and custom support, reach out and our team will get back to you.
         </p>
         <a
           href="mailto:fitai.sub@gmail.com"
-          className="inline-block mt-6 px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+          className="btn-primary inline-block mt-6"
+          style={{ padding: '12px 24px' }}
         >
           Email us
         </a>
         <div className="mt-6">
-          <Link to="/" className="text-sm text-blue-600 font-medium hover:underline">
+          <Link to="/" className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
             Back to home
           </Link>
         </div>

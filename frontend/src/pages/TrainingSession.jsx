@@ -3,7 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { createWebSocket, sessionsAPI } from '../services/api';
 
 const MicIcon = () => (
-  <svg width="28" height="28" fill="none" stroke="white" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+  <svg width="28" height="28" fill="none" stroke="#4a007f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
     <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
   </svg>
 );
@@ -355,12 +355,12 @@ export default function TrainingSession() {
   const endSession = () => wsRef.current?.send(JSON.stringify({ type: 'end_session' }));
 
   const moodPercent = 50 + emotion.mood / 2;
-  const moodColor   = emotion.mood > 20 ? '#10b981' : emotion.mood < -20 ? '#ef4444' : '#f59e0b';
+  const moodColor   = emotion.mood > 20 ? '#a5d6a7' : emotion.mood < -20 ? '#ffb4ab' : '#e9c46a';
   const riskStyle   = {
-    low:    { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)'  },
-    medium: { bg: 'rgba(245,158,11,0.1)', text: '#fbbf24', border: 'rgba(245,158,11,0.2)' },
-    high:   { bg: 'rgba(239,68,68,0.1)',   text: '#f87171', border: 'rgba(239,68,68,0.2)'   },
-  }[emotion.risk] || { bg: 'rgba(16,185,129,0.1)', text: '#34d399', border: 'rgba(16,185,129,0.2)' };
+    low:    { bg: 'rgba(165,214,167,0.1)',  text: '#a5d6a7', border: 'rgba(165,214,167,0.2)'  },
+    medium: { bg: 'rgba(233,196,106,0.1)', text: '#e9c46a', border: 'rgba(233,196,106,0.2)' },
+    high:   { bg: 'rgba(255,180,171,0.1)',   text: '#ffb4ab', border: 'rgba(255,180,171,0.2)'   },
+  }[emotion.risk] || { bg: 'rgba(165,214,167,0.1)', text: '#a5d6a7', border: 'rgba(165,214,167,0.2)' };
 
   const statusDotClass = connected
     ? 'bg-emerald-400'
@@ -375,36 +375,36 @@ export default function TrainingSession() {
     : 'Disconnected';
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#030712' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: '#0e0e10' }}>
       {/* Header */}
       <header
         className="flex justify-between items-center px-4 md:px-6 py-3 md:py-4 gap-2 flex-shrink-0"
-        style={{ background: 'rgba(8,14,28,0.95)', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}
+        style={{ background: 'rgba(19,19,21,0.95)', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}
       >
         <div className="flex items-center gap-3">
           <div
             className="w-9 h-9 rounded-xl flex items-center justify-center"
-            style={{ background: 'rgba(37,99,235,0.15)', border: '1px solid rgba(37,99,235,0.2)' }}
+            style={{ background: 'rgba(180,114,241,0.15)', border: '1px solid rgba(180,114,241,0.2)' }}
           >
-            <svg width="16" height="16" fill="none" stroke="#60a5fa" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+            <svg width="16" height="16" fill="none" stroke="var(--primary)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
               <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
             </svg>
           </div>
           <div>
-            <p className="font-semibold text-white text-sm">Training Session</p>
+            <p className="font-semibold text-sm" style={{ color: 'var(--text-primary)' }}>Training Session</p>
             <div className="flex items-center gap-1.5 mt-0.5">
               <div
                 className={`w-1.5 h-1.5 rounded-full ${statusDotClass}`}
-                style={connected ? { boxShadow: '0 0 6px #34d399' } : {}}
+                style={connected ? { boxShadow: '0 0 6px #a5d6a7' } : {}}
               />
-              <p className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>{statusText}</p>
+              <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{statusText}</p>
             </div>
           </div>
         </div>
         <button
           onClick={endSession}
           className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-          style={{ background: 'rgba(239,68,68,0.08)', color: '#f87171', border: '1px solid rgba(239,68,68,0.15)' }}
+          style={{ background: 'rgba(255,180,171,0.08)', color: 'var(--error)', border: '1px solid rgba(255,180,171,0.25)' }}
         >
           End Session
         </button>
@@ -414,7 +414,7 @@ export default function TrainingSession() {
       {reconnecting && (
         <div
           className="px-6 py-2.5 text-center text-xs font-medium"
-          style={{ background: 'rgba(245,158,11,0.08)', borderBottom: '1px solid rgba(245,158,11,0.15)', color: '#fbbf24' }}
+          style={{ background: 'rgba(233,196,106,0.08)', borderBottom: '1px solid rgba(233,196,106,0.15)', color: '#e9c46a' }}
         >
           Connection lost — reconnecting automatically… ({reconnectAttemptsRef.current}/3)
         </div>
@@ -424,7 +424,7 @@ export default function TrainingSession() {
       {stuckRecovery && !reconnecting && (
         <div
           className="px-6 py-2.5 text-center text-xs font-medium"
-          style={{ background: 'rgba(239,68,68,0.08)', borderBottom: '1px solid rgba(239,68,68,0.15)', color: '#f87171' }}
+          style={{ background: 'rgba(255,180,171,0.08)', borderBottom: '1px solid rgba(255,180,171,0.25)', color: 'var(--error)' }}
         >
           {stuckRecovery}
         </div>
@@ -433,11 +433,11 @@ export default function TrainingSession() {
       {/* Emotion Bar */}
       <div
         className="px-4 md:px-6 py-3 md:py-4 flex-shrink-0"
-        style={{ background: 'rgba(8,14,28,0.8)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+        style={{ background: 'rgba(28,27,29,0.8)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
       >
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
-            <span className="text-xs font-medium w-16 md:w-28 flex-shrink-0" style={{ color: 'rgba(148,163,184,0.5)' }}>
+            <span className="text-xs font-medium w-16 md:w-28 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
               Mood
             </span>
             <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
@@ -457,9 +457,9 @@ export default function TrainingSession() {
             <div
               className="mt-3 px-4 py-2.5 rounded-xl text-sm"
               style={{
-                background: 'rgba(245,158,11,0.07)',
-                border: '1px solid rgba(245,158,11,0.15)',
-                color: '#fcd34d',
+                background: 'rgba(233,196,106,0.07)',
+                border: '1px solid rgba(233,196,106,0.15)',
+                color: '#e9c46a',
               }}
             >
               <span style={{ opacity: 0.6 }}>Tip · </span>{emotion.tip}
@@ -475,12 +475,12 @@ export default function TrainingSession() {
             <div className="text-center py-16">
               <div
                 className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 mic-glow"
-                style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.2)' }}
+                style={{ background: 'rgba(180,114,241,0.12)', border: '1px solid rgba(180,114,241,0.2)' }}
               >
                 <MicIcon />
               </div>
-              <p className="font-medium text-white mb-1">Ready to practice</p>
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.45)' }}>
+              <p className="font-medium mb-1" style={{ color: 'var(--text-primary)' }}>Ready to practice</p>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 Press the button below and start speaking
               </p>
             </div>
@@ -497,14 +497,14 @@ export default function TrainingSession() {
                 <div
                   className="max-w-[76%] px-4 py-3 rounded-2xl text-sm leading-relaxed"
                   style={isYou ? {
-                    background: 'linear-gradient(135deg, rgba(37,99,235,0.5), rgba(124,58,237,0.4))',
-                    border: '1px solid rgba(37,99,235,0.3)',
-                    color: '#e0e7ff',
+                    background: 'linear-gradient(135deg, rgba(180,114,241,0.5), rgba(222,183,255,0.4))',
+                    border: '1px solid rgba(180,114,241,0.3)',
+                    color: 'var(--text-primary)',
                     borderBottomRightRadius: '6px',
                   } : {
-                    background: 'rgba(20,30,55,0.9)',
-                    border: '1px solid rgba(255,255,255,0.07)',
-                    color: '#cbd5e1',
+                    background: 'var(--bg-card)',
+                    border: '1px solid var(--border)',
+                    color: 'var(--text-secondary)',
                     borderBottomLeftRadius: '6px',
                   }}
                 >
@@ -548,18 +548,18 @@ export default function TrainingSession() {
               <div
                 className="px-4 py-3 rounded-2xl"
                 style={{
-                  background: 'rgba(20,30,55,0.9)',
-                  border: '1px solid rgba(255,255,255,0.07)',
+                  background: 'var(--bg-card)',
+                  border: '1px solid var(--border)',
                   borderBottomLeftRadius: '6px',
                 }}
               >
-                <p className="text-xs mb-2 font-medium" style={{ opacity: 0.4, color: '#94a3b8' }}>Customer</p>
+                <p className="text-xs mb-2 font-medium" style={{ opacity: 0.4, color: 'var(--text-muted)' }}>Customer</p>
                 <div className="flex items-center gap-1.5">
                   {[0, 1, 2].map(n => (
                     <div
                       key={n}
                       className="w-2 h-2 rounded-full animate-bounce"
-                      style={{ background: '#60a5fa', animationDelay: `${n * 0.12}s` }}
+                      style={{ background: 'var(--primary)', animationDelay: `${n * 0.12}s` }}
                     />
                   ))}
                 </div>
@@ -574,7 +574,7 @@ export default function TrainingSession() {
       {/* Controls */}
       <div
         className="flex-shrink-0 px-4 md:px-6 py-4 md:py-6"
-        style={{ background: 'rgba(8,14,28,0.95)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ background: 'rgba(19,19,21,0.95)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
       >
         <div className="flex flex-col items-center">
           <button
@@ -589,16 +589,16 @@ export default function TrainingSession() {
                 background: '#dc2626',
                 boxShadow: '0 0 0 0 rgba(239,68,68,0.4)',
               } : {
-                background: 'linear-gradient(135deg, #2563eb, #7c3aed)',
+                background: 'linear-gradient(135deg, #b472f1, #deb7ff)',
                 ...(connected && !isProcessing ? {
-                  boxShadow: '0 0 20px rgba(59,130,246,0.35), 0 0 60px rgba(124,58,237,0.15)',
+                  boxShadow: '0 0 20px rgba(180,114,241,0.35), 0 0 60px rgba(222,183,255,0.15)',
                 } : {}),
               }),
             }}
           >
             {isRecording ? <StopIcon /> : <MicIcon />}
           </button>
-          <p className="mt-3 text-xs font-medium" style={{ color: 'rgba(148,163,184,0.45)' }}>
+          <p className="mt-3 text-xs font-medium" style={{ color: 'var(--text-muted)' }}>
             {isRecording ? 'Tap to stop' : isProcessing ? 'Processing…' : !connected ? (reconnecting ? 'Reconnecting…' : 'Disconnected') : 'Tap to speak'}
           </p>
         </div>

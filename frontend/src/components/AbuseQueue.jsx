@@ -2,15 +2,15 @@ import { useState } from 'react';
 import { managerAPI } from '../services/api';
 
 const SEVERITY_COLOR = {
-  high: '#ef4444',
-  medium: '#f59e0b',
-  low: '#60a5fa',
+  high: '#ffb4ab',
+  medium: '#e9c46a',
+  low: '#deb7ff',
 };
 
 const STATUS_COLOR = {
-  open: '#fbbf24',
-  reviewed: '#34d399',
-  dismissed: 'rgba(148,163,184,0.6)',
+  open: '#e9c46a',
+  reviewed: '#a5d6a7',
+  dismissed: 'var(--text-muted)',
 };
 
 function Badge({ text, color }) {
@@ -50,10 +50,10 @@ export default function AbuseQueue({ flags, onResolved }) {
   return (
     <div
       className="rounded-2xl p-5"
-      style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       <div className="flex items-center justify-between mb-4">
-        <h3 className="text-sm font-semibold text-white">Abuse flags</h3>
+        <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>Abuse flags</h3>
         <div className="flex gap-2">
           {['', 'open', 'reviewed', 'dismissed'].map((s) => {
             const active = statusFilter === s;
@@ -63,9 +63,9 @@ export default function AbuseQueue({ flags, onResolved }) {
                 onClick={() => setStatusFilter(s)}
                 className="px-2.5 py-1 rounded-lg text-xs font-semibold"
                 style={{
-                  background: active ? 'rgba(59,130,246,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${active ? 'rgba(59,130,246,0.45)' : 'rgba(255,255,255,0.07)'}`,
-                  color: active ? '#60a5fa' : 'rgba(148,163,184,0.5)',
+                  background: active ? 'rgba(222,183,255,0.15)' : 'rgba(255,255,255,0.03)',
+                  border: `1px solid ${active ? 'rgba(222,183,255,0.45)' : 'rgba(255,255,255,0.07)'}`,
+                  color: active ? 'var(--primary)' : 'var(--text-muted)',
                 }}
               >
                 {s ? s[0].toUpperCase() + s.slice(1) : 'All'}
@@ -75,17 +75,17 @@ export default function AbuseQueue({ flags, onResolved }) {
         </div>
       </div>
 
-      {error && <p className="text-xs mb-3" style={{ color: '#f87171' }}>{error}</p>}
+      {error && <p className="text-xs mb-3" style={{ color: 'var(--error)' }}>{error}</p>}
 
       {visible.length === 0 ? (
-        <p className="text-xs py-8 text-center" style={{ color: 'rgba(148,163,184,0.4)' }}>
+        <p className="text-xs py-8 text-center" style={{ color: 'var(--text-subtle)' }}>
           No abuse flags{statusFilter ? ` with status "${statusFilter}"` : ''}.
         </p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
             <thead>
-              <tr className="text-left" style={{ color: 'rgba(148,163,184,0.5)' }}>
+              <tr className="text-left" style={{ color: 'var(--text-muted)' }}>
                 <th className="font-medium pb-2 pr-4">Reason</th>
                 <th className="font-medium pb-2 pr-4">Severity</th>
                 <th className="font-medium pb-2 pr-4">Detail</th>
@@ -97,17 +97,17 @@ export default function AbuseQueue({ flags, onResolved }) {
             <tbody>
               {visible.map((f) => (
                 <tr key={f.id} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
-                  <td className="py-2.5 pr-4 text-slate-200">{f.reason}</td>
+                  <td className="py-2.5 pr-4" style={{ color: 'var(--text-primary)' }}>{f.reason}</td>
                   <td className="py-2.5 pr-4">
-                    <Badge text={f.severity} color={SEVERITY_COLOR[f.severity] || '#94a3b8'} />
+                    <Badge text={f.severity} color={SEVERITY_COLOR[f.severity] || 'var(--text-muted)'} />
                   </td>
-                  <td className="py-2.5 pr-4 max-w-xs truncate" style={{ color: 'rgba(148,163,184,0.65)' }}>
+                  <td className="py-2.5 pr-4 max-w-xs truncate" style={{ color: 'var(--text-secondary)' }}>
                     {f.detail ? JSON.stringify(f.detail) : '—'}
                   </td>
                   <td className="py-2.5 pr-4">
-                    <Badge text={f.status} color={STATUS_COLOR[f.status] || '#94a3b8'} />
+                    <Badge text={f.status} color={STATUS_COLOR[f.status] || 'var(--text-muted)'} />
                   </td>
-                  <td className="py-2.5 pr-4" style={{ color: 'rgba(148,163,184,0.5)' }}>
+                  <td className="py-2.5 pr-4" style={{ color: 'var(--text-muted)' }}>
                     {f.created_at ? new Date(f.created_at).toLocaleDateString() : '—'}
                   </td>
                   <td className="py-2.5">
@@ -117,7 +117,7 @@ export default function AbuseQueue({ flags, onResolved }) {
                           disabled={busyId === f.id}
                           onClick={() => resolve(f.id, 'reviewed')}
                           className="px-2.5 py-1 rounded-lg text-xs font-semibold"
-                          style={{ color: '#34d399', background: 'rgba(16,185,129,0.12)', border: '1px solid rgba(16,185,129,0.3)' }}
+                          style={{ color: '#a5d6a7', background: 'rgba(165,214,167,0.12)', border: '1px solid rgba(165,214,167,0.3)' }}
                         >
                           Review
                         </button>
@@ -125,13 +125,13 @@ export default function AbuseQueue({ flags, onResolved }) {
                           disabled={busyId === f.id}
                           onClick={() => resolve(f.id, 'dismissed')}
                           className="px-2.5 py-1 rounded-lg text-xs font-semibold"
-                          style={{ color: 'rgba(148,163,184,0.7)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+                          style={{ color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
                         >
                           Dismiss
                         </button>
                       </div>
                     ) : (
-                      <span className="text-xs" style={{ color: 'rgba(148,163,184,0.4)' }}>resolved</span>
+                      <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>resolved</span>
                     )}
                   </td>
                 </tr>

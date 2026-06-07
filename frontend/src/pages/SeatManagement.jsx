@@ -72,41 +72,42 @@ export default function SeatManagement() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 py-10 px-4">
+    <div className="min-h-screen py-10 px-4" style={{ background: 'var(--bg-app)' }}>
       <div className="max-w-4xl mx-auto">
         <div className="flex items-center justify-between mb-8">
           <div>
-            <h1 className="text-2xl font-bold text-slate-800">Seat management</h1>
-            <p className="text-slate-500 text-sm mt-1">Invite and manage the agents in your workspace.</p>
+            <h1 className="text-2xl font-bold" style={{ color: 'var(--text-primary)' }}>Seat management</h1>
+            <p className="text-sm mt-1" style={{ color: 'var(--text-muted)' }}>Invite and manage the agents in your workspace.</p>
           </div>
-          <Link to="/dashboard" className="text-sm text-blue-600 font-medium hover:underline">
+          <Link to="/dashboard" className="text-sm font-medium hover:underline" style={{ color: 'var(--primary)' }}>
             Back to dashboard
           </Link>
         </div>
 
         {roster && (
-          <div className="bg-white rounded-2xl shadow-sm p-5 mb-6 flex items-center justify-between">
-            <span className="text-slate-700 font-medium">
+          <div className="ds-card p-5 mb-6 flex items-center justify-between">
+            <span className="font-medium" style={{ color: 'var(--text-secondary)' }}>
               Seats used: {roster.used} / {fmtLimit(roster.limit)}
             </span>
-            <div className="w-1/2 bg-slate-100 rounded-full h-2 overflow-hidden">
+            <div className="w-1/2 rounded-full h-2 overflow-hidden" style={{ background: 'var(--surface-container-highest)' }}>
               <div
-                className="bg-blue-600 h-2"
+                className="h-2"
                 style={{
                   width: `${Math.min(100, roster.limit >= UNLIMITED ? 0 : (roster.used / roster.limit) * 100)}%`,
+                  background: '#b472f1',
                 }}
               />
             </div>
           </div>
         )}
 
-        {error && <div className="bg-red-50 text-red-600 px-4 py-3 rounded-xl text-sm mb-4">{error}</div>}
+        {error && <div className="px-4 py-3 rounded-xl text-sm mb-4" style={{ color: 'var(--error)', background: 'rgba(255,180,171,0.08)', border: '1px solid rgba(255,180,171,0.25)' }}>{error}</div>}
 
         {/* Invite form */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-          <h2 className="font-semibold text-slate-800 mb-4">Invite an agent</h2>
+        <div className="ds-card p-6 mb-6">
+          <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Invite an agent</h2>
           {atLimit ? (
-            <p className="text-sm text-amber-700 bg-amber-50 border border-amber-200 px-4 py-3 rounded-xl">
+            <p className="text-sm px-4 py-3 rounded-xl" style={{ color: 'var(--warning)', background: 'rgba(233,196,106,0.08)', border: '1px solid rgba(233,196,106,0.25)' }}>
               Seat limit reached - upgrade or free a seat to invite more agents.
             </p>
           ) : (
@@ -115,45 +116,48 @@ export default function SeatManagement() {
                 type="email"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
-                className="flex-1 px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl outline-none focus:ring-2 focus:ring-blue-500 text-slate-900 placeholder:text-slate-400"
+                className="input-dark flex-1 px-4 py-3"
                 placeholder="agent@company.com"
                 required
               />
               <button
                 type="submit"
                 disabled={inviting}
-                className="px-5 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 disabled:opacity-50"
+                className="btn-primary"
+                style={{ padding: '12px 20px' }}
               >
                 {inviting ? 'Sending...' : 'Send invite'}
               </button>
             </form>
           )}
-          <p className="text-xs text-slate-400 mt-3">
+          <p className="text-xs mt-3" style={{ color: 'var(--text-subtle)' }}>
             Email delivery is stubbed in this build - copy the generated link and share it manually.
           </p>
         </div>
 
         {/* Pending invites */}
         {roster && roster.pending_invites.length > 0 && (
-          <div className="bg-white rounded-2xl shadow-sm p-6 mb-6">
-            <h2 className="font-semibold text-slate-800 mb-4">Pending invites</h2>
-            <div className="divide-y divide-slate-100">
+          <div className="ds-card p-6 mb-6">
+            <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Pending invites</h2>
+            <div className="divide-y" style={{ borderColor: 'var(--border)' }}>
               {roster.pending_invites.map((inv) => (
                 <div key={inv.id} className="py-3 flex items-center justify-between gap-3">
                   <div className="min-w-0">
-                    <p className="text-sm font-medium text-slate-800 truncate">{inv.email}</p>
-                    <p className="text-xs text-slate-400 truncate">{inv.invite_link}</p>
+                    <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{inv.email}</p>
+                    <p className="text-xs truncate" style={{ color: 'var(--text-subtle)' }}>{inv.invite_link}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
                       onClick={() => copyLink(inv)}
-                      className="px-3 py-1.5 text-sm rounded-lg bg-slate-100 text-slate-700 hover:bg-slate-200"
+                      className="btn-secondary text-sm"
+                      style={{ padding: '6px 12px' }}
                     >
                       {copiedId === inv.id ? 'Copied' : 'Copy link'}
                     </button>
                     <button
                       onClick={() => handleRevoke(inv.id)}
-                      className="px-3 py-1.5 text-sm rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
+                      className="btn-danger text-sm"
+                      style={{ padding: '6px 12px' }}
                     >
                       Revoke
                     </button>
@@ -165,39 +169,40 @@ export default function SeatManagement() {
         )}
 
         {/* Active agents */}
-        <div className="bg-white rounded-2xl shadow-sm p-6">
-          <h2 className="font-semibold text-slate-800 mb-4">Active members</h2>
+        <div className="ds-card p-6">
+          <h2 className="font-semibold mb-4" style={{ color: 'var(--text-primary)' }}>Active members</h2>
           {!roster ? (
-            <p className="text-slate-500 text-sm">Loading...</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading...</p>
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
-                  <tr className="text-left text-slate-400 border-b border-slate-100">
+                  <tr className="text-left" style={{ color: 'var(--text-muted)', borderBottom: '1px solid var(--border)' }}>
                     <th className="py-2 font-medium">Name</th>
                     <th className="py-2 font-medium">Email</th>
                     <th className="py-2 font-medium">Role</th>
                     <th className="py-2 font-medium text-right">Action</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-slate-50">
+                <tbody className="divide-y" style={{ borderColor: 'var(--border)' }}>
                   {roster.users.map((u) => (
                     <tr key={u.id}>
-                      <td className="py-3 text-slate-800">{u.full_name}</td>
-                      <td className="py-3 text-slate-600">{u.email}</td>
+                      <td className="py-3" style={{ color: 'var(--text-primary)' }}>{u.full_name}</td>
+                      <td className="py-3" style={{ color: 'var(--text-secondary)' }}>{u.email}</td>
                       <td className="py-3">
-                        <span className="text-xs px-2 py-1 rounded-full bg-slate-100 text-slate-600">{u.role}</span>
+                        <span className="text-xs px-2 py-1 rounded-full" style={{ background: 'var(--surface-container-highest)', color: 'var(--text-secondary)' }}>{u.role}</span>
                       </td>
                       <td className="py-3 text-right">
                         {u.role === 'salesperson' ? (
                           <button
                             onClick={() => handleDeactivate(u.id)}
-                            className="px-3 py-1.5 text-sm rounded-lg bg-red-50 text-red-600 hover:bg-red-100"
+                            className="btn-danger text-sm"
+                            style={{ padding: '6px 12px' }}
                           >
                             Deactivate
                           </button>
                         ) : (
-                          <span className="text-xs text-slate-400">-</span>
+                          <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>-</span>
                         )}
                       </td>
                     </tr>

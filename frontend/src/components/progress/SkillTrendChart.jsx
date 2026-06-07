@@ -14,8 +14,8 @@ const CustomTooltip = ({ active, payload, label }) => {
     <div
       className="rounded-xl p-3 text-xs"
       style={{
-        background: 'rgba(8,14,28,0.97)',
-        border: '1px solid rgba(255,255,255,0.1)',
+        background: 'rgba(28,27,29,0.97)',
+        border: '1px solid var(--border)',
         minWidth: 140,
       }}
     >
@@ -45,18 +45,18 @@ export default function SkillTrendChart({ periods, selectedSkill, skillConfig })
   return (
     <ResponsiveContainer width="100%" height={220}>
       <LineChart data={chartData} margin={{ top: 8, right: 16, left: -24, bottom: 4 }}>
-        <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
+        <CartesianGrid strokeDasharray="3 3" stroke="rgba(152,141,157,0.2)" vertical={false} />
         <XAxis
           dataKey="label"
-          tick={{ fill: 'rgba(148,163,184,0.45)', fontSize: 11 }}
-          axisLine={{ stroke: 'rgba(255,255,255,0.06)' }}
+          tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
+          axisLine={{ stroke: 'rgba(152,141,157,0.2)' }}
           tickLine={false}
           interval="preserveStartEnd"
         />
         <YAxis
           domain={[0, 100]}
           ticks={[0, 25, 50, 75, 100]}
-          tick={{ fill: 'rgba(148,163,184,0.45)', fontSize: 11 }}
+          tick={{ fill: 'var(--text-muted)', fontSize: 11 }}
           axisLine={false}
           tickLine={false}
         />

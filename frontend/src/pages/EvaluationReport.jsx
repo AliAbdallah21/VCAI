@@ -93,7 +93,7 @@ function ScoreRing({ score }) {
   const radius = 52;
   const circ   = 2 * Math.PI * radius;
   const offset = circ - (displayed / 100) * circ;
-  const color  = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
+  const color  = score >= 80 ? '#a5d6a7' : score >= 60 ? '#e9c46a' : '#ffb4ab';
 
   return (
     <div className="score-pop" style={{ display: 'inline-block' }}>
@@ -113,7 +113,7 @@ function ScoreRing({ score }) {
         <text x="70" y="66" textAnchor="middle" fill="white" fontSize="30" fontWeight="700" fontFamily="Syne, sans-serif">
           {displayed}
         </text>
-        <text x="70" y="86" textAnchor="middle" fill="rgba(148,163,184,0.5)" fontSize="11" fontFamily="DM Sans, sans-serif">
+        <text x="70" y="86" textAnchor="middle" fill="#988d9d" fontSize="11" fontFamily="DM Sans, sans-serif">
           out of 100
         </text>
       </svg>
@@ -124,8 +124,8 @@ function ScoreRing({ score }) {
 /* ── Animated score bar ──────────────────────────────── */
 function ScoreBar({ label, score, delay = 0 }) {
   const [width, setWidth] = useState(0);
-  const color = score >= 80 ? '#10b981' : score >= 60 ? '#f59e0b' : '#ef4444';
-  const textColor = score >= 80 ? '#34d399' : score >= 60 ? '#fbbf24' : '#f87171';
+  const color = score >= 80 ? '#a5d6a7' : score >= 60 ? '#e9c46a' : '#ffb4ab';
+  const textColor = score >= 80 ? '#a5d6a7' : score >= 60 ? '#e9c46a' : '#ffb4ab';
 
   useEffect(() => {
     const t = setTimeout(() => setWidth(score), 100 + delay);
@@ -135,7 +135,7 @@ function ScoreBar({ label, score, delay = 0 }) {
   return (
     <div>
       <div className="flex justify-between text-xs mb-2">
-        <span style={{ color: 'rgba(148,163,184,0.7)' }} className="capitalize">
+        <span style={{ color: 'var(--text-secondary)' }} className="capitalize">
           {label.replace(/_/g, ' ')}
         </span>
         <span className="font-semibold" style={{ color: textColor }}>{score}%</span>
@@ -169,21 +169,21 @@ function AnalysisPanel({ progress, stage }) {
   return (
     <div
       className="rounded-2xl p-5 md:p-8 mb-6"
-      style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+      style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
     >
       {/* Header */}
       <div className="text-center mb-8">
         <div
           className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-          style={{ background: 'rgba(37,99,235,0.12)', border: '1px solid rgba(37,99,235,0.2)' }}
+          style={{ background: 'rgba(180,114,241,0.12)', border: '1px solid rgba(180,114,241,0.2)' }}
         >
           <svg className="spin-ring" width="22" height="22" viewBox="0 0 24 24" fill="none">
-            <circle cx="12" cy="12" r="10" stroke="rgba(59,130,246,0.2)" strokeWidth="3"/>
-            <path d="M12 2a10 10 0 0110 10" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round"/>
+            <circle cx="12" cy="12" r="10" stroke="rgba(222,183,255,0.2)" strokeWidth="3"/>
+            <path d="M12 2a10 10 0 0110 10" stroke="#b472f1" strokeWidth="3" strokeLinecap="round"/>
           </svg>
         </div>
         <h2 className="heading text-xl font-bold text-white mb-1">Analyzing Your Session</h2>
-        <p className="text-sm" style={{ color: 'rgba(148,163,184,0.5)' }}>
+        <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
           {stage || 'Initializing…'}
         </p>
       </div>
@@ -199,11 +199,11 @@ function AnalysisPanel({ progress, stage }) {
               key={step.id}
               className="flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all duration-500"
               style={{
-                background: isActive ? 'rgba(37,99,235,0.08)' : isDone ? 'rgba(16,185,129,0.04)' : 'transparent',
+                background: isActive ? 'rgba(180,114,241,0.08)' : isDone ? 'rgba(165,214,167,0.04)' : 'transparent',
                 border: isActive
-                  ? '1px solid rgba(37,99,235,0.2)'
+                  ? '1px solid rgba(180,114,241,0.2)'
                   : isDone
-                  ? '1px solid rgba(16,185,129,0.1)'
+                  ? '1px solid rgba(165,214,167,0.1)'
                   : '1px solid transparent',
                 opacity: (!isDone && !isActive) ? 0.4 : 1,
               }}
@@ -213,21 +213,21 @@ function AnalysisPanel({ progress, stage }) {
                 className="w-8 h-8 rounded-lg flex items-center justify-center flex-shrink-0"
                 style={{
                   background: isDone
-                    ? 'rgba(16,185,129,0.15)'
+                    ? 'rgba(165,214,167,0.15)'
                     : isActive
-                    ? 'rgba(37,99,235,0.15)'
+                    ? 'rgba(180,114,241,0.15)'
                     : 'rgba(255,255,255,0.04)',
-                  color: isDone ? '#34d399' : isActive ? '#60a5fa' : 'rgba(148,163,184,0.3)',
+                  color: isDone ? '#a5d6a7' : isActive ? '#deb7ff' : 'var(--text-subtle)',
                 }}
               >
                 {isDone ? (
-                  <svg width="14" height="14" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <svg width="14" height="14" fill="none" stroke="#a5d6a7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                     <path d="M20 6L9 17l-5-5"/>
                   </svg>
                 ) : isActive ? (
                   <svg className="spin-ring" width="14" height="14" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(59,130,246,0.2)" strokeWidth="3.5"/>
-                    <path d="M12 2a10 10 0 0110 10" stroke="#60a5fa" strokeWidth="3.5" strokeLinecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="rgba(222,183,255,0.2)" strokeWidth="3.5"/>
+                    <path d="M12 2a10 10 0 0110 10" stroke="#deb7ff" strokeWidth="3.5" strokeLinecap="round"/>
                   </svg>
                 ) : (
                   <step.Icon />
@@ -236,10 +236,10 @@ function AnalysisPanel({ progress, stage }) {
 
               {/* Labels */}
               <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium" style={{ color: isDone ? '#34d399' : isActive ? '#e2e8f0' : 'rgba(148,163,184,0.6)' }}>
+                <p className="text-sm font-medium" style={{ color: isDone ? '#a5d6a7' : isActive ? 'var(--text-primary)' : 'var(--text-muted)' }}>
                   {step.label}
                 </p>
-                <p className="text-xs mt-0.5" style={{ color: 'rgba(148,163,184,0.35)' }}>
+                <p className="text-xs mt-0.5" style={{ color: 'var(--text-subtle)' }}>
                   {step.sublabel}
                 </p>
               </div>
@@ -248,13 +248,13 @@ function AnalysisPanel({ progress, stage }) {
               <div className="flex-shrink-0">
                 {isDone && (
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-lg"
-                    style={{ background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
+                    style={{ background: 'rgba(165,214,167,0.1)', color: '#a5d6a7', border: '1px solid rgba(165,214,167,0.2)' }}>
                     Done
                   </span>
                 )}
                 {isActive && (
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-lg"
-                    style={{ background: 'rgba(37,99,235,0.1)', color: '#60a5fa', border: '1px solid rgba(37,99,235,0.2)' }}>
+                    style={{ background: 'rgba(180,114,241,0.1)', color: '#deb7ff', border: '1px solid rgba(180,114,241,0.2)' }}>
                     Running
                   </span>
                 )}
@@ -266,17 +266,17 @@ function AnalysisPanel({ progress, stage }) {
 
       {/* Progress bar */}
       <div>
-        <div className="flex justify-between text-xs mb-2" style={{ color: 'rgba(148,163,184,0.45)' }}>
+        <div className="flex justify-between text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
           <span>Overall progress</span>
-          <span className="font-medium" style={{ color: '#60a5fa' }}>{Math.round(progress)}%</span>
+          <span className="font-medium" style={{ color: '#deb7ff' }}>{Math.round(progress)}%</span>
         </div>
         <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{
               width: `${progress}%`,
-              background: 'linear-gradient(90deg, #2563eb, #7c3aed)',
-              boxShadow: '0 0 12px rgba(37,99,235,0.4)',
+              background: 'linear-gradient(90deg, #b472f1, #deb7ff)',
+              boxShadow: '0 0 12px rgba(180,114,241,0.4)',
             }}
           />
         </div>
@@ -431,13 +431,13 @@ export default function EvaluationReport() {
   if (loading) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center" style={{ background: '#030712' }}>
+        <div className="min-h-screen flex items-center justify-center" style={{ background: 'var(--bg-app)' }}>
           <div className="text-center">
             <svg className="spin-ring mx-auto mb-4" width="32" height="32" viewBox="0 0 24 24" fill="none">
-              <circle cx="12" cy="12" r="10" stroke="rgba(59,130,246,0.15)" strokeWidth="3"/>
-              <path d="M12 2a10 10 0 0110 10" stroke="#3b82f6" strokeWidth="3" strokeLinecap="round"/>
+              <circle cx="12" cy="12" r="10" stroke="rgba(222,183,255,0.15)" strokeWidth="3"/>
+              <path d="M12 2a10 10 0 0110 10" stroke="#b472f1" strokeWidth="3" strokeLinecap="round"/>
             </svg>
-            <p className="text-sm" style={{ color: 'rgba(148,163,184,0.45)' }}>Loading evaluation…</p>
+            <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading evaluation…</p>
           </div>
         </div>
       </Layout>
@@ -448,19 +448,19 @@ export default function EvaluationReport() {
   if (error) {
     return (
       <Layout>
-        <div className="min-h-screen flex items-center justify-center p-8" style={{ background: '#030712' }}>
+        <div className="min-h-screen flex items-center justify-center p-8" style={{ background: 'var(--bg-app)' }}>
           <div className="text-center max-w-sm">
             <div
               className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5"
-              style={{ background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.2)' }}
+              style={{ background: 'rgba(255,180,171,0.08)', border: '1px solid rgba(255,180,171,0.25)' }}
             >
-              <svg width="24" height="24" fill="none" stroke="#f87171" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <svg width="24" height="24" fill="none" stroke="var(--error)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
               </svg>
             </div>
             <h2 className="heading font-bold text-white mb-2">Error Loading Report</h2>
-            <p className="text-sm mb-6" style={{ color: 'rgba(148,163,184,0.5)' }}>{error}</p>
-            <Link to="/dashboard" className="btn-primary inline-block px-6 py-2.5 rounded-xl text-sm font-semibold text-white">
+            <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>{error}</p>
+            <Link to="/dashboard" className="btn-primary inline-block px-6 py-2.5 rounded-xl text-sm font-semibold">
               Back to Dashboard
             </Link>
           </div>
@@ -471,14 +471,14 @@ export default function EvaluationReport() {
 
   return (
     <Layout>
-      <div style={{ background: '#030712', minHeight: '100vh' }}>
+      <div style={{ background: 'var(--bg-app)', minHeight: '100vh' }}>
         <div className="max-w-3xl mx-auto px-4 md:px-6 py-6 md:py-10">
 
           {/* Page Header */}
           <div className="flex items-start justify-between mb-8">
             <div>
               <h1 className="heading text-2xl font-bold text-white mb-1">Evaluation Report</h1>
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.5)' }}>
+              <p className="text-sm" style={{ color: 'var(--text-muted)' }}>
                 {session?.persona_name || 'Training Session'} · {session?.difficulty || 'medium'} difficulty
               </p>
             </div>
@@ -488,14 +488,14 @@ export default function EvaluationReport() {
                   onClick={handleReEvaluate}
                   disabled={reEvaluating}
                   className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200 disabled:opacity-50"
-                  style={{ background: 'rgba(245,158,11,0.08)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.18)' }}
-                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.16)'; }}
-                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(245,158,11,0.08)'; }}
+                  style={{ background: 'rgba(233,196,106,0.08)', color: '#e9c46a', border: '1px solid rgba(233,196,106,0.18)' }}
+                  onMouseEnter={e => { e.currentTarget.style.background = 'rgba(233,196,106,0.16)'; }}
+                  onMouseLeave={e => { e.currentTarget.style.background = 'rgba(233,196,106,0.08)'; }}
                 >
                   {reEvaluating ? (
                     <svg className="spin-ring" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                      <circle cx="12" cy="12" r="10" stroke="rgba(245,158,11,0.25)" strokeWidth="3"/>
-                      <path d="M12 2a10 10 0 0110 10" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round"/>
+                      <circle cx="12" cy="12" r="10" stroke="rgba(233,196,106,0.25)" strokeWidth="3"/>
+                      <path d="M12 2a10 10 0 0110 10" stroke="#e9c46a" strokeWidth="3" strokeLinecap="round"/>
                     </svg>
                   ) : (
                     <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -508,7 +508,7 @@ export default function EvaluationReport() {
               <Link
                 to="/dashboard"
                 className="flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
-                style={{ color: 'rgba(148,163,184,0.55)', border: '1px solid rgba(255,255,255,0.06)' }}
+                style={{ color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
               >
                 <svg width="14" height="14" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <path d="M19 12H5M12 19l-7-7 7-7"/>
@@ -525,23 +525,23 @@ export default function EvaluationReport() {
           {isFailed && (
             <div
               className="rounded-2xl p-5 md:p-8 mb-6 text-center"
-              style={{ background: 'rgba(239,68,68,0.06)', border: '1px solid rgba(239,68,68,0.15)' }}
+              style={{ background: 'rgba(255,180,171,0.08)', border: '1px solid rgba(255,180,171,0.25)' }}
             >
               <div
                 className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(239,68,68,0.12)' }}
+                style={{ background: 'rgba(255,180,171,0.12)' }}
               >
-                <svg width="22" height="22" fill="none" stroke="#f87171" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <svg width="22" height="22" fill="none" stroke="var(--error)" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                   <path d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z"/>
                 </svg>
               </div>
               <h2 className="heading font-bold text-white mb-2">Evaluation Failed</h2>
-              <p className="text-sm mb-6" style={{ color: 'rgba(239,68,68,0.7)' }}>
+              <p className="text-sm mb-6" style={{ color: 'var(--error)' }}>
                 {evaluation?.error || 'Something went wrong during evaluation.'}
               </p>
               <button
                 onClick={() => { setEvaluation({ status: 'pending', progress: 0 }); evaluationAPI.triggerEvaluation(sessionId); }}
-                className="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold text-white"
+                className="btn-primary px-6 py-2.5 rounded-xl text-sm font-semibold"
               >
                 Retry Evaluation
               </button>
@@ -560,9 +560,9 @@ export default function EvaluationReport() {
                 <div
                   key={label}
                   className="rounded-xl p-4"
-                  style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                 >
-                  <p className="text-xs mb-2" style={{ color: 'rgba(148,163,184,0.45)' }}>{label}</p>
+                  <p className="text-xs mb-2" style={{ color: 'var(--text-muted)' }}>{label}</p>
                   <p className="heading text-xl font-bold text-white">{val}</p>
                 </div>
               ))}
@@ -573,7 +573,7 @@ export default function EvaluationReport() {
           {quickStats?.emotion_journey?.length > 0 && (
             <div
               className="rounded-2xl p-5 mb-6"
-              style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <h3 className="heading text-sm font-bold text-white mb-4">Customer Emotion Journey</h3>
               <div className="flex items-center gap-2 flex-wrap">
@@ -584,10 +584,10 @@ export default function EvaluationReport() {
                       style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
                     >
                       <span className="text-xl block">{EMOTION_EMOJI[em] || '😐'}</span>
-                      <span className="text-xs mt-1 block capitalize" style={{ color: 'rgba(148,163,184,0.5)' }}>{em}</span>
+                      <span className="text-xs mt-1 block capitalize" style={{ color: 'var(--text-muted)' }}>{em}</span>
                     </div>
                     {i < quickStats.emotion_journey.length - 1 && (
-                      <svg width="16" height="16" fill="none" stroke="rgba(148,163,184,0.2)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" className="mx-1">
+                      <svg width="16" height="16" fill="none" stroke="rgba(152,141,157,0.4)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24" className="mx-1">
                         <path d="M5 12h14M12 5l7 7-7 7"/>
                       </svg>
                     )}
@@ -611,7 +611,7 @@ export default function EvaluationReport() {
                 {/* ── Overall score card ── */}
                 <div
                   className="rounded-2xl p-5 md:p-8 mb-5 flex flex-col md:flex-row items-center gap-5 md:gap-8"
-                  style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
                 >
                   <div className="flex-shrink-0">
                     <ScoreRing score={evaluation.overall_score} />
@@ -621,22 +621,22 @@ export default function EvaluationReport() {
                     <div className="flex items-center gap-3 justify-center md:justify-start flex-wrap mb-4">
                       {isPassed ? (
                         <span className="px-3 py-1.5 rounded-xl text-sm font-semibold flex items-center gap-2"
-                          style={{ background: 'rgba(16,185,129,0.1)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
+                          style={{ background: 'rgba(165,214,167,0.1)', color: '#a5d6a7', border: '1px solid rgba(165,214,167,0.2)' }}>
                           <svg width="12" height="12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
                           Passed
                         </span>
                       ) : (
                         <span className="px-3 py-1.5 rounded-xl text-sm font-semibold"
-                          style={{ background: 'rgba(239,68,68,0.1)', color: '#f87171', border: '1px solid rgba(239,68,68,0.2)' }}>
+                          style={{ background: 'rgba(255,180,171,0.08)', color: 'var(--error)', border: '1px solid rgba(255,180,171,0.25)' }}>
                           Needs Improvement
                         </span>
                       )}
-                      <span className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>
+                      <span className="text-sm" style={{ color: 'var(--text-muted)' }}>
                         Pass threshold: {scores.pass_threshold || 75}%
                       </span>
                     </div>
                     {rep.executive_summary && (
-                      <p className="text-sm leading-relaxed" style={{ color: 'rgba(148,163,184,0.65)' }}>
+                      <p className="text-sm leading-relaxed" style={{ color: 'var(--text-secondary)' }}>
                         {rep.executive_summary}
                       </p>
                     )}
@@ -646,7 +646,7 @@ export default function EvaluationReport() {
                 {/* ── Skill score bars ── */}
                 {skills.length > 0 && (
                   <div className="rounded-2xl p-6 mb-5"
-                    style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <h3 className="heading text-sm font-bold text-white mb-5">Skill Scores</h3>
                     <div className="space-y-4">
                       {skills.map((sk, i) => (
@@ -659,13 +659,13 @@ export default function EvaluationReport() {
                 {/* ── Per-skill detail ── */}
                 {skills.filter(sk => (sk.strengths?.length || sk.areas_to_improve?.length) && sk.was_tested).length > 0 && (
                   <div className="rounded-2xl p-6 mb-5"
-                    style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <h3 className="heading text-sm font-bold text-white mb-5">Skill Breakdown</h3>
                     <div className="space-y-5">
                       {skills.filter(sk => sk.was_tested).map((sk, i) => {
-                        const color = sk.score >= 80 ? '#34d399' : sk.score >= 60 ? '#fbbf24' : '#f87171';
-                        const bg    = sk.score >= 80 ? 'rgba(16,185,129,0.06)' : sk.score >= 60 ? 'rgba(245,158,11,0.06)' : 'rgba(239,68,68,0.06)';
-                        const border = sk.score >= 80 ? 'rgba(16,185,129,0.12)' : sk.score >= 60 ? 'rgba(245,158,11,0.12)' : 'rgba(239,68,68,0.12)';
+                        const color = sk.score >= 80 ? '#a5d6a7' : sk.score >= 60 ? '#e9c46a' : '#ffb4ab';
+                        const bg    = sk.score >= 80 ? 'rgba(165,214,167,0.06)' : sk.score >= 60 ? 'rgba(233,196,106,0.06)' : 'rgba(255,180,171,0.06)';
+                        const border = sk.score >= 80 ? 'rgba(165,214,167,0.12)' : sk.score >= 60 ? 'rgba(233,196,106,0.12)' : 'rgba(255,180,171,0.12)';
                         return (
                           <div key={sk.skill_key || i} className="rounded-xl p-4" style={{ background: bg, border: `1px solid ${border}` }}>
                             <div className="flex items-center justify-between mb-2">
@@ -673,16 +673,16 @@ export default function EvaluationReport() {
                               <span className="text-sm font-bold" style={{ color }}>{sk.score}/100</span>
                             </div>
                             {sk.summary && (
-                              <p className="text-xs mb-3" style={{ color: 'rgba(148,163,184,0.6)' }}>{sk.summary}</p>
+                              <p className="text-xs mb-3" style={{ color: 'var(--text-secondary)' }}>{sk.summary}</p>
                             )}
                             <div className="grid md:grid-cols-2 gap-3">
                               {sk.strengths?.length > 0 && (
                                 <div>
-                                  <p className="text-xs font-semibold mb-1.5" style={{ color: '#34d399' }}>What worked</p>
+                                  <p className="text-xs font-semibold mb-1.5" style={{ color: '#a5d6a7' }}>What worked</p>
                                   <ul className="space-y-1">
                                     {sk.strengths.map((s, j) => (
-                                      <li key={j} className="text-xs flex items-start gap-1.5" style={{ color: 'rgba(148,163,184,0.7)' }}>
-                                        <svg className="flex-shrink-0 mt-0.5" width="10" height="10" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                                      <li key={j} className="text-xs flex items-start gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                                        <svg className="flex-shrink-0 mt-0.5" width="10" height="10" fill="none" stroke="#a5d6a7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
                                         {s}
                                       </li>
                                     ))}
@@ -691,11 +691,11 @@ export default function EvaluationReport() {
                               )}
                               {sk.areas_to_improve?.length > 0 && (
                                 <div>
-                                  <p className="text-xs font-semibold mb-1.5" style={{ color: '#fbbf24' }}>To improve</p>
+                                  <p className="text-xs font-semibold mb-1.5" style={{ color: '#e9c46a' }}>To improve</p>
                                   <ul className="space-y-1">
                                     {sk.areas_to_improve.map((s, j) => (
-                                      <li key={j} className="text-xs flex items-start gap-1.5" style={{ color: 'rgba(148,163,184,0.7)' }}>
-                                        <svg className="flex-shrink-0 mt-0.5" width="10" height="10" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                                      <li key={j} className="text-xs flex items-start gap-1.5" style={{ color: 'var(--text-secondary)' }}>
+                                        <svg className="flex-shrink-0 mt-0.5" width="10" height="10" fill="none" stroke="#e9c46a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                                         {s}
                                       </li>
                                     ))}
@@ -715,26 +715,26 @@ export default function EvaluationReport() {
                   const fc = rep.fact_check;
                   const pct = Math.round((fc.accuracy_rate || 0) * 100);
                   const tone = pct >= 80
-                    ? { ring: '#34d399', bg: 'rgba(16,185,129,0.05)', border: 'rgba(16,185,129,0.18)', label: 'Accurate' }
+                    ? { ring: '#a5d6a7', bg: 'rgba(165,214,167,0.05)', border: 'rgba(165,214,167,0.18)', label: 'Accurate' }
                     : pct >= 50
-                      ? { ring: '#fbbf24', bg: 'rgba(245,158,11,0.05)', border: 'rgba(245,158,11,0.18)', label: 'Mixed' }
-                      : { ring: '#f87171', bg: 'rgba(239,68,68,0.05)', border: 'rgba(239,68,68,0.18)', label: 'Inaccurate' };
+                      ? { ring: '#e9c46a', bg: 'rgba(233,196,106,0.05)', border: 'rgba(233,196,106,0.18)', label: 'Mixed' }
+                      : { ring: '#ffb4ab', bg: 'rgba(255,180,171,0.05)', border: 'rgba(255,180,171,0.18)', label: 'Inaccurate' };
                   return (
                     <div className="rounded-2xl p-6 mb-5"
                       style={{ background: tone.bg, border: `1px solid ${tone.border}` }}>
                       <div className="flex items-start justify-between mb-4 gap-4 flex-wrap">
                         <div>
                           <h3 className="heading text-sm font-bold text-white mb-1">Factual Accuracy (vs. Knowledge Base)</h3>
-                          <p className="text-xs" style={{ color: 'rgba(148,163,184,0.55)' }}>
+                          <p className="text-xs" style={{ color: 'var(--text-muted)' }}>
                             Salesperson claims about prices, sizes, delivery, and features, verified against the property database.
                           </p>
                         </div>
                         <div className="flex items-center gap-3 flex-shrink-0">
                           <div className="text-right">
                             <p className="text-2xl font-bold" style={{ color: tone.ring }}>{pct}%</p>
-                            <p className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>{tone.label}</p>
+                            <p className="text-xs" style={{ color: 'var(--text-muted)' }}>{tone.label}</p>
                           </div>
-                          <div className="text-right text-xs leading-tight" style={{ color: 'rgba(148,163,184,0.6)' }}>
+                          <div className="text-right text-xs leading-tight" style={{ color: 'var(--text-secondary)' }}>
                             <p>{fc.accurate_count} accurate</p>
                             <p>{fc.inaccurate_count} wrong</p>
                             {fc.unverifiable_count > 0 && <p>{fc.unverifiable_count} unverifiable</p>}
@@ -746,7 +746,7 @@ export default function EvaluationReport() {
                         <div className="mb-3 flex flex-wrap gap-1.5">
                           {fc.properties_discussed.map((name, i) => (
                             <span key={i} className="text-xs px-2 py-0.5 rounded-lg"
-                              style={{ background: 'rgba(255,255,255,0.05)', color: 'rgba(148,163,184,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                              style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                               {name}
                             </span>
                           ))}
@@ -759,35 +759,35 @@ export default function EvaluationReport() {
                             <div key={i} className="rounded-xl p-3.5"
                               style={{
                                 background: 'rgba(0,0,0,0.25)',
-                                border: `1px solid ${err.severity === 'critical' ? 'rgba(239,68,68,0.25)' : 'rgba(245,158,11,0.2)'}`,
+                                border: `1px solid ${err.severity === 'critical' ? 'rgba(255,180,171,0.25)' : 'rgba(233,196,106,0.2)'}`,
                               }}>
                               <div className="flex items-center gap-2 mb-1.5 flex-wrap">
                                 <span className="text-xs px-2 py-0.5 rounded font-medium capitalize"
                                   style={{
-                                    background: err.severity === 'critical' ? 'rgba(239,68,68,0.15)' : 'rgba(245,158,11,0.15)',
-                                    color: err.severity === 'critical' ? '#f87171' : '#fbbf24',
+                                    background: err.severity === 'critical' ? 'rgba(255,180,171,0.15)' : 'rgba(233,196,106,0.15)',
+                                    color: err.severity === 'critical' ? '#ffb4ab' : '#e9c46a',
                                   }}>
                                   {err.severity}
                                 </span>
                                 <span className="text-xs px-2 py-0.5 rounded font-medium"
-                                  style={{ background: 'rgba(255,255,255,0.06)', color: 'rgba(148,163,184,0.7)' }}>
+                                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-secondary)' }}>
                                   {err.claim_type}
                                 </span>
                                 {err.turn_number != null && (
-                                  <span className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>Turn {err.turn_number}</span>
+                                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>Turn {err.turn_number}</span>
                                 )}
                                 {err.property_name && (
-                                  <span className="text-xs" style={{ color: 'rgba(148,163,184,0.5)' }}>· {err.property_name}</span>
+                                  <span className="text-xs" style={{ color: 'var(--text-muted)' }}>· {err.property_name}</span>
                                 )}
                               </div>
-                              <p className="text-sm mb-1" style={{ color: '#f87171' }}>
+                              <p className="text-sm mb-1" style={{ color: '#ffb4ab' }}>
                                 <span className="opacity-60">Said:</span> "{err.claimed_value}"
                               </p>
-                              <p className="text-sm mb-1" style={{ color: '#34d399' }}>
+                              <p className="text-sm mb-1" style={{ color: '#a5d6a7' }}>
                                 <span className="opacity-60">KB says:</span> {err.correct_value}
                               </p>
                               {err.explanation_ar && (
-                                <p className="text-xs mt-2" style={{ color: 'rgba(148,163,184,0.65)' }} dir="rtl">
+                                <p className="text-xs mt-2" style={{ color: 'var(--text-secondary)' }} dir="rtl">
                                   {err.explanation_ar}
                                 </p>
                               )}
@@ -795,7 +795,7 @@ export default function EvaluationReport() {
                           ))}
                         </div>
                       ) : (
-                        <p className="text-sm" style={{ color: '#34d399' }}>
+                        <p className="text-sm" style={{ color: '#a5d6a7' }}>
                           ✓ All checked claims match the knowledge base.
                         </p>
                       )}
@@ -807,12 +807,12 @@ export default function EvaluationReport() {
                 <div className="grid md:grid-cols-2 gap-4 mb-5">
                   {rep.top_strengths?.length > 0 && (
                     <div className="rounded-2xl p-6"
-                      style={{ background: 'rgba(16,185,129,0.05)', border: '1px solid rgba(16,185,129,0.12)' }}>
-                      <h3 className="heading text-sm font-bold mb-4" style={{ color: '#34d399' }}>Key Strengths</h3>
+                      style={{ background: 'rgba(165,214,167,0.05)', border: '1px solid rgba(165,214,167,0.12)' }}>
+                      <h3 className="heading text-sm font-bold mb-4" style={{ color: '#a5d6a7' }}>Key Strengths</h3>
                       <ul className="space-y-2.5">
                         {rep.top_strengths.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'rgba(148,163,184,0.7)' }}>
-                            <svg className="flex-shrink-0 mt-0.5" width="13" height="13" fill="none" stroke="#34d399" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
+                          <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            <svg className="flex-shrink-0 mt-0.5" width="13" height="13" fill="none" stroke="#a5d6a7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5"/></svg>
                             {item}
                           </li>
                         ))}
@@ -821,12 +821,12 @@ export default function EvaluationReport() {
                   )}
                   {rep.top_improvements?.length > 0 && (
                     <div className="rounded-2xl p-6"
-                      style={{ background: 'rgba(245,158,11,0.05)', border: '1px solid rgba(245,158,11,0.12)' }}>
-                      <h3 className="heading text-sm font-bold mb-4" style={{ color: '#fbbf24' }}>Areas to Improve</h3>
+                      style={{ background: 'rgba(233,196,106,0.05)', border: '1px solid rgba(233,196,106,0.12)' }}>
+                      <h3 className="heading text-sm font-bold mb-4" style={{ color: '#e9c46a' }}>Areas to Improve</h3>
                       <ul className="space-y-2.5">
                         {rep.top_improvements.map((item, i) => (
-                          <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'rgba(148,163,184,0.7)' }}>
-                            <svg className="flex-shrink-0 mt-0.5" width="13" height="13" fill="none" stroke="#fbbf24" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                          <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
+                            <svg className="flex-shrink-0 mt-0.5" width="13" height="13" fill="none" stroke="#e9c46a" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
                             {item}
                           </li>
                         ))}
@@ -838,11 +838,11 @@ export default function EvaluationReport() {
                 {/* ── Turn-by-turn feedback ── */}
                 {rep.turn_feedback?.length > 0 && (
                   <div className="rounded-2xl p-6 mb-5"
-                    style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
+                    style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}>
                     <h3 className="heading text-sm font-bold text-white mb-4">Turn-by-Turn Feedback</h3>
                     <div className="space-y-3">
                       {rep.turn_feedback.filter(t => t.speaker === 'salesperson').map((t, i) => {
-                        const aColor = { excellent: '#34d399', good: '#60a5fa', adequate: '#94a3b8', needs_improvement: '#fbbf24', poor: '#f87171' }[t.assessment] || '#94a3b8';
+                        const aColor = { excellent: '#a5d6a7', good: '#deb7ff', adequate: '#988d9d', needs_improvement: '#e9c46a', poor: '#ffb4ab' }[t.assessment] || '#988d9d';
                         const turnMsgs = messagesByTurn[t.turn_number] || {};
                         const youId = turnMsgs.salesperson;
                         const customerId = turnMsgs.customer;
@@ -858,15 +858,15 @@ export default function EvaluationReport() {
                                 style={{ background: `${aColor}15`, color: aColor, border: `1px solid ${aColor}30` }}>
                                 {t.assessment?.replace(/_/g, ' ') || 'neutral'}
                               </span>
-                              <span className="text-xs" style={{ color: 'rgba(148,163,184,0.35)' }}>Turn {t.turn_number}</span>
+                              <span className="text-xs" style={{ color: 'var(--text-subtle)' }}>Turn {t.turn_number}</span>
                               {youUrl && (
                                 <button
                                   onClick={() => playAudio(youPlayId, youUrl)}
                                   className="ml-auto flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150"
                                   style={{
-                                    background: playingId === youPlayId ? 'rgba(96,165,250,0.18)' : 'rgba(255,255,255,0.04)',
-                                    color: playingId === youPlayId ? '#60a5fa' : 'rgba(148,163,184,0.7)',
-                                    border: `1px solid ${playingId === youPlayId ? 'rgba(96,165,250,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                    background: playingId === youPlayId ? 'rgba(222,183,255,0.18)' : 'rgba(255,255,255,0.04)',
+                                    color: playingId === youPlayId ? '#deb7ff' : 'var(--text-secondary)',
+                                    border: `1px solid ${playingId === youPlayId ? 'rgba(222,183,255,0.35)' : 'rgba(255,255,255,0.06)'}`,
                                   }}
                                   title="Play your audio for this turn"
                                 >
@@ -883,9 +883,9 @@ export default function EvaluationReport() {
                                   onClick={() => playAudio(customerPlayId, customerUrl)}
                                   className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150 ${youUrl ? '' : 'ml-auto'}`}
                                   style={{
-                                    background: playingId === customerPlayId ? 'rgba(167,139,250,0.18)' : 'rgba(255,255,255,0.04)',
-                                    color: playingId === customerPlayId ? '#a78bfa' : 'rgba(148,163,184,0.7)',
-                                    border: `1px solid ${playingId === customerPlayId ? 'rgba(167,139,250,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                    background: playingId === customerPlayId ? 'rgba(180,114,241,0.18)' : 'rgba(255,255,255,0.04)',
+                                    color: playingId === customerPlayId ? '#b472f1' : 'var(--text-secondary)',
+                                    border: `1px solid ${playingId === customerPlayId ? 'rgba(180,114,241,0.35)' : 'rgba(255,255,255,0.06)'}`,
                                   }}
                                   title="Play AI customer audio for this turn"
                                 >
@@ -898,15 +898,15 @@ export default function EvaluationReport() {
                                 </button>
                               )}
                             </div>
-                            <p className="text-xs italic mb-2" style={{ color: 'rgba(148,163,184,0.5)' }}>"{t.text}"</p>
+                            <p className="text-xs italic mb-2" style={{ color: 'var(--text-muted)' }}>"{t.text}"</p>
                             {t.what_was_good && (
-                              <p className="text-xs mb-1" style={{ color: '#34d399' }}>✓ {t.what_was_good}</p>
+                              <p className="text-xs mb-1" style={{ color: '#a5d6a7' }}>✓ {t.what_was_good}</p>
                             )}
                             {t.what_to_improve && (
-                              <p className="text-xs mb-1" style={{ color: '#fbbf24' }}>→ {t.what_to_improve}</p>
+                              <p className="text-xs mb-1" style={{ color: '#e9c46a' }}>→ {t.what_to_improve}</p>
                             )}
                             {t.suggested_alternative && (
-                              <p className="text-xs mt-1 pl-3" style={{ color: 'rgba(148,163,184,0.55)', borderLeft: '2px solid rgba(37,99,235,0.4)' }}>
+                              <p className="text-xs mt-1 pl-3" style={{ color: 'var(--text-secondary)', borderLeft: '2px solid rgba(180,114,241,0.4)' }}>
                                 Try: "{t.suggested_alternative}"
                               </p>
                             )}
@@ -920,13 +920,13 @@ export default function EvaluationReport() {
                 {/* ── Recommended practice ── */}
                 {rep.recommended_practice?.length > 0 && (
                   <div className="rounded-2xl p-6 mb-5"
-                    style={{ background: 'rgba(37,99,235,0.05)', border: '1px solid rgba(37,99,235,0.12)' }}>
-                    <h3 className="heading text-sm font-bold mb-4" style={{ color: '#60a5fa' }}>Recommended Practice</h3>
+                    style={{ background: 'rgba(180,114,241,0.05)', border: '1px solid rgba(180,114,241,0.12)' }}>
+                    <h3 className="heading text-sm font-bold mb-4" style={{ color: '#deb7ff' }}>Recommended Practice</h3>
                     <ul className="space-y-2.5">
                       {rep.recommended_practice.map((item, i) => (
-                        <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'rgba(148,163,184,0.7)' }}>
+                        <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                           <span className="flex-shrink-0 w-5 h-5 rounded-lg flex items-center justify-center text-xs font-bold mt-0.5"
-                            style={{ background: 'rgba(37,99,235,0.15)', color: '#60a5fa' }}>{i + 1}</span>
+                            style={{ background: 'rgba(180,114,241,0.15)', color: '#deb7ff' }}>{i + 1}</span>
                           {item}
                         </li>
                       ))}
@@ -946,7 +946,7 @@ export default function EvaluationReport() {
               style={{
                 background: 'rgba(255,255,255,0.04)',
                 border: '1px solid rgba(255,255,255,0.08)',
-                color: 'rgba(148,163,184,0.8)',
+                color: 'var(--text-secondary)',
               }}
             >
               Back to Dashboard
@@ -956,12 +956,12 @@ export default function EvaluationReport() {
                 onClick={handleReEvaluate}
                 disabled={reEvaluating}
                 className="px-6 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-200 disabled:opacity-50 flex items-center justify-center gap-2"
-                style={{ background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', color: '#fbbf24' }}
+                style={{ background: 'rgba(233,196,106,0.1)', border: '1px solid rgba(233,196,106,0.2)', color: '#e9c46a' }}
               >
                 {reEvaluating ? (
                   <svg className="spin-ring" width="13" height="13" viewBox="0 0 24 24" fill="none">
-                    <circle cx="12" cy="12" r="10" stroke="rgba(245,158,11,0.25)" strokeWidth="3"/>
-                    <path d="M12 2a10 10 0 0110 10" stroke="#fbbf24" strokeWidth="3" strokeLinecap="round"/>
+                    <circle cx="12" cy="12" r="10" stroke="rgba(233,196,106,0.25)" strokeWidth="3"/>
+                    <path d="M12 2a10 10 0 0110 10" stroke="#e9c46a" strokeWidth="3" strokeLinecap="round"/>
                   </svg>
                 ) : (
                   <svg width="13" height="13" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -973,10 +973,10 @@ export default function EvaluationReport() {
             )}
             <Link
               to="/setup"
-              className="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-white text-center flex items-center justify-center gap-2"
+              className="btn-primary px-6 py-3 rounded-xl text-sm font-semibold text-center flex items-center justify-center gap-2"
             >
               Start New Session
-              <svg width="14" height="14" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+              <svg width="14" height="14" fill="none" stroke="#4a007f" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                 <path d="M5 12h14M12 5l7 7-7 7"/>
               </svg>
             </Link>

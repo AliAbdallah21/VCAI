@@ -40,33 +40,33 @@ const FEATURES = [
 
 function Header({ isAuthenticated }) {
   return (
-    <header className="sticky top-0 z-10 bg-white/80 backdrop-blur border-b border-slate-100">
+    <header className="glass sticky top-0 z-10" style={{ borderBottom: '1px solid var(--border)' }}>
       <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-9 h-9 bg-gradient-to-br from-blue-600 to-purple-600 rounded-lg flex items-center justify-center">
-            <span className="text-white font-bold text-lg">V</span>
+          <div className="w-9 h-9 rounded-lg flex items-center justify-center" style={{ background: 'linear-gradient(135deg, #b472f1, #deb7ff)' }}>
+            <span className="font-bold text-lg" style={{ color: '#4a007f' }}>V</span>
           </div>
-          <span className="font-bold text-xl text-slate-800">VCAI</span>
+          <span className="font-bold text-xl" style={{ color: 'var(--text-primary)' }}>VCAI</span>
         </div>
         <nav className="flex items-center gap-3">
-          <a href="#pricing" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+          <a href="#pricing" className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
             Pricing
           </a>
           {isAuthenticated ? (
             <Link
               to="/dashboard"
-              className="px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+              className="btn-primary"
             >
               Go to dashboard
             </Link>
           ) : (
             <>
-              <Link to="/login" className="text-sm font-medium text-slate-600 hover:text-slate-900">
+              <Link to="/login" className="text-sm font-medium" style={{ color: 'var(--text-secondary)' }}>
                 Sign in
               </Link>
               <Link
                 to="/onboarding?plan=free"
-                className="px-4 py-2 rounded-xl text-sm font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+                className="btn-primary"
               >
                 Start free
               </Link>
@@ -92,33 +92,35 @@ export default function Landing() {
   }, []);
 
   return (
-    <div className="min-h-screen bg-slate-50 text-slate-800">
+    <div className="min-h-screen" style={{ background: 'var(--bg-app)', color: 'var(--text-primary)' }}>
       <Header isAuthenticated={isAuthenticated} />
 
       {/* Hero */}
       <section className="max-w-6xl mx-auto px-6 pt-20 pb-24 text-center">
-        <h1 className="text-5xl sm:text-6xl font-bold tracking-tight">
-          <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+        <h1 className="display-special tracking-tight">
+          <span className="text-gradient">
             VCAI
           </span>
         </h1>
-        <p className="mt-6 text-2xl font-semibold text-slate-800">
+        <p className="mt-6 text-2xl font-semibold" style={{ color: 'var(--text-primary)' }}>
           The first Egyptian-Arabic AI sales-training customer
         </p>
-        <p className="mt-4 max-w-2xl mx-auto text-lg text-slate-500">
+        <p className="mt-4 max-w-2xl mx-auto body-lg" style={{ color: 'var(--text-muted)' }}>
           Give your real-estate agents a tireless practice partner that talks, reacts, and
           remembers, then measure their progress automatically.
         </p>
         <div className="mt-10 flex items-center justify-center gap-4">
           <Link
             to="/onboarding?plan=free"
-            className="px-6 py-3 rounded-xl font-medium bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+            className="btn-primary"
+            style={{ padding: '12px 24px' }}
           >
             Start free
           </Link>
           <a
             href="#pricing"
-            className="px-6 py-3 rounded-xl font-medium bg-white border border-slate-200 text-slate-800 hover:bg-slate-100"
+            className="btn-secondary"
+            style={{ padding: '12px 24px' }}
           >
             See pricing
           </a>
@@ -127,15 +129,15 @@ export default function Landing() {
 
       {/* How it works */}
       <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">How it works</h2>
+        <h2 className="headline-md text-center mb-12" style={{ color: 'var(--text-primary)' }}>How it works</h2>
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {STEPS.map((step, i) => (
-            <div key={step.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <div className="w-10 h-10 rounded-xl bg-blue-100 text-blue-600 font-bold flex items-center justify-center mb-4">
+            <div key={step.title} className="ds-card p-6">
+              <div className="w-10 h-10 rounded-xl font-bold flex items-center justify-center mb-4" style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>
                 {i + 1}
               </div>
-              <h3 className="text-lg font-bold text-slate-800">{step.title}</h3>
-              <p className="mt-2 text-slate-500">{step.body}</p>
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{step.title}</h3>
+              <p className="mt-2" style={{ color: 'var(--text-muted)' }}>{step.body}</p>
             </div>
           ))}
         </div>
@@ -143,12 +145,12 @@ export default function Landing() {
 
       {/* Features */}
       <section className="max-w-6xl mx-auto px-6 py-16">
-        <h2 className="text-3xl font-bold text-center mb-12">Built for realistic practice</h2>
+        <h2 className="headline-md text-center mb-12" style={{ color: 'var(--text-primary)' }}>Built for realistic practice</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {FEATURES.map((feature) => (
-            <div key={feature.title} className="bg-white rounded-2xl p-6 shadow-sm border border-slate-100">
-              <h3 className="text-lg font-bold text-slate-800">{feature.title}</h3>
-              <p className="mt-2 text-slate-500 text-sm">{feature.body}</p>
+            <div key={feature.title} className="ds-card p-6">
+              <h3 className="text-lg font-bold" style={{ color: 'var(--text-primary)' }}>{feature.title}</h3>
+              <p className="mt-2 text-sm" style={{ color: 'var(--text-muted)' }}>{feature.body}</p>
             </div>
           ))}
         </div>
@@ -156,12 +158,12 @@ export default function Landing() {
 
       {/* Pricing */}
       <section id="pricing" className="max-w-6xl mx-auto px-6 py-16 scroll-mt-20">
-        <h2 className="text-3xl font-bold text-center mb-3">Simple, transparent pricing</h2>
-        <p className="text-center text-slate-500 mb-12">Pick a plan that fits your team.</p>
+        <h2 className="headline-md text-center mb-3" style={{ color: 'var(--text-primary)' }}>Simple, transparent pricing</h2>
+        <p className="text-center mb-12" style={{ color: 'var(--text-muted)' }}>Pick a plan that fits your team.</p>
 
-        {loading && <p className="text-center text-slate-500">Loading plans...</p>}
+        {loading && <p className="text-center" style={{ color: 'var(--text-muted)' }}>Loading plans...</p>}
         {error && !loading && (
-          <p className="text-center text-red-600 bg-red-50 rounded-xl py-4 max-w-md mx-auto">
+          <p className="text-center rounded-xl py-4 max-w-md mx-auto" style={{ color: 'var(--error)', background: 'rgba(255,180,171,0.08)' }}>
             {error}
           </p>
         )}
@@ -169,8 +171,8 @@ export default function Landing() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-slate-100 mt-16">
-        <div className="max-w-6xl mx-auto px-6 py-8 text-center text-sm text-slate-400">
+      <footer className="mt-16" style={{ borderTop: '1px solid var(--border)' }}>
+        <div className="max-w-6xl mx-auto px-6 py-8 text-center text-sm" style={{ color: 'var(--text-subtle)' }}>
           VCAI — Graduation Project, Misr International University, 2026
         </div>
       </footer>

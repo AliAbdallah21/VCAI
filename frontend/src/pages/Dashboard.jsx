@@ -3,55 +3,95 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { sessionsAPI, evaluationAPI, learningAPI } from '../services/api';
 import Layout from '../components/Layout';
+import Badge from '../components/ui/Badge';
+import EmptyState from '../components/ui/EmptyState';
 
-const StatCard = ({ label, value, sub, color, Icon }) => (
-  <div
-    className="rounded-2xl p-5 relative overflow-hidden"
-    style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
-  >
-    <div className="flex items-start justify-between">
-      <div>
-        <p className="text-xs font-medium tracking-wide uppercase mb-3" style={{ color: 'rgba(148,163,184,0.5)' }}>
-          {label}
-        </p>
-        <p className="heading text-3xl font-bold" style={{ color }}>{value}</p>
-        {sub && <p className="text-xs mt-1" style={{ color: 'rgba(148,163,184,0.4)' }}>{sub}</p>}
-      </div>
-      <div
-        className="w-10 h-10 rounded-xl flex items-center justify-center flex-shrink-0"
-        style={{ background: `${color}18` }}
-      >
-        <Icon color={color} />
-      </div>
-    </div>
-    <div
-      className="absolute bottom-0 left-0 right-0 h-px"
-      style={{ background: `linear-gradient(90deg, transparent, ${color}40, transparent)` }}
-    />
-  </div>
-);
-
-const IconChart = ({ color }) => (
-  <svg width="20" height="20" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+/* ── Inline icons ── */
+const IcoActivity = ({ size = 15, color }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
     <polyline points="22 12 18 12 15 21 9 3 6 12 2 12" />
   </svg>
 );
-const IconTarget = ({ color }) => (
-  <svg width="20" height="20" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+const IcoTarget = ({ size = 15, color }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" /><circle cx="12" cy="12" r="6" /><circle cx="12" cy="12" r="2" />
   </svg>
 );
-const IconClock = ({ color }) => (
-  <svg width="20" height="20" fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-    <circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>
+const IcoClock = ({ size = 15, color }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <circle cx="12" cy="12" r="10" /><polyline points="12 6 12 12 16 14" />
+  </svg>
+);
+const IcoMic = ({ size = 22, color = 'rgba(222,183,255,0.3)' }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+  </svg>
+);
+const IcoUser = ({ size = 16, color = 'var(--text-muted)' }) => (
+  <svg width={size} height={size} fill="none" stroke={color} strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+  </svg>
+);
+const IcoArrow = () => (
+  <svg width="16" height="16" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+    <path d="M5 12h14M12 5l7 7-7 7" />
   </svg>
 );
 
-const difficultyStyle = {
-  easy:   { bg: 'rgba(16,185,129,0.1)', text: '#34d399', border: 'rgba(16,185,129,0.2)' },
-  medium: { bg: 'rgba(245,158,11,0.1)', text: '#fbbf24', border: 'rgba(245,158,11,0.2)' },
-  hard:   { bg: 'rgba(239,68,68,0.1)',  text: '#f87171', border: 'rgba(239,68,68,0.2)'  },
+/* ── KPI stat card ── */
+function StatCard({ label, value, sub, Icon, accent }) {
+  return (
+    <div
+      style={{
+        background: 'var(--bg-card)',
+        border: '1px solid var(--border)',
+        borderRadius: 'var(--radius-card)',
+        padding: '20px 22px',
+        position: 'relative',
+        overflow: 'hidden',
+      }}
+    >
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
+        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
+          {label}
+        </span>
+        <div style={{ width: 30, height: 30, borderRadius: 8, background: `${accent}18`, border: `1px solid ${accent}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Icon size={14} color={accent} />
+        </div>
+      </div>
+      <span style={{ fontSize: 30, fontWeight: 800, color: '#e5e1e4', letterSpacing: '-0.04em', lineHeight: 1 }}>
+        {value}
+      </span>
+      {sub && <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 5 }}>{sub}</p>}
+      <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${accent}40, transparent)` }} />
+    </div>
+  );
+}
+
+/* ── Skill color/label/trend maps ── */
+const SKILL_COLORS = {
+  communication:     '#deb7ff',
+  product_knowledge: '#e9c46a',
+  objection_handling:'#ffb4ab',
+  rapport:           '#a5d6a7',
+  closing:           '#b472f1',
 };
+const SKILL_LABELS = {
+  communication:     'Communication',
+  product_knowledge: 'Product Knowledge',
+  objection_handling:'Objection Handling',
+  rapport:           'Rapport',
+  closing:           'Closing',
+};
+const TREND_META = {
+  improving:         { symbol: '↑', color: '#a5d6a7' },
+  declining:         { symbol: '↓', color: '#ffb4ab' },
+  plateau:           { symbol: '→', color: '#e9c46a' },
+  insufficient_data: { symbol: '–', color: 'var(--text-muted)' },
+};
+
+const scoreColor = s => s >= 80 ? '#a5d6a7' : s >= 60 ? '#e9c46a' : '#ffb4ab';
+const formatDate = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 const SESSION_TABS = [
   { key: 'all',       label: 'All' },
@@ -60,144 +100,172 @@ const SESSION_TABS = [
 ];
 
 export default function Dashboard() {
-  const { user }  = useAuth();
-  const navigate  = useNavigate();
-  const [sessions, setSessions]       = useState([]);
-  const [loading, setLoading]         = useState(true);
-  const [sessionTab, setSessionTab]   = useState('all');
-  const [triggering, setTriggering]   = useState({});
-  const [stats, setStats]             = useState({ total: 0, avgScore: 0, totalMinutes: 0 });
-  const [learningProfile, setLearningProfile] = useState(null);
+  const { user }   = useAuth();
+  const navigate   = useNavigate();
+  const [sessions, setSessions]     = useState([]);
+  const [loading, setLoading]       = useState(true);
+  const [sessionTab, setSessionTab] = useState('all');
+  const [triggering, setTriggering] = useState({});
+  const [stats, setStats]           = useState({ total: 0, avgScore: 0, totalMinutes: 0 });
+  const [profile, setProfile]       = useState(null);
 
   useEffect(() => {
     sessionsAPI.getAll(5)
       .then(data => {
         setSessions(data.sessions);
-        const completed = data.sessions.filter(s => s.overall_score);
+        const done = data.sessions.filter(s => s.overall_score);
         setStats({
           total: data.total,
-          avgScore: completed.length
-            ? Math.round(completed.reduce((a, b) => a + b.overall_score, 0) / completed.length)
-            : 0,
+          avgScore: done.length ? Math.round(done.reduce((a, b) => a + b.overall_score, 0) / done.length) : 0,
           totalMinutes: Math.round(data.sessions.reduce((a, b) => a + (b.duration_seconds || 0), 0) / 60),
         });
       })
       .finally(() => setLoading(false));
 
-    learningAPI.getProfile()
-      .then(setLearningProfile)
-      .catch(() => {});
+    learningAPI.getProfile().then(setProfile).catch(() => {});
   }, []);
 
-  const formatDate = dateStr =>
-    new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+  const filtered = sessions.filter(s => {
+    if (sessionTab === 'active')    return s.status === 'active';
+    if (sessionTab === 'evaluated') return !!s.overall_score;
+    return true;
+  });
 
-  const scoreColor = s => s >= 80 ? '#34d399' : s >= 60 ? '#fbbf24' : '#f87171';
+  const firstName = user?.full_name?.split(' ')[0] ?? 'there';
 
   return (
     <Layout>
-      <div className="p-4 md:p-8 max-w-4xl mx-auto">
-        {/* Header */}
-        <div className="mb-8 slide-up">
-          <h1 className="heading text-2xl font-bold text-white mb-1">
-            Welcome back, {user?.full_name?.split(' ')[0]}
+      <div style={{ padding: '32px 36px', maxWidth: 900, margin: '0 auto' }}>
+
+        {/* ── Page header ── */}
+        <div className="slide-up" style={{ marginBottom: 28 }}>
+          <h1 style={{ fontSize: 26, fontWeight: 700, color: 'var(--text-primary)', letterSpacing: '-0.02em', margin: 0 }}>
+            Welcome back, {firstName}
           </h1>
-          <p className="text-sm" style={{ color: 'rgba(148,163,184,0.55)' }}>
+          <p style={{ fontSize: 13.5, color: 'var(--text-muted)', marginTop: 6 }}>
             Here is your training overview
           </p>
         </div>
 
-        {/* Stats */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
-          <StatCard label="Total Sessions"  value={stats.total}               color="#60a5fa" Icon={IconChart}  />
-          <StatCard label="Average Score"   value={stats.avgScore || '—'}     color="#34d399" Icon={IconTarget} sub={stats.avgScore ? 'out of 100' : null} />
-          <StatCard label="Training Time"   value={`${stats.totalMinutes}m`}  color="#a78bfa" Icon={IconClock}  />
+        {/* ── KPI Stats ── */}
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
+          <StatCard label="Total Sessions"  value={stats.total}              Icon={IcoActivity} accent="#deb7ff" />
+          <StatCard label="Average Score"   value={stats.avgScore || '—'}    Icon={IcoTarget}   accent="#a5d6a7" sub={stats.avgScore ? 'out of 100' : 'No sessions yet'} />
+          <StatCard label="Training Time"   value={`${stats.totalMinutes}m`} Icon={IcoClock}    accent="#b472f1" />
         </div>
 
-        {/* CTA */}
+        {/* ── Start New Session CTA ── */}
         <Link
           to="/setup"
-          className="flex items-center justify-between gap-4 rounded-2xl p-5 md:p-7 mb-8 group transition-all duration-300"
           style={{
-            background: 'linear-gradient(135deg, rgba(37,99,235,0.2) 0%, rgba(124,58,237,0.2) 100%)',
-            border: '1px solid rgba(37,99,235,0.25)',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            gap: 16,
+            padding: '20px 24px',
+            marginBottom: 24,
+            borderRadius: 'var(--radius-card)',
+            background: 'rgba(222,183,255,0.06)',
+            border: '1px solid rgba(222,183,255,0.18)',
+            textDecoration: 'none',
+            transition: 'border-color 0.15s, background 0.15s',
+          }}
+          onMouseEnter={e => {
+            e.currentTarget.style.borderColor = 'rgba(222,183,255,0.35)';
+            e.currentTarget.style.background  = 'rgba(222,183,255,0.1)';
+          }}
+          onMouseLeave={e => {
+            e.currentTarget.style.borderColor = 'rgba(222,183,255,0.18)';
+            e.currentTarget.style.background  = 'rgba(222,183,255,0.06)';
           }}
         >
-          <div className="min-w-0">
-            <h3 className="heading text-base md:text-lg font-bold text-white mb-1 group-hover:text-blue-200 transition-colors">
-              Start New Training Session
-            </h3>
-            <p className="text-xs md:text-sm" style={{ color: 'rgba(148,163,184,0.6)' }}>
-              Practice with AI-powered virtual customers
-            </p>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 16 }}>
+            <div
+              style={{
+                width: 44,
+                height: 44,
+                borderRadius: 12,
+                background: 'rgba(222,183,255,0.12)',
+                border: '1px solid rgba(222,183,255,0.22)',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0,
+              }}
+            >
+              <svg width="20" height="20" fill="none" stroke="#deb7ff" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+              </svg>
+            </div>
+            <div>
+              <p style={{ fontSize: 15, fontWeight: 600, color: '#e5e1e4', margin: 0 }}>
+                Start New Training Session
+              </p>
+              <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 3 }}>
+                Practice with AI-powered virtual customers
+              </p>
+            </div>
           </div>
           <div
-            className="w-11 h-11 rounded-xl flex items-center justify-center flex-shrink-0 transition-transform duration-200 group-hover:translate-x-1"
-            style={{ background: 'rgba(37,99,235,0.3)', border: '1px solid rgba(37,99,235,0.3)' }}
+            style={{
+              width: 34,
+              height: 34,
+              borderRadius: 9,
+              background: 'rgba(222,183,255,0.12)',
+              border: '1px solid rgba(222,183,255,0.22)',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: 0,
+              color: '#deb7ff',
+            }}
           >
-            <svg width="18" height="18" fill="none" stroke="#93c5fd" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-              <path d="M5 12h14M12 5l7 7-7 7"/>
-            </svg>
+            <IcoArrow />
           </div>
         </Link>
 
-        {/* Skill Progress Widget */}
-        {learningProfile?.has_enough_data && learningProfile.skill_averages?.length > 0 && (() => {
-          const SKILL_COLORS = {
-            communication: '#3b82f6', product_knowledge: '#f59e0b',
-            objection_handling: '#ef4444', rapport: '#10b981', closing: '#8b5cf6',
-          };
-          const SKILL_LABELS = {
-            communication: 'Communication', product_knowledge: 'Product Knowledge',
-            objection_handling: 'Objection Handling', rapport: 'Rapport', closing: 'Closing',
-          };
-          const TREND_ICON = {
-            improving: { symbol: '↑', color: '#34d399' },
-            declining: { symbol: '↓', color: '#f87171' },
-            plateau:   { symbol: '→', color: '#fbbf24' },
-            insufficient_data: { symbol: '–', color: 'rgba(148,163,184,0.4)' },
-          };
-          const weakest = [...learningProfile.skill_averages]
-            .sort((a, b) => a.avg_score - b.avg_score)
-            .slice(0, 3);
+        {/* ── Skill Progress widget ── */}
+        {profile?.has_enough_data && profile.skill_averages?.length > 0 && (() => {
+          const weakest = [...profile.skill_averages].sort((a, b) => a.avg_score - b.avg_score).slice(0, 3);
           return (
             <div
-              className="rounded-2xl p-5 mb-8"
-              style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+              style={{
+                background: 'var(--bg-card)',
+                border: '1px solid var(--border)',
+                borderRadius: 'var(--radius-card)',
+                padding: '20px 22px',
+                marginBottom: 24,
+              }}
             >
-              <div className="flex items-center justify-between mb-4">
-                <h2 className="heading text-sm font-bold text-white tracking-wide">Skill Progress</h2>
+              <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+                <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>Skill Progress</p>
                 <Link
                   to="/progress"
-                  className="text-xs font-medium transition-all"
-                  style={{ color: 'rgba(251,146,60,0.7)' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#fb923c'}
-                  onMouseLeave={e => e.currentTarget.style.color = 'rgba(251,146,60,0.7)'}
+                  style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.13s' }}
+                  onMouseEnter={e => e.currentTarget.style.color = '#deb7ff'}
+                  onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
                 >
                   View all →
                 </Link>
               </div>
-              <div className="space-y-3">
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 12 }}>
                 {weakest.map(skill => {
-                  const color = SKILL_COLORS[skill.skill_key] ?? '#60a5fa';
+                  const color = SKILL_COLORS[skill.skill_key] ?? '#deb7ff';
                   const label = SKILL_LABELS[skill.skill_key] ?? skill.skill_key;
-                  const trend = TREND_ICON[skill.trend] ?? TREND_ICON.insufficient_data;
+                  const trend = TREND_META[skill.trend] ?? TREND_META.insufficient_data;
                   const score = Math.round(skill.avg_score);
                   return (
-                    <div key={skill.skill_key} className="flex items-center gap-3">
-                      <span className="text-xs w-36 flex-shrink-0" style={{ color: 'rgba(148,163,184,0.6)' }}>
+                    <div key={skill.skill_key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 500, width: 148, flexShrink: 0, color: 'var(--text-secondary)' }}>
                         {label}
                       </span>
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
-                        <div
-                          className="h-full rounded-full transition-all duration-500"
-                          style={{ width: `${score}%`, background: `linear-gradient(90deg, ${color}99, ${color})` }}
-                        />
+                      <div style={{ flex: 1, height: 5, borderRadius: 99, background: 'rgba(222,183,255,0.08)', overflow: 'hidden' }}>
+                        <div style={{ height: '100%', borderRadius: 99, width: `${score}%`, background: color, transition: 'width 0.5s ease' }} />
                       </div>
-                      <span className="text-xs font-bold w-7 text-right flex-shrink-0" style={{ color }}>
+                      <span style={{ fontSize: 12.5, fontWeight: 700, width: 28, textAlign: 'right', flexShrink: 0, color }}>
                         {score}
                       </span>
-                      <span className="text-xs font-bold w-4 text-right flex-shrink-0" style={{ color: trend.color }}>
+                      <span style={{ fontSize: 12, fontWeight: 700, width: 14, textAlign: 'right', flexShrink: 0, color: trend.color }}>
                         {trend.symbol}
                       </span>
                     </div>
@@ -208,152 +276,188 @@ export default function Dashboard() {
           );
         })()}
 
-        {/* Recent Sessions */}
-        <div className="rounded-2xl overflow-hidden" style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}>
-          <div className="px-6 py-4 flex items-center justify-between gap-4 flex-wrap" style={{ borderBottom: '1px solid rgba(255,255,255,0.05)' }}>
-            <h2 className="heading text-sm font-bold text-white tracking-wide">Recent Sessions</h2>
-            <div className="flex items-center gap-3">
-              {/* Tabs */}
-              <div className="flex gap-0.5 p-0.5 rounded-lg" style={{ background: 'rgba(255,255,255,0.04)' }}>
-                {SESSION_TABS.map(t => (
-                  <button
-                    key={t.key}
-                    onClick={() => setSessionTab(t.key)}
-                    className="px-3 py-1 rounded-md text-xs font-medium transition-all duration-150"
-                    style={sessionTab === t.key
-                      ? { background: 'rgba(37,99,235,0.2)', color: '#93c5fd' }
-                      : { color: 'rgba(148,163,184,0.5)' }
-                    }
-                  >
-                    {t.label}
-                  </button>
-                ))}
+        {/* ── Recent Sessions ── */}
+        <div
+          style={{
+            background: 'var(--bg-card)',
+            border: '1px solid var(--border)',
+            borderRadius: 'var(--radius-card)',
+            overflow: 'hidden',
+          }}
+        >
+          {/* Header */}
+          <div
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+              padding: '16px 20px',
+              borderBottom: '1px solid var(--border)',
+              gap: 12,
+              flexWrap: 'wrap',
+            }}
+          >
+            <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>Recent Sessions</p>
+            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
+              {/* Pill tabs */}
+              <div style={{ display: 'flex', gap: 2, padding: 3, borderRadius: 9, background: 'rgba(222,183,255,0.04)', border: '1px solid var(--border)' }}>
+                {SESSION_TABS.map(t => {
+                  const isActive = t.key === sessionTab;
+                  return (
+                    <button
+                      key={t.key}
+                      onClick={() => setSessionTab(t.key)}
+                      style={{
+                        padding: '5px 12px',
+                        borderRadius: 7,
+                        fontSize: 12,
+                        fontWeight: isActive ? 600 : 500,
+                        color: isActive ? '#e5e1e4' : 'var(--text-muted)',
+                        background: isActive ? 'rgba(222,183,255,0.12)' : 'transparent',
+                        border: `1px solid ${isActive ? 'rgba(222,183,255,0.3)' : 'transparent'}`,
+                        cursor: 'pointer',
+                        transition: 'all 0.13s',
+                      }}
+                    >
+                      {t.label}
+                    </button>
+                  );
+                })}
               </div>
-              <Link to="/sessions" className="text-xs font-medium transition-all" style={{ color: 'rgba(96,165,250,0.7)' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#93c5fd'}
-                onMouseLeave={e => e.currentTarget.style.color = 'rgba(96,165,250,0.7)'}
+              <Link
+                to="/sessions"
+                style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.13s' }}
+                onMouseEnter={e => e.currentTarget.style.color = '#deb7ff'}
+                onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
               >
                 View all →
               </Link>
             </div>
           </div>
 
+          {/* Body */}
           {loading ? (
-            <div className="p-10 text-center">
-              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: '#3b82f6', borderRadius: '50%' }} />
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>Loading sessions…</p>
+            <div style={{ padding: '48px 24px', textAlign: 'center' }}>
+              <div className="spin-ring" style={{ width: 22, height: 22, border: '2px solid rgba(222,183,255,0.08)', borderTopColor: '#deb7ff', borderRadius: '50%', margin: '0 auto 10px' }} />
+              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>Loading sessions…</p>
             </div>
           ) : sessions.length === 0 ? (
-            <div className="p-14 text-center">
-              <div
-                className="w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4"
-                style={{ background: 'rgba(37,99,235,0.1)', border: '1px solid rgba(37,99,235,0.15)' }}
-              >
-                <svg width="24" height="24" fill="none" stroke="#60a5fa" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                  <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
-                </svg>
-              </div>
-              <h3 className="font-semibold text-white mb-1">No sessions yet</h3>
-              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.45)' }}>Start your first training session above</p>
+            <EmptyState
+              icon={IcoMic}
+              title="No sessions yet"
+              description="Start your first training session to see your progress here"
+              action={
+                <Link to="/setup" className="btn-primary" style={{ fontSize: 12 }}>
+                  Start Session
+                </Link>
+              }
+            />
+          ) : filtered.length === 0 ? (
+            <div style={{ padding: '36px 24px', textAlign: 'center' }}>
+              <p style={{ fontSize: 13, color: 'var(--text-muted)' }}>
+                {sessionTab === 'active' ? 'No active calls' : sessionTab === 'evaluated' ? 'No evaluated sessions yet' : 'No sessions'}
+              </p>
             </div>
-          ) : (() => {
-            const filtered = sessions.filter(s => {
-              if (sessionTab === 'active')    return s.status === 'active';
-              if (sessionTab === 'evaluated') return !!s.overall_score;
-              return true;
-            });
-            if (filtered.length === 0) return (
-              <div className="p-10 text-center">
-                <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>
-                  {sessionTab === 'active' ? 'No active calls' : sessionTab === 'evaluated' ? 'No evaluated sessions yet' : 'No sessions yet'}
-                </p>
-              </div>
-            );
-            return (
-              <div>
-                {filtered.map((s, i) => {
-                  const diff      = difficultyStyle[s.difficulty] || difficultyStyle.medium;
-                  const isActive  = s.status === 'active';
-                  const evaluated = !!s.overall_score;
-                  const isBusy    = triggering[s.id];
-                  return (
-                    <div
-                      key={s.id}
-                      className="flex items-center justify-between px-6 py-4 transition-colors duration-150"
-                      style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-                      onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.025)'}
-                      onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
-                    >
-                      <div className="flex items-center gap-4">
-                        <div className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                          style={{ background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.07)' }}>
-                          <svg width="15" height="15" fill="none" stroke="rgba(148,163,184,0.6)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
-                            <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
-                          </svg>
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <p className="text-sm font-medium text-slate-200">{s.persona_name || s.persona_id}</p>
-                            {isActive && (
-                              <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
-                                style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
-                                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
-                                Live
-                              </span>
-                            )}
-                          </div>
-                          <p className="text-xs mt-0.5" style={{ color: 'rgba(148,163,184,0.45)' }}>{formatDate(s.started_at)}</p>
-                        </div>
+          ) : (
+            <div>
+              {filtered.map((s, i) => {
+                const isActive  = s.status === 'active';
+                const evaluated = !!s.overall_score;
+                const isBusy    = triggering[s.id];
+
+                return (
+                  <div
+                    key={s.id}
+                    style={{
+                      display: 'flex',
+                      alignItems: 'center',
+                      justifyContent: 'space-between',
+                      padding: '13px 20px',
+                      borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none',
+                      gap: 12,
+                      transition: 'background 0.12s',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(222,183,255,0.03)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {/* Left: icon + name + date */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 12, minWidth: 0 }}>
+                      <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(222,183,255,0.06)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                        <IcoUser size={16} color="var(--text-muted)" />
                       </div>
-                      <div className="flex items-center gap-2">
-                        {!isActive && (
-                          <span className="px-2.5 py-1 rounded-lg text-xs font-semibold capitalize hidden sm:block"
-                            style={{ background: diff.bg, color: diff.text, border: `1px solid ${diff.border}` }}>
-                            {s.difficulty}
+                      <div style={{ minWidth: 0 }}>
+                        <div style={{ display: 'flex', alignItems: 'center', gap: 7, flexWrap: 'wrap' }}>
+                          <span style={{ fontSize: 13.5, fontWeight: 500, color: 'var(--text-secondary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                            {s.persona_name || s.persona_id}
                           </span>
-                        )}
-                        {isActive ? (
-                          <button onClick={() => navigate(`/session/${s.id}`)}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold"
-                            style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
-                            Resume →
-                          </button>
-                        ) : evaluated ? (
-                          <>
-                            <span className="heading text-base font-bold" style={{ color: scoreColor(s.overall_score) }}>{s.overall_score}</span>
-                            <button onClick={() => navigate(`/evaluation/${s.id}`)}
-                              className="px-3 py-1.5 rounded-xl text-xs font-semibold"
-                              style={{ background: 'rgba(37,99,235,0.12)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.2)' }}>
-                              Report
-                            </button>
-                            <button onClick={async () => {
-                              setTriggering(p => ({...p, [s.id]: true}));
-                              try { await evaluationAPI.triggerEvaluation(s.id,'training',true); navigate(`/evaluation/${s.id}`); }
-                              catch { setTriggering(p => ({...p, [s.id]: false})); }
-                            }} disabled={isBusy}
-                              className="px-3 py-1.5 rounded-xl text-xs font-semibold disabled:opacity-40"
-                              style={{ background: 'rgba(245,158,11,0.08)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.15)' }}>
-                              {isBusy ? '…' : '↻'}
-                            </button>
-                          </>
-                        ) : (
-                          <button onClick={async () => {
-                            setTriggering(p => ({...p, [s.id]: true}));
-                            try { await evaluationAPI.triggerEvaluation(s.id,'training',false); navigate(`/evaluation/${s.id}`); }
-                            catch { setTriggering(p => ({...p, [s.id]: false})); }
-                          }} disabled={isBusy}
-                            className="px-3.5 py-1.5 rounded-xl text-xs font-semibold disabled:opacity-40"
-                            style={{ background: 'rgba(245,158,11,0.12)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }}>
-                            {isBusy ? 'Starting…' : 'Evaluate →'}
-                          </button>
-                        )}
+                          {isActive && <Badge variant="live" label="Live" dot />}
+                        </div>
+                        <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 2 }}>
+                          {formatDate(s.started_at)}
+                        </p>
                       </div>
                     </div>
-                  );
-                })}
-              </div>
-            );
-          })()}
+
+                    {/* Right: difficulty + score + actions */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
+                      {!isActive && s.difficulty && (
+                        <Badge variant={s.difficulty} label={s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)} />
+                      )}
+
+                      {isActive ? (
+                        <button
+                          onClick={() => navigate(`/session/${s.id}`)}
+                          className="btn-primary"
+                          style={{ fontSize: 12, padding: '6px 14px' }}
+                        >
+                          Resume →
+                        </button>
+                      ) : evaluated ? (
+                        <>
+                          <span style={{ fontSize: 16, fontWeight: 700, color: scoreColor(s.overall_score), marginRight: 2 }}>
+                            {s.overall_score}
+                          </span>
+                          <button
+                            onClick={() => navigate(`/evaluation/${s.id}`)}
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '6px 12px' }}
+                          >
+                            Report
+                          </button>
+                          <button
+                            onClick={async () => {
+                              setTriggering(p => ({ ...p, [s.id]: true }));
+                              try { await evaluationAPI.triggerEvaluation(s.id, 'training', true); navigate(`/evaluation/${s.id}`); }
+                              catch { setTriggering(p => ({ ...p, [s.id]: false })); }
+                            }}
+                            disabled={isBusy}
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '6px 10px' }}
+                            title="Re-evaluate"
+                          >
+                            {isBusy ? '…' : '↻'}
+                          </button>
+                        </>
+                      ) : (
+                        <button
+                          onClick={async () => {
+                            setTriggering(p => ({ ...p, [s.id]: true }));
+                            try { await evaluationAPI.triggerEvaluation(s.id, 'training', false); navigate(`/evaluation/${s.id}`); }
+                            catch { setTriggering(p => ({ ...p, [s.id]: false })); }
+                          }}
+                          disabled={isBusy}
+                          className="btn-secondary"
+                          style={{ fontSize: 12, padding: '6px 14px', color: '#e9c46a', borderColor: 'rgba(233,196,106,0.3)' }}
+                        >
+                          {isBusy ? 'Starting…' : 'Evaluate →'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
     </Layout>

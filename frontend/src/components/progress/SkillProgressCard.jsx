@@ -1,8 +1,8 @@
 const TREND_CONFIG = {
-  improving:         { icon: '↑', color: '#4ade80' },
-  declining:         { icon: '↓', color: '#ef4444' },
-  plateau:           { icon: '→', color: '#f59e0b' },
-  insufficient_data: { icon: '–', color: 'rgba(148,163,184,0.35)' },
+  improving:         { icon: '↑', color: '#a5d6a7' },
+  declining:         { icon: '↓', color: '#ffb4ab' },
+  plateau:           { icon: '→', color: '#e9c46a' },
+  insufficient_data: { icon: '–', color: 'var(--text-subtle)' },
 };
 
 export default function SkillProgressCard({
@@ -25,9 +25,9 @@ export default function SkillProgressCard({
   })();
 
   const deltaColor =
-    totalImprovement > 0 ? '#4ade80' :
-    totalImprovement < 0 ? '#ef4444' :
-    '#f59e0b';
+    totalImprovement > 0 ? '#a5d6a7' :
+    totalImprovement < 0 ? '#ffb4ab' :
+    '#e9c46a';
 
   return (
     <button
@@ -42,7 +42,7 @@ export default function SkillProgressCard({
       <div className="flex items-center justify-between mb-2.5">
         <span
           className="text-xs font-semibold truncate mr-2"
-          style={{ color: isSelected ? color : 'rgba(148,163,184,0.65)' }}
+          style={{ color: isSelected ? color : 'var(--text-secondary)' }}
         >
           {label}
         </span>
@@ -74,7 +74,7 @@ export default function SkillProgressCard({
             </div>
           )}
           {focusSessions > 0 && (
-            <div className="text-xs" style={{ color: 'rgba(148,163,184,0.35)' }}>
+            <div className="text-xs" style={{ color: 'var(--text-subtle)' }}>
               {focusSessions} focus
             </div>
           )}
