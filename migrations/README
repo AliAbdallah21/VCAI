@@ -1,0 +1,24 @@
+Alembic migration environment for VCAI (single-database configuration).
+
+Location: this directory lives at the REPO ROOT (VCAI/migrations), with alembic.ini
+at VCAI/alembic.ini. It is named "migrations" (not "alembic") so it does not
+shadow the installed alembic package when commands run from the repo root.
+Run all alembic commands from the repo root.
+
+The database URL is loaded in env.py from backend.config.get_settings().database_url
+(the same .env the app uses), not from alembic.ini.
+
+Common commands (run from repo root, using the env that has the project deps):
+    alembic upgrade head      # apply migrations
+    alembic downgrade -1      # roll back the most recent migration
+    alembic current           # show current revision
+    alembic history           # list revisions
+
+If `alembic` resolves to the wrong Python (ModuleNotFoundError: pydantic_settings),
+run it through the project interpreter instead, e.g.:
+    python -c "from alembic.config import main; main(argv=['upgrade','head'])"
+
+The first revision (0001_tenancy_baseline) is hand-written to ADD only the new
+multi-tenancy tables and users.company_id. It deliberately does NOT recreate the
+pre-existing tables (users, sessions, personas, etc.), which already exist on the
+live database.

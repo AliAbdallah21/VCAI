@@ -8,7 +8,6 @@ from evaluation.state import (
     EvaluationProgress,
     update_state_status,
     record_node_timing,
-    add_error,
     mark_failed,
 )
 from evaluation.schemas import AnalysisReport
@@ -56,6 +55,18 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         emotion_log = state.get("emotion_log", [])
         structured_fact_check = state.get("structured_fact_check", {})
 
+        # ended_by_user: defaults to True because the overwhelmingly common
+        # end-path is the user clicking "End Session". The session_info dict
+        # can override this for sessions auto-ended by inactivity/timeout.
+        session_info = state.get("session_info") or {}
+        ended_by_user = session_info.get("ended_by_user", True)
+        # difficulty: the session's chosen difficulty — calibrates scoring so
+        # a hard customer isn't graded on easy-customer closing expectations.
+        difficulty = session_info.get("difficulty", "medium")
+        # scenario: the buyer's real situation — lets the analyzer judge
+        # needs-discovery and budget-fit objectively.
+        scenario = session_info.get("scenario")
+
         # Build analyzer prompt (doc requirement: use skills + checkpoints)
         prompt = build_analyzer_prompt(
             transcript=transcript,
@@ -64,6 +75,9 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             skill_configs=[cfg.model_dump() for cfg in SKILL_CONFIGS.values()],
             checkpoint_configs=[cfg.model_dump() for cfg in CHECKPOINT_CONFIGS.values()],
             AnalysisReport=AnalysisReport,
+            ended_by_user=ended_by_user,
+            difficulty=difficulty,
+            scenario=scenario,
         )
 
         # LLM call (doc requires LLM here; interface provided by infra)
@@ -79,10 +93,39 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
             user_prompt=prompt,
         )
 
-        # Validate JSON against AnalysisReport schema (doc requirement)
+        # Validate JSON against AnalysisReport schema
         analysis, error = validate_analysis_json(llm_response_text, AnalysisReport)
+
+        # One repair retry on JSON failure (Gemini occasionally truncates /
+        # produces stray commas in long JSON outputs).
         if error or analysis is None:
-            return mark_failed(state, f"Analyzer JSON validation failed: {error}")
+            print(f"[ANALYZER] First JSON parse failed: {error}. Retrying with repair prompt...")
+            repair_system = (
+                "You are a strict JSON repairer. You will receive a JSON document "
+                "that failed parsing and the parser error. Return ONLY the corrected "
+                "JSON document — no prose, no markdown fences, no explanation. "
+                "Preserve every field and value; only fix syntax."
+            )
+            repair_user = (
+                f"PARSER ERROR:\n{error}\n\n"
+                f"BROKEN JSON (return a fixed version of this, nothing else):\n"
+                f"{llm_response_text}"
+            )
+            try:
+                repaired_text = llm.generate(
+                    system_prompt=repair_system,
+                    user_prompt=repair_user,
+                )
+                print(f"[ANALYZER] Repair response received ({len(repaired_text)} chars), revalidating...")
+                analysis, error = validate_analysis_json(repaired_text, AnalysisReport)
+                if not (error or analysis is None):
+                    llm_response_text = repaired_text
+                    print("[ANALYZER] JSON repair SUCCEEDED.")
+            except Exception as repair_exc:
+                print(f"[ANALYZER] Repair call itself failed: {repair_exc}")
+
+        if error or analysis is None:
+            return mark_failed(state, f"Analyzer JSON validation failed (after 1 repair retry): {error}")
 
         # Write outputs to state
         state["analysis_report"] = analysis
@@ -91,8 +134,7 @@ def analyzer_node(state: EvaluationState) -> EvaluationState:
         state = update_state_status(state, "analyzing", EvaluationProgress.ANALYSIS_COMPLETE)
 
     except Exception as e:
-        state = add_error(state, f"Analyzer exception: {str(e)}")
-        return mark_failed(state, str(e))
+        return mark_failed(state, f"Analyzer exception: {str(e)}")
 
     finally:
         state = record_node_timing(state, "analyzer_node", time.perf_counter() - t0)

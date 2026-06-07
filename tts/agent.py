@@ -124,16 +124,14 @@ def text_to_speech(
 
         # ── Primary synthesis attempt ─────────────────────────────────────
         try:
-            wav = model.synthesize(
-                text=text,
-                language_id=language_id,
-                audio_prompt_path=audio_prompt_path,
-                **preset,
-            )
-            result = wav.flatten()
-            # Free temporary tensors after each synthesis to prevent VRAM fragmentation
-            torch.cuda.empty_cache()
-            return result
+            with torch.inference_mode():
+                wav = model.synthesize(
+                    text=text,
+                    language_id=language_id,
+                    audio_prompt_path=audio_prompt_path,
+                    **preset,
+                )
+            return wav.flatten()
 
         except Exception as e:
             _is_cuda_error = "CUDA" in str(e) or "memory" in str(e).lower() or "cuda" in str(e).lower()
@@ -150,14 +148,14 @@ def text_to_speech(
                 try:
                     fallback_text = random.choice(_FALLBACK_PHRASES)
                     fresh_model = _get_model()
-                    fallback_wav = fresh_model.synthesize(
-                        text=fallback_text,
-                        language_id="ar",
-                        audio_prompt_path=None,
-                        exaggeration=0.5,
-                        cfg_weight=0.5,
-                    )
-                    torch.cuda.empty_cache()
+                    with torch.inference_mode():
+                        fallback_wav = fresh_model.synthesize(
+                            text=fallback_text,
+                            language_id="ar",
+                            audio_prompt_path=None,
+                            exaggeration=0.5,
+                            cfg_weight=0.5,
+                        )
                     return fallback_wav.flatten()
                 except Exception as reload_err:
                     _log.error("[TTS] Model reload failed: %s", reload_err)
@@ -170,14 +168,14 @@ def text_to_speech(
                 "[TTS] Synthesis failed, returning fallback phrase. Error: %s", e
             )
             try:
-                fallback_wav = model.synthesize(
-                    text=fallback_text,
-                    language_id="ar",
-                    audio_prompt_path=None,   # base voice, no cloning
-                    exaggeration=0.5,
-                    cfg_weight=0.5,
-                )
-                torch.cuda.empty_cache()
+                with torch.inference_mode():
+                    fallback_wav = model.synthesize(
+                        text=fallback_text,
+                        language_id="ar",
+                        audio_prompt_path=None,
+                        exaggeration=0.5,
+                        cfg_weight=0.5,
+                    )
                 return fallback_wav.flatten()
             except Exception:
                 sample_rate = 24000

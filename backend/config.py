@@ -35,7 +35,11 @@ class Settings(BaseSettings):
     preload_models: bool = True
 
     # CORS
-    cors_origins: list = ["http://localhost:3000", "http://localhost:5173"]
+    cors_origins: list = ["http://localhost:3000", "http://localhost:5173", "https://app.vcai.com"]
+
+    # Multi-tenancy / SaaS (safe defaults, no new required secrets)
+    trial_days: int = 14
+    frontend_base_url: str = "http://localhost:5173"
 
     @field_validator("database_url")
     @classmethod
@@ -66,5 +70,44 @@ class Settings(BaseSettings):
 
 @lru_cache()
 def get_settings() -> Settings:
-    """Get cached settings instance. Raises on startup if any required variable is missing."""
-    return Settings()
+    """
+    Get cached settings instance.
+
+    On a missing required variable, raises RuntimeError with a clean,
+    actionable message instead of leaking Pydantic's verbose ValidationError
+    traceback. The result is cached, so this runs at most once per process.
+    """
+    from pydantic import ValidationError
+
+    try:
+        return Settings()
+    except ValidationError as exc:
+        # Extract the missing-field names from Pydantic's error structure
+        missing = []
+        for err in exc.errors():
+            if err.get("type") in ("missing", "value_error"):
+                # err["loc"] is a tuple like ("database_url",)
+                if err.get("loc"):
+                    missing.append(str(err["loc"][0]).upper())
+        if not missing:
+            raise
+
+        bullet = "\n  - ".join(sorted(set(missing)))
+        # ASCII-only so the message prints cleanly on Windows consoles too.
+        line = "=" * 67
+        msg = (
+            "\n"
+            f"{line}\n"
+            "  VCAI startup failed: required environment variables missing\n"
+            f"{line}\n"
+            f"  Missing or empty:\n  - {bullet}\n\n"
+            "  Fix this by either:\n"
+            "    1. Adding the variables to your .env file at the project root, or\n"
+            "    2. Exporting them in your shell before running the server.\n\n"
+            "  Example .env:\n"
+            "    DATABASE_URL=postgresql://user:pass@localhost:5432/vcai\n"
+            "    JWT_SECRET=<a long random string>\n"
+            "    OPENROUTER_API_KEY=sk-or-...\n"
+            f"{line}\n"
+        )
+        raise RuntimeError(msg) from None

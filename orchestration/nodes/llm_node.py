@@ -33,16 +33,6 @@ def _gather_context(state):
     rag_context = state.get("rag_context") or {
         "query": state.get("transcription", ""), "documents": [], "total_found": 0
     }
-    print("\n" + "="*60)
-    print("[DEBUG] MEMORY CONTENT:")
-    print(f"  Checkpoints: {len(memory.get('checkpoints', []))}")
-    print(f"  Recent messages: {len(memory.get('recent_messages', []))}")
-    for i, msg in enumerate(memory.get('recent_messages', [])[-6:]):  # Last 6
-        role = msg.get('speaker', 'unknown')
-        content = msg.get('text', '')[:50]
-        print(f"    {i+1}. [{role}]: {content}...")
-    print("="*60 + "\n")
-    
     return emotion, emotional_context, persona, memory, rag_context
 
 
@@ -69,11 +59,13 @@ def llm_node(
             from llm.agent import generate_response
 
         emotion, emotional_context, persona, memory, rag_context = _gather_context(state)
+        training_focus = state.get("training_focus")
 
         response = generate_response(
             customer_text=transcription, emotion=emotion,
             emotional_context=emotional_context, persona=persona,
-            memory=memory, rag_context=rag_context
+            memory=memory, rag_context=rag_context,
+            training_focus=training_focus,
         )
 
         state["llm_response"] = response
@@ -128,6 +120,7 @@ def llm_node_streaming(
         from llm.agent import generate_response_streaming
 
         emotion, emotional_context, persona, memory, rag_context = _gather_context(state)
+        training_focus = state.get("training_focus")
 
         full_response = ""
         sentence_count = 0
@@ -135,7 +128,8 @@ def llm_node_streaming(
         for sentence in generate_response_streaming(
             customer_text=transcription, emotion=emotion,
             emotional_context=emotional_context, persona=persona,
-            memory=memory, rag_context=rag_context
+            memory=memory, rag_context=rag_context,
+            training_focus=training_focus,
         ):
             sentence_count += 1
             full_response += (" " + sentence if full_response else sentence)

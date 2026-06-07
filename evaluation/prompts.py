@@ -86,10 +86,40 @@ def _extract_json_candidate(text: str) -> str:
 def parse_json(text: str) -> Any:
     """
     Parses JSON from LLM output, with best-effort extraction.
-    Raises json.JSONDecodeError if parsing fails.
+
+    Tries strict json.loads first (fast path). If that fails — which happens
+    often with long Gemini outputs that include trailing commas, missing
+    commas between objects, or unescaped newlines in Arabic strings — falls
+    back to the `json_repair` library, which fixes most LLM-output syntax
+    bugs deterministically without another LLM call.
+
+    Raises json.JSONDecodeError only if BOTH strict parse and repaired
+    parse fail.
     """
     candidate = _extract_json_candidate(text)
-    return json.loads(candidate)
+    try:
+        return json.loads(candidate)
+    except json.JSONDecodeError as strict_err:
+        try:
+            import json_repair  # type: ignore
+            repaired = json_repair.loads(candidate)
+            # json_repair returns the parsed object directly (or {} when
+            # truly unrecoverable). Treat empty {} on a non-empty document
+            # as a failure so we surface a real error.
+            if repaired == {} and candidate.strip() not in ("{}", ""):
+                raise strict_err
+            print(f"[parse_json] json_repair recovered LLM output ({strict_err.msg} at char {strict_err.pos})")
+            return repaired
+        except json.JSONDecodeError:
+            raise
+        except ImportError:
+            # json_repair not installed — propagate the original error.
+            raise strict_err
+        except Exception as repair_err:
+            # Any other failure during repair → re-raise the original JSONDecodeError
+            # so the caller sees the actual parse problem, not the repair tool's bug.
+            print(f"[parse_json] json_repair itself errored: {repair_err}")
+            raise strict_err
 
 
 def extract_json_from_response(text: str) -> Any:
@@ -218,7 +248,10 @@ def build_analyzer_prompt(
     structured_fact_check: Dict[str, Any],
     skill_configs: List[Dict[str, Any]],
     checkpoint_configs: List[Dict[str, Any]],
-    AnalysisReport: Type[BaseModel]
+    AnalysisReport: Type[BaseModel],
+    ended_by_user: bool = True,
+    difficulty: str = "medium",
+    scenario: Optional[Dict[str, Any]] = None,
 ) -> str:
     """
     Build the complete analyzer prompt.
@@ -232,6 +265,15 @@ def build_analyzer_prompt(
         skill_configs: The 8 skills with name, name_ar, weight, description
         checkpoint_configs: The 6 checkpoints with name, name_ar, criteria
         AnalysisReport: Pydantic model class for schema generation
+        ended_by_user: True if the trainee clicked "End Session" manually. Prevents
+            the analyzer from penalizing the salesperson for not delivering a final
+            closing response when the conversation was simply cut short by the user.
+        difficulty: session difficulty (easy/medium/hard) — calibrates scoring so
+            a hard customer is not graded on the same closing expectations as an
+            easy one.
+        scenario: the buyer scenario (budget / timeline / must-haves /
+            deal-breakers) — lets the evaluator judge whether the salesperson
+            discovered the customer's real needs and respected their budget.
 
     Returns:
         Complete system + user prompt for the analyzer
@@ -243,6 +285,71 @@ def build_analyzer_prompt(
     fact_check_section = _format_fact_check_section(structured_fact_check)
     skills_json = json.dumps(skill_configs, ensure_ascii=False, indent=2)
     checkpoints_json = json.dumps(checkpoint_configs, ensure_ascii=False, indent=2)
+
+    end_reason_note = (
+        "SESSION END CONTEXT:\n"
+        "The trainee manually ended this session by clicking 'End Session'. This means the last\n"
+        "turn in the transcript is NOT necessarily where the salesperson failed to close — the\n"
+        "session was simply terminated by the user. Do NOT penalize Closing Skills or fail the\n"
+        "'Commitment Achieved' checkpoint solely on the basis of '[no final response]' at the\n"
+        "end. Score the closing skill based on signals that ACTUALLY appeared in the transcript\n"
+        "(buying signals recognized, next steps offered, etc.), not on the abrupt ending.\n\n"
+        if ended_by_user else
+        "SESSION END CONTEXT:\n"
+        "This session ended automatically (inactivity timeout or connection drop). Evaluate the\n"
+        "salesperson's performance based on what was actually said.\n\n"
+    )
+
+    _difficulty_calibration = {
+        "easy": (
+            "DIFFICULTY CONTEXT: This was an EASY customer — receptive, forgiving of a weak\n"
+            "opening, quick to decide. Hold the salesperson to a HIGH standard: with an easy\n"
+            "customer, failing to close or build rapport is a real miss.\n\n"
+        ),
+        "medium": (
+            "DIFFICULTY CONTEXT: This was a MEDIUM-difficulty customer — reasonable, needs a\n"
+            "solid pitch to advance. Score against normal professional expectations.\n\n"
+        ),
+        "hard": (
+            "DIFFICULTY CONTEXT: This was a HARD customer — skeptical at every stage, demands\n"
+            "proof, slow to advance, hard to close by design. Calibrate accordingly: do NOT\n"
+            "punish the salesperson merely for not closing. Credit incremental progress —\n"
+            "earning trust, advancing the customer through stages, handling objections — even\n"
+            "if no sale happened. A 'no close' against a hard customer can still be a strong\n"
+            "performance.\n\n"
+        ),
+    }
+    difficulty_note = _difficulty_calibration.get(
+        (difficulty or "medium").lower(), _difficulty_calibration["medium"]
+    )
+
+    # The buyer scenario — what the customer actually needed. Lets the analyzer
+    # judge needs-discovery and budget-fit objectively.
+    scenario_note = ""
+    if scenario:
+        bmin = scenario.get("budget_min")
+        bmax = scenario.get("budget_max")
+        budget_line = (
+            f"{bmin:,} - {bmax:,} EGP" if isinstance(bmin, int) and isinstance(bmax, int)
+            else "not specified"
+        )
+        must = "; ".join(scenario.get("must_haves") or []) or "none specified"
+        breakers = "; ".join(scenario.get("deal_breakers") or []) or "none specified"
+        scenario_note = (
+            "CUSTOMER SCENARIO (the customer's real situation — NOT shown to the salesperson):\n"
+            f"- Buyer context: {scenario.get('buyer_context', 'unknown')}\n"
+            f"- Budget: {budget_line}\n"
+            f"- Timeline: {scenario.get('timeline', 'unknown')}\n"
+            f"- Must-haves: {must}\n"
+            f"- Deal-breakers: {breakers}\n"
+            "Use this to judge two things objectively:\n"
+            "1. NEEDS DISCOVERY — did the salesperson ASK enough to uncover these needs, "
+            "or did they pitch blind? A salesperson who never discovered the budget/timeline "
+            "should score low on Needs Discovery even if the call felt smooth.\n"
+            "2. BUDGET FIT — did the salesperson respect the customer's budget ceiling, or "
+            "keep pushing units above it? Pushing well over budget is an objection-handling "
+            "and listening failure.\n\n"
+        )
 
     return (
         f"{_system_style_guardrails()}\n\n"
@@ -271,6 +378,10 @@ def build_analyzer_prompt(
         "═══════════════════════════════════════════════════════════════════\n"
         "CONVERSATION DATA:\n"
         "═══════════════════════════════════════════════════════════════════\n\n"
+
+        f"{end_reason_note}"
+        f"{difficulty_note}"
+        f"{scenario_note}"
 
         "TRANSCRIPT (Complete conversation):\n"
         f"{transcript_json}\n\n"

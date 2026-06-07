@@ -40,6 +40,8 @@ MOCK_PERSONAS: dict[str, Persona] = {
         "default_emotion": "hesitant",
         "difficulty": "hard",
         "traits": ["متشكك", "بيفاصل", "بيسأل كتير", "صعب الإرضاء"],
+        "gender": "male",
+        "gender_mode": "male_only",
         "avatar_url": None
     },
     
@@ -65,6 +67,8 @@ MOCK_PERSONAS: dict[str, Persona] = {
         "default_emotion": "friendly",
         "difficulty": "easy",
         "traits": ["ودود", "متعاون", "صبور", "منفتح"],
+        "gender": "male",
+        "gender_mode": "male_only",
         "avatar_url": None
     },
     
@@ -90,6 +94,8 @@ MOCK_PERSONAS: dict[str, Persona] = {
         "default_emotion": "neutral",
         "difficulty": "medium",
         "traits": ["مستعجل", "مباشر", "عملي", "مشغول"],
+        "gender": "male",
+        "gender_mode": "male_only",
         "avatar_url": None
     },
     
@@ -115,6 +121,8 @@ MOCK_PERSONAS: dict[str, Persona] = {
         "default_emotion": "hesitant",
         "difficulty": "medium",
         "traits": ["مهتم بالسعر", "بيفاصل", "عملي", "حريص"],
+        "gender": "male",
+        "gender_mode": "male_only",
         "avatar_url": None
     },
     
@@ -140,6 +148,8 @@ MOCK_PERSONAS: dict[str, Persona] = {
         "default_emotion": "neutral",
         "difficulty": "easy",
         "traits": ["جديد", "محتاج توجيه", "قلقان", "بيسأل كتير"],
+        "gender": "male",
+        "gender_mode": "male_only",
         "avatar_url": None
     }
 }

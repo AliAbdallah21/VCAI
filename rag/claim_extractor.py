@@ -46,12 +46,39 @@ _FRACTIONS: dict[str, float] = {
     "وثلاثة أرباع":     0.75,
 }
 
+# ── Spelled-out Arabic number words (1-10), MSA + Egyptian colloquial ─────────
+# Without these, a price like "ثلاثة مليون" (3 million) loses its number word:
+# the digit-only regex captured nothing and the parser fell back to 1.0,
+# collapsing EVERY spelled-out price to 1,000,000 EGP. That single bug was the
+# source of the fabricated "wrong price" fact-check errors.
+_AR_NUMBER_WORDS: dict[str, float] = {
+    "واحد": 1, "واحدة": 1,
+    "اثنين": 2, "إثنين": 2, "اتنين": 2, "إتنين": 2, "ثنين": 2,
+    "ثلاثة": 3, "ثلاث": 3, "تلاتة": 3, "تلات": 3,
+    "أربعة": 4, "اربعة": 4, "أربع": 4, "اربع": 4,
+    "خمسة": 5, "خمس": 5,
+    "ستة": 6, "سته": 6, "ست": 6,
+    "سبعة": 7, "سبع": 7,
+    "ثمانية": 8, "تمانية": 8, "ثماني": 8, "تمنية": 8, "تمن": 8,
+    "تسعة": 9, "تسع": 9,
+    "عشرة": 10, "عشر": 10,
+}
+
+# ── Fraction words that PRECEDE the unit: "نص مليون" = half a million ──────────
+# Distinct from _FRACTIONS, which are added AFTER the unit ("مليون ونص" = 1.5M).
+_LEAD_FRACTIONS: dict[str, float] = {
+    "نص": 0.5, "نصف": 0.5, "ربع": 0.25, "تلت": 0.333, "ثلث": 0.333,
+}
+
 # ── Regex building blocks ─────────────────────────────────────────────────────
 _N = r"[٠-٩\d]+(?:[.,][٠-٩\d]+)?"   # one number (Arabic or Western)
+# Spelled-out number words, longest-first so the regex prefers "ثلاثة" over "ثلاث".
+_NUM_WORD = "|".join(sorted(_AR_NUMBER_WORDS, key=len, reverse=True))
+_LEAD_FRAC = "|".join(sorted(_LEAD_FRACTIONS, key=len, reverse=True))
 
-# Price: [N] مليون[ين] [fraction]  or  N ألف
+# Price: [N | number-word | lead-fraction] مليون[ين] [fraction]  or  N ألف
 _MILLION_RE = re.compile(
-    rf"(?:({_N})\s+)?(مليونين|مليون|مليار)"
+    rf"(?:({_N})\s+|({_NUM_WORD})\s+|({_LEAD_FRAC})\s+)?(مليونين|مليون|مليار)"
     rf"(?:\s+(ونص|ونصف|وربع|وثلث|وثلاثة أرباع))?",
     re.UNICODE,
 )
@@ -105,6 +132,13 @@ _FEATURE_KEYWORDS: dict[str, str] = {
     "شاطئ خاص":   "private_beach",
 }
 
+# A "X مليون" figure inside a payment-terms turn (down payment / installment)
+# is the payment amount, NOT the unit price — checking it against the
+# property's price range fabricates a "wrong price" error. A price claim is
+# only emitted from such a turn if it ALSO explicitly talks about the price.
+_PAYMENT_CONTEXT = ("مقدم", "دفعة", "قسط", "أقساط", "تقسيط", "تقسط", "تقصت")
+_PRICE_CUES      = ("سعر", "ثمن", "بكام")
+
 
 # ── Price parsing ──────────────────────────────────────────────────────────────
 
@@ -116,16 +150,29 @@ def _extract_price_egp(text: str) -> Optional[float]:
     """
     m = _MILLION_RE.search(text)
     if m:
-        num_str  = m.group(1)    # optional number before مليون (e.g., "3")
-        unit     = m.group(2)    # "مليون", "مليونين", "مليار"
-        frac_key = m.group(3)    # "ونص" etc. (or None)
+        digit_str = m.group(1)   # number as digits before مليون (e.g., "3")
+        word_str  = m.group(2)   # number as a spelled-out word (e.g., "ثلاثة")
+        lead_frac = m.group(3)   # fraction before the unit (e.g., "نص")
+        unit      = m.group(4)   # "مليون", "مليونين", "مليار"
+        frac_key  = m.group(5)   # "ونص" etc. (or None)
+
+        # Resolve the multiplier: digits win, then number words, then a
+        # leading fraction ("نص مليون"), else 1.0 (bare "مليون").
+        if digit_str is not None:
+            count = _parse_float(digit_str) or 1.0
+        elif word_str is not None:
+            count = _AR_NUMBER_WORDS.get(word_str, 1.0)
+        elif lead_frac is not None:
+            count = _LEAD_FRACTIONS.get(lead_frac, 1.0)
+        else:
+            count = 1.0
 
         if unit == "مليونين":
             base = 2_000_000.0
         elif unit == "مليار":
-            base = (_parse_float(num_str) or 1.0) * 1_000_000_000.0
+            base = count * 1_000_000_000.0
         else:  # مليون
-            base = (_parse_float(num_str) or 1.0) * 1_000_000.0
+            base = count * 1_000_000.0
 
         frac = _FRACTIONS.get(frac_key or "", 0.0) * 1_000_000.0
         return base + frac
@@ -260,7 +307,11 @@ def extract_salesperson_claims(transcript: list[dict]) -> list[dict]:
             # ── Price ──────────────────────────────────────────────────────
             price = _extract_price_egp(text)
             if price is not None:
-                claims.append(_claim("price", str(int(price)), "EGP"))
+                payment_ctx = any(k in text for k in _PAYMENT_CONTEXT)
+                price_cue   = any(k in text for k in _PRICE_CUES)
+                # Skip payment-terms turns that never mention the price itself.
+                if not (payment_ctx and not price_cue):
+                    claims.append(_claim("price", str(int(price)), "EGP"))
 
             # ── Size ───────────────────────────────────────────────────────
             seen_sizes: set[int] = set()

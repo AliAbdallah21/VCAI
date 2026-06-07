@@ -25,6 +25,8 @@ class Persona(Base):
     patience_level = Column(Integer, default=50)  # 0-100
     emotion_sensitivity = Column(Integer, default=50)  # 0-100
     traits = Column(JSONB, default=[])
+    gender = Column(String(10), nullable=False, default="male")       # male | female
+    gender_mode = Column(String(20), nullable=False, default="male_only")  # male_only | female_only | switchable
     voice_id = Column(String(100))
     avatar_url = Column(String(500))
     is_active = Column(Boolean, default=True)
@@ -48,6 +50,8 @@ class Persona(Base):
             "patience_level": self.patience_level,
             "emotion_sensitivity": self.emotion_sensitivity,
             "traits": self.traits,
+            "gender": self.gender,
+            "gender_mode": self.gender_mode,
             "voice_id": self.voice_id,
             "avatar_url": self.avatar_url
         }

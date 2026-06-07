@@ -4,8 +4,8 @@ Pydantic schemas for API request/response validation.
 """
 
 from pydantic import BaseModel, EmailStr, Field
-from typing import Optional, List
-from datetime import datetime
+from typing import Optional, List, Dict, Any
+from datetime import datetime, date
 from uuid import UUID
 
 
@@ -34,11 +34,12 @@ class UserResponse(BaseModel):
     email: str
     full_name: str
     company: Optional[str]
+    company_id: Optional[UUID] = None
     role: str
     experience_level: str
     is_active: bool
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -81,9 +82,15 @@ class PersonaResponse(BaseModel):
     patience_level: int
     emotion_sensitivity: int
     traits: List[str]
+    gender: str = "male"
+    gender_mode: str = "male_only"
     voice_id: Optional[str]
     avatar_url: Optional[str]
-    
+    # Free-plan gating (Phase 4): true when this persona is not available on the
+    # caller's plan. Defaults False so personas without an annotation (public
+    # listing, paid plans) validate as unlocked.
+    locked: bool = False
+
     class Config:
         from_attributes = True
 
@@ -102,6 +109,16 @@ class SessionCreate(BaseModel):
     """Schema for starting a new session."""
     persona_id: str
     difficulty: str = "medium"
+    # Optional buyer-scenario spec. Resolved server-side via
+    # shared.scenarios.resolve_scenario(). Shapes:
+    #   None / omitted          -> random scenario
+    #   {"mode": "random"}      -> random
+    #   {"mode": "preset", "preset_id": "..."}
+    #   {"mode": "custom", "pins": {...}}
+    scenario: Optional[dict] = None
+    # Adaptive learning — which skill the system recommended to focus on.
+    # Set by the frontend when the user accepts a learning recommendation.
+    training_focus: Optional[str] = None
 
 
 class SessionResponse(BaseModel):
@@ -124,7 +141,8 @@ class SessionResponse(BaseModel):
     strengths: List[str]
     weaknesses: List[str]
     recommendations: List[str]
-    
+    scenario: Optional[dict] = None
+
     class Config:
         from_attributes = True
 
@@ -139,6 +157,7 @@ class SessionSummary(BaseModel):
     started_at: datetime
     duration_seconds: Optional[int]
     overall_score: Optional[int]
+    turn_count: int = 0
 
 
 class SessionListResponse(BaseModel):
@@ -174,8 +193,9 @@ class MessageResponse(BaseModel):
     response_quality: Optional[str]
     quality_reason: Optional[str]
     suggestion: Optional[str]
+    audio_path: Optional[str] = None
     created_at: datetime
-    
+
     class Config:
         from_attributes = True
 
@@ -260,3 +280,314 @@ class WSResponseMessage(BaseModel):
     """Schema for response from server."""
     type: str  # transcription, response, audio, emotion, tip, error
     data: dict
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# ONBOARDING / SEAT / SUBSCRIPTION SCHEMAS (Phase 3)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class OnboardingSignup(BaseModel):
+    """Mocked-checkout signup: create a company, manager, and subscription."""
+    company_name: str = Field(..., min_length=2)
+    plan_name: str = "free"
+    billing_cycle: str = "monthly"  # monthly, annual
+    manager_name: str = Field(..., min_length=2)
+    manager_email: EmailStr
+    password: str = Field(..., min_length=6)
+
+
+class CompanyResponse(BaseModel):
+    """Schema for a company."""
+    id: UUID
+    name: str
+    slug: Optional[str]
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class OnboardingResult(BaseModel):
+    """Result of onboarding signup: token + the provisioned company."""
+    access_token: str
+    token_type: str = "bearer"
+    user: UserResponse
+    company: CompanyResponse
+    plan_name: str
+    billing_status: str
+
+
+class InviteCreate(BaseModel):
+    """Manager invites an agent (salesperson) by email."""
+    email: EmailStr
+    role: str = "salesperson"
+
+
+class InviteInfo(BaseModel):
+    """Public view of an invite (rendered on the accept page)."""
+    company_name: str
+    email: str
+    role: str
+    status: str
+    expires_at: Optional[datetime]
+
+
+class InviteResponse(BaseModel):
+    """A created seat invite, including the (stubbed-email) accept link."""
+    id: UUID
+    email: str
+    role: str
+    status: str
+    token: str
+    invite_link: str
+    expires_at: Optional[datetime]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class InviteAccept(BaseModel):
+    """An invited agent accepts and sets their name + password."""
+    token: str
+    full_name: str = Field(..., min_length=2)
+    password: str = Field(..., min_length=6)
+
+
+class SeatUser(BaseModel):
+    """An active seat (user) in the roster."""
+    id: UUID
+    email: str
+    full_name: str
+    role: str
+    is_active: bool
+    created_at: datetime
+
+    class Config:
+        from_attributes = True
+
+
+class SeatRoster(BaseModel):
+    """Company seat roster: active users + pending invites + usage."""
+    users: List[SeatUser]
+    pending_invites: List[InviteResponse]
+    used: int
+    limit: int
+
+
+class SubscriptionInfo(BaseModel):
+    """Current subscription + resolved plan limits + usage summary."""
+    plan_name: str
+    display_name: Optional[str]
+    billing_cycle: str
+    billing_status: str
+    trial_ends_at: Optional[datetime]
+    seat_limit: int
+    session_limit_monthly: int
+    gaas_enabled: bool
+    price_monthly_usd: Optional[int]
+    price_annual_usd: Optional[int]
+    seats_used: int
+    sessions_used_this_period: int
+
+
+class PlanChange(BaseModel):
+    """Mocked plan change request."""
+    plan_name: str
+    billing_cycle: str = "monthly"
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# MANAGER DASHBOARD SCHEMAS (Phase 5)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class AgentSummary(BaseModel):
+    """One agent row in the manager roster, with summary stats from user_stats."""
+    user_id: UUID
+    email: str
+    full_name: str
+    is_active: bool
+    total_sessions: int
+    completed_sessions: int
+    avg_overall_score: Optional[float]
+    current_streak: int
+    last_session_date: Optional[datetime]
+
+
+class AgentListResponse(BaseModel):
+    """Company agents + pending-invite count."""
+    agents: List[AgentSummary]
+    pending_invites: int
+
+
+class AgentSessionSummary(BaseModel):
+    """A session row in an agent's history."""
+    id: UUID
+    persona_id: Optional[str]
+    persona_name: Optional[str]
+    status: str
+    difficulty: Optional[str]
+    started_at: Optional[datetime]
+    duration_seconds: Optional[int]
+    overall_score: Optional[int]
+    turn_count: int
+
+
+class ScoreTrendPoint(BaseModel):
+    """A point in an agent's overall-score trend."""
+    date: Optional[str]
+    overall_score: Optional[int]
+
+
+class AgentProgress(BaseModel):
+    """An agent's per-skill averages, score trend, and session history."""
+    user_id: UUID
+    full_name: str
+    email: str
+    is_active: bool
+    skill_averages: Dict[str, Optional[float]]
+    score_trend: List[ScoreTrendPoint]
+    sessions: List[AgentSessionSummary]
+    skill_profiles: List[Dict[str, Any]]  # Phase 8 fills this; empty until then.
+
+
+class ScoreBucket(BaseModel):
+    bucket: str
+    count: int
+
+
+class SessionsPerDay(BaseModel):
+    date: str
+    count: int
+
+
+class PersonaUsage(BaseModel):
+    persona_id: Optional[str]
+    persona_name: Optional[str]
+    count: int
+
+
+class WeakestSkill(BaseModel):
+    skill: str
+    average: float
+
+
+class CompanyAnalytics(BaseModel):
+    """Company-level rollups for the manager overview."""
+    total_sessions: int
+    sessions_this_period: int
+    active_agents: int
+    avg_score: Optional[float]
+    score_distribution: List[ScoreBucket]
+    sessions_per_day: List[SessionsPerDay]
+    persona_usage: List[PersonaUsage]
+    team_skill_averages: Optional[Dict[str, Optional[float]]] = None
+    weakest_skill: Optional[WeakestSkill]
+
+
+class EmotionCount(BaseModel):
+    emotion: str
+    count: int
+
+
+class EmotionTrends(BaseModel):
+    """Company-level emotion aggregates."""
+    emotion_distribution: List[EmotionCount]
+    avg_mood_score: Optional[float]
+    high_risk_session_share: float
+    total_sessions_with_emotion: int
+
+
+class AbuseFlagOut(BaseModel):
+    """One abuse flag in the manager review queue."""
+    id: UUID
+    company_id: UUID
+    user_id: Optional[UUID]
+    reason: str
+    severity: str
+    detail: Optional[Dict[str, Any]]
+    status: str
+    created_at: datetime
+    resolved_at: Optional[datetime]
+    resolved_by: Optional[UUID]
+
+    class Config:
+        from_attributes = True
+
+
+class AbuseResolve(BaseModel):
+    """Resolve an abuse flag: reviewed or dismissed, with an optional note."""
+    status: str  # reviewed | dismissed
+    note: Optional[str] = None
+
+
+# ══════════════════════════════════════════════════════════════════════════════
+# SUPER-ADMIN DASHBOARD SCHEMAS (Phase 6)
+# ══════════════════════════════════════════════════════════════════════════════
+
+class TenantSummary(BaseModel):
+    """One company row in the super-admin tenants table."""
+    company_id: UUID
+    name: str
+    slug: Optional[str]
+    is_active: bool
+    created_at: datetime
+    plan_name: Optional[str]
+    billing_status: Optional[str]
+    seats_used: int
+    seat_limit: Optional[int]
+    sessions_this_period: int
+    total_agents: int
+
+
+class TenantListResponse(BaseModel):
+    """Paginated tenants list."""
+    tenants: List[TenantSummary]
+    total: int
+
+
+class PlanCount(BaseModel):
+    plan: str
+    count: int
+
+
+class TopTenant(BaseModel):
+    company_id: UUID
+    name: str
+    sessions: int
+
+
+class PlatformUsage(BaseModel):
+    """Cross-tenant platform rollups for the super-admin overview."""
+    total_companies: int
+    active_companies: int
+    active_subscriptions: int
+    active_subs_by_plan: List[PlanCount]
+    total_sessions: int
+    sessions_this_period: int
+    total_active_agents: int
+    open_abuse_flags: int
+    sessions_per_day: List[SessionsPerDay]
+    top_tenants: List[TopTenant]
+
+
+class TenantStatusChange(BaseModel):
+    """Result of a suspend/reactivate action."""
+    company_id: UUID
+    name: str
+    is_active: bool
+
+
+class AuditLogOut(BaseModel):
+    """One audit-log row for the global audit viewer."""
+    id: UUID
+    company_id: Optional[UUID] = None
+    action: str
+    actor_role: Optional[str]
+    target_type: Optional[str]
+    target_id: Optional[str]
+    created_at: datetime
+
+    class Config:
+        from_attributes = True

@@ -36,9 +36,13 @@ def _find_property_id_by_search(raw_text: str, property_hint: str) -> Optional[s
         query = f"{raw_text} {property_hint}".strip()
         hits  = faiss_search(query, top_k=5)
 
-        # First pass: look for a structured chunk hit with property_id
+        # First pass: look for a structured chunk hit with property_id.
+        # Threshold raised from 0.35 → 0.55: a loose match against an unrelated
+        # property fabricates a "wrong price" error and unfairly fails the
+        # trainee. FAISS here is only a fallback for turns with no name in the
+        # text — being conservative (→ unverifiable) is the safe failure mode.
         for hit in hits:
-            if hit["score"] < 0.35:
+            if hit["score"] < 0.55:
                 continue
             md = hit.get("metadata", {})
             pid = md.get("property_id")
@@ -48,7 +52,7 @@ def _find_property_id_by_search(raw_text: str, property_hint: str) -> Optional[s
         # Second pass: look inside the content text for "property_id: <id>" pattern
         # (This handles the case where generic loader chunks have the id in content but not metadata)
         for hit in hits:
-            if hit["score"] < 0.40:
+            if hit["score"] < 0.55:
                 continue
             content = hit.get("content", "")
             for line in content.split("\n"):
@@ -289,11 +293,15 @@ def check_facts(
         hint      = claim.get("property_hint", "")
 
         # ── Step 1: identify the property being discussed ────────────────────
-        property_id = _find_property_id_by_search(raw_text, hint)
-
-        # Fall back to property_hint if FAISS returned nothing with an ID
-        if not property_id and hint and hint in props_by_id:
+        # The keyword hint from claim_extractor is an EXACT name/keyword
+        # substring match — high precision. Trust it first. FAISS semantic
+        # search is only a fuzzy fallback for turns whose text contains no
+        # property name; running it first let a weak (0.35) match override a
+        # correct hint and attribute claims to properties never discussed.
+        if hint and hint in props_by_id:
             property_id = hint
+        else:
+            property_id = _find_property_id_by_search(raw_text, hint)
 
         if not property_id or property_id not in props_by_id:
             unverifiable.append({**claim, "reason": "no_kb_match"})

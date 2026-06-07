@@ -108,6 +108,26 @@ async def get_current_user(
     return user
 
 
+async def get_current_user_optional(
+    token: Optional[str] = Depends(OAuth2PasswordBearer(tokenUrl="/api/auth/login", auto_error=False)),
+    db: Session = Depends(get_db),
+) -> Optional[User]:
+    """
+    Like get_current_user, but returns None instead of 401 when no valid token
+    is present. Used by endpoints that are public but tailor their response for
+    authenticated users (e.g. persona listing with plan-aware lock flags).
+    """
+    if not token:
+        return None
+    token_data = decode_token(token)
+    if token_data is None:
+        return None
+    user = db.query(User).filter(User.id == token_data.user_id).first()
+    if user is None or not user.is_active:
+        return None
+    return user
+
+
 def register_user(db: Session, user_data: UserCreate) -> User:
     """Register a new user."""
     # Check if email already exists
@@ -170,9 +190,37 @@ def login_user(db: Session, email: str, password: str) -> Token:
         )
     
     access_token = create_access_token(str(user.id))
-    
+
     return Token(
         access_token=access_token,
         token_type="bearer",
         user=UserResponse.model_validate(user)
     )
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Role-based access control + tenant scoping helpers
+# Built strictly on top of get_current_user above.
+# ─────────────────────────────────────────────────────────────────────────────
+
+def require_role(*allowed_roles: str):
+    """Dependency factory: 403 unless current_user.role in allowed_roles."""
+    async def _dep(current_user: User = Depends(get_current_user)) -> User:
+        if current_user.role not in allowed_roles:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="Insufficient permissions")
+        return current_user
+    return _dep
+
+
+get_current_manager = require_role("manager", "superadmin")
+get_current_superadmin = require_role("superadmin")
+
+
+def assert_same_company(current_user: User, target_company_id) -> None:
+    """Raise 403 unless superadmin or the user's company matches target."""
+    if current_user.role == "superadmin":
+        return
+    if str(current_user.company_id) != str(target_company_id):
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                            detail="Cross-tenant access denied")

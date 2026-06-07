@@ -84,6 +84,14 @@ export const AuthProvider = ({ children }) => {
     return data;
   };
 
+  // Establish a session from an already-issued token + user (onboarding/invite).
+  const setAuth = ({ access_token, user: authUser }) => {
+    setToken(access_token);
+    setUser(authUser);
+    localStorage.setItem('token', access_token);
+    localStorage.setItem('user', JSON.stringify(authUser));
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
@@ -92,7 +100,7 @@ export const AuthProvider = ({ children }) => {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, isAuthenticated: !!token, login, register, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, isAuthenticated: !!token, login, register, setAuth, logout }}>
       {children}
     </AuthContext.Provider>
   );

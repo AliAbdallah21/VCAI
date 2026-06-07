@@ -71,6 +71,8 @@ class AuthToken(TypedDict):
 
 PersonaDifficulty = Literal["easy", "medium", "hard"]
 PersonaEmotion = Literal["neutral", "friendly", "frustrated", "hesitant", "angry", "interested"]
+PersonaGender = Literal["male", "female"]
+PersonaGenderMode = Literal["male_only", "female_only", "switchable"]
 
 class Persona(TypedDict):
     """Virtual Customer persona definition"""
@@ -83,6 +85,8 @@ class Persona(TypedDict):
     default_emotion: PersonaEmotion     # Default emotional state
     difficulty: PersonaDifficulty       # Difficulty level
     traits: list[str]                   # ["متشكك", "بيفاصل", "صبور"]
+    gender: PersonaGender               # male | female
+    gender_mode: PersonaGenderMode      # male_only | female_only | switchable
     avatar_url: Optional[str]           # Avatar image URL
 
 
@@ -92,6 +96,8 @@ class PersonaSummary(TypedDict):
     name: str
     name_en: str
     difficulty: PersonaDifficulty
+    gender: PersonaGender
+    gender_mode: PersonaGenderMode
     avatar_url: Optional[str]
 
 

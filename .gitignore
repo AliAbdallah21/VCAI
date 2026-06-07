@@ -30,6 +30,16 @@ data/voices/*
 !data/voices/.gitkeep
 *.wav
 *.mp3
+*.webm
+
+# Evaluation reports (generated artifacts, not source)
+reports/*
+!reports/.gitkeep
+
+# Personal demo / ops files (not shared with the repo)
+DEMO_RUNBOOK.md
+scripts/smoke_test.py
+tools/
 
 # Logs
 *.log

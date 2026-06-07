@@ -3,7 +3,7 @@
 User SQLAlchemy model.
 """
 
-from sqlalchemy import Column, String, Boolean, DateTime, func
+from sqlalchemy import Column, String, Boolean, DateTime, ForeignKey, func
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import relationship
 import uuid
@@ -21,13 +21,15 @@ class User(Base):
     password_hash = Column(String(255), nullable=False)
     full_name = Column(String(255), nullable=False)
     company = Column(String(255))
-    role = Column(String(50), default="salesperson")  # salesperson, manager, admin
+    company_id = Column(UUID(as_uuid=True), ForeignKey("companies.id", ondelete="CASCADE"), nullable=True, index=True)
+    role = Column(String(50), default="salesperson")  # superadmin, manager, salesperson
     experience_level = Column(String(50), default="beginner")  # beginner, intermediate, advanced
     is_active = Column(Boolean, default=True)
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), server_default=func.now(), onupdate=func.now())
-    
+
     # Relationships
+    company_ref = relationship("Company", back_populates="users")
     sessions = relationship("Session", back_populates="user", cascade="all, delete-orphan")
     stats = relationship("UserStats", back_populates="user", uselist=False, cascade="all, delete-orphan")
     

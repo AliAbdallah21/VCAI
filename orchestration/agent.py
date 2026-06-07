@@ -52,7 +52,8 @@ class OrchestrationAgent:
         user_id: str,
         persona_id: str = None,
         scenario_id: str = None,
-        persona_dict: dict = None
+        persona_dict: dict = None,
+        training_focus: str = None,
     ) -> ConversationState:
         """
         Start a new conversation session.
@@ -79,7 +80,8 @@ class OrchestrationAgent:
             session_id=session_id,
             user_id=user_id,
             persona=persona,
-            scenario=scenario
+            scenario=scenario,
+            training_focus=training_focus,
         )
         
         # Create graph

@@ -1,0 +1,263 @@
+{
+  "report_id": "RPT-2026-05-13-07-20-59",
+  "session_id": "44d35cc8-3e75-4cf5-bed4-55a7875e3fae",
+  "user_id": "b7eb2e79-094f-4a1f-bc76-64e4d1c37387",
+  "persona_id": "rushed_customer",
+  "persona_name": "العميل المستعجل",
+  "mode": "training",
+  "created_at": "2024-05-21T12:05:00Z",
+  "quick_stats": {
+    "duration_seconds": 153,
+    "duration_formatted": "2:33",
+    "total_turns": 4,
+    "salesperson_turns": 2,
+    "customer_turns": 2,
+    "final_customer_emotion": "angry",
+    "emotion_improved": false,
+    "checkpoints_achieved": 0,
+    "checkpoints_total": 6,
+    "checkpoint_list": [],
+    "call_outcome": "completed"
+  },
+  "scores": {
+    "overall_score": 14,
+    "pass_threshold": 75,
+    "status": "failed",
+    "points_from_passing": -61,
+    "skills": [
+      {
+        "skill_name": "Rapport Building",
+        "skill_key": "rapport_building",
+        "score": 10,
+        "weight": 0.2,
+        "weighted_contribution": 2.0,
+        "was_tested": true,
+        "summary": "You started with a professional greeting, which is a good foundation. The next step is to add a personal touch to build a stronger connection.",
+        "strengths": [
+          "Provided a basic, professional introduction to start the call."
+        ],
+        "areas_to_improve": [
+          "Try asking a light, open-ended question after your introduction to build a connection before diving into business."
+        ],
+        "evidence_turns": [
+          0
+        ]
+      },
+      {
+        "skill_name": "Active Listening",
+        "skill_key": "active_listening",
+        "score": 20,
+        "weight": 0.2,
+        "weighted_contribution": 4.0,
+        "was_tested": true,
+        "summary": "You heard the customer's main request. To improve, listen for what's unsaid and probe for more details to show you're fully engaged.",
+        "strengths": [
+          "Correctly identified the customer's initial request for a 3-bedroom apartment."
+        ],
+        "areas_to_improve": [
+          "Recognize that an initial request is just the starting point. Acknowledge it, then ask follow-up questions to uncover the full picture."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Needs Discovery",
+        "skill_key": "needs_discovery",
+        "score": 0,
+        "weight": 0.23,
+        "weighted_contribution": 0.0,
+        "was_tested": true,
+        "summary": "This is the most important area for growth. The conversation moved to solutions without asking key questions about budget, location, or motivation.",
+        "strengths": [],
+        "areas_to_improve": [
+          "This is a critical skill to develop. Always ask clarifying questions (like budget, timeline, preferred areas) before suggesting properties.",
+          "Avoid the temptation to provide an immediate answer. Your first goal is to understand, not to sell."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Product Knowledge",
+        "skill_key": "product_knowledge",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this short conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Objection Handling",
+        "skill_key": "objection_handling",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this short conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Emotional Intelligence",
+        "skill_key": "emotional_intelligence",
+        "score": 25,
+        "weight": 0.2,
+        "weighted_contribution": 5.0,
+        "was_tested": true,
+        "summary": "A key learning here is to anticipate how your words affect the customer. Clear communication builds trust and avoids frustration.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Be mindful that unclear or confusing information can create negative feelings for the customer, as it did here.",
+          "Try to put yourself in the customer's shoes; they may not have the same knowledge you do."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Closing Skills",
+        "skill_key": "closing_skills",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "Not tested in this short conversation.",
+        "strengths": [],
+        "areas_to_improve": [],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Communication Clarity",
+        "skill_key": "communication_clarity",
+        "score": 15,
+        "weight": 0.17,
+        "weighted_contribution": 2.55,
+        "was_tested": true,
+        "summary": "Clear communication is key to building credibility. Focusing on using precise and correct terminology will prevent confusion.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Ensure you are using the correct and full names for projects (e.g., 'Mountain View', not 'موتين بيو').",
+          "Double-check your word choice to avoid typos or similar-sounding words that can cause confusion (e.g., 'شقق' vs. 'شوق')."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      }
+    ],
+    "skills_tested": 5,
+    "skills_passed": 0,
+    "strongest_skill": "emotional_intelligence",
+    "weakest_skill": "needs_discovery"
+  },
+  "checkpoints": [
+    {
+      "name": "Rapport Established",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Building a personal connection with the customer beyond the business topic.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation moved directly to business without any small talk or questions to build a personal connection.",
+      "how_to_achieve": "After your greeting, try asking a simple question like, 'What prompted you to start looking for a new home today?' to open the conversation."
+    },
+    {
+      "name": "Needs Identified",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Uncovering the customer's key needs, such as budget, location, size, and motivation.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "You offered solutions immediately after the customer's first statement, without asking any discovery questions to understand their deeper needs.",
+      "how_to_achieve": "When a customer states a need, your next step should almost always be a question. For example: 'Thanks for sharing that. What's your budget for a 3-bedroom place?'"
+    },
+    {
+      "name": "Value Demonstrated",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Explaining how your properties or services meet the customer's specific, identified needs.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "Because the customer's needs weren't fully identified, it wasn't possible to demonstrate how any specific property would be of value to them.",
+      "how_to_achieve": "First, discover the need (e.g., 'I need a quiet area'). Then, demonstrate value ('This property in Madinaty is known for its peaceful, family-friendly environment.')."
+    },
+    {
+      "name": "Objection Handled",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Effectively addressing a customer's concern or hesitation.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The customer expressed confusion, which is a form of objection, but the call ended before it could be addressed.",
+      "how_to_achieve": "When a customer says 'I don't understand,' pause and clarify. Try saying, 'My apologies, let me be clearer. Which part was confusing?'"
+    },
+    {
+      "name": "Closing Signal Recognized",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Identifying a verbal or non-verbal cue from the customer that they are ready to move forward.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation did not reach a stage where the customer was ready to consider next steps, so no closing signals were given.",
+      "how_to_achieve": "Listen for questions about process, like 'What's the next step?' or 'How soon could I see it?'. These are green lights to propose a commitment."
+    },
+    {
+      "name": "Commitment Achieved",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Securing a firm agreement from the customer for a next step, like a meeting or a site visit.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The call ended prematurely due to customer frustration and did not progress toward any form of commitment.",
+      "how_to_achieve": "After demonstrating value and handling objections, confidently ask for the next step. For example: 'Based on our chat, I have two properties perfect for you. Are you free tomorrow at 2 PM for a viewing?'"
+    }
+  ],
+  "executive_summary": "This was a challenging but valuable learning experience. You started the call professionally, but the key takeaway is the importance of asking questions before offering solutions. Focusing on clear communication and understanding the customer's needs first will transform your future calls.",
+  "top_strengths": [
+    "You started the call with a professional introduction.",
+    "You correctly heard the customer's initial request for a 3-bedroom apartment.",
+    "You showed initiative by attempting to provide solutions quickly."
+  ],
+  "top_improvements": [
+    "Prioritize asking discovery questions (budget, location, etc.) before presenting any properties.",
+    "Focus on clear and precise communication, using correct project names and professional terms to avoid confusion.",
+    "Take a moment at the start of the call to build a personal connection and make the customer feel comfortable."
+  ],
+  "turn_feedback": [
+    {
+      "turn_number": 1,
+      "speaker": "salesperson",
+      "text": "The analysis indicates your response was unclear, mentioning 'شوق' instead of 'شقق' and 'موتين بيو' instead of 'ماونتن فيو'.",
+      "assessment": "poor",
+      "tone": "constructive",
+      "what_was_good": "It's good that you tried to provide options right away based on the customer's request.",
+      "what_to_improve": "This response created confusion for two reasons: the language was unclear, and it skipped the crucial step of needs discovery. This caused the customer to become frustrated.",
+      "suggested_alternative": "A much stronger approach would be to ask a question. For example: 'تمام، شقة 3 غرف. عشان أقدر أساعدك بشكل أفضل، ممكن أعرف إيه الميزانية التقريبية اللي حضرتك حاططها؟' (Great, a 3-bedroom apartment. To help you better, could I know the approximate budget you have in mind?)",
+      "skills_shown": [
+        "needs_discovery",
+        "communication_clarity",
+        "emotional_intelligence"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    }
+  ],
+  "include_turn_feedback": true,
+  "highlight_turns": [
+    1
+  ],
+  "recommended_practice": [
+    "Practice the 'Needs Discovery' stage. Start a scenario with the goal of asking at least three follow-up questions before you mention a single property.",
+    "Run a simulation focused on 'Communication Clarity'. Before the call, review the names of 3-4 key projects until you can say them perfectly.",
+    "Try a practice call where your only goal is to make the customer feel heard. After they speak, summarize their point back to them before you continue."
+  ],
+  "passed": null,
+  "certification_eligible": null,
+  "retake_recommended": null,
+  "include_raw_analysis": false,
+  "raw_analysis": null
+}

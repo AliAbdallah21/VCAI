@@ -42,6 +42,16 @@ class Session(Base):
     weaknesses = Column(JSONB, default=[])
     recommendations = Column(JSONB, default=[])
     
+    # Scenario — the buyer context for this session (budget, timeline,
+    # must-haves, deal-breakers). Resolved at session creation from a preset,
+    # custom pins, or a random draw. Nullable for sessions created before the
+    # scenario feature existed.
+    scenario = Column(JSONB, nullable=True)
+
+    # Adaptive learning — which skill the system recommended to focus on for
+    # this session (e.g. "closing", "objection_handling"). NULL = free choice.
+    training_focus = Column(String(100), nullable=True)
+
     # Metadata
     turn_count = Column(Integer, default=0)
     created_at = Column(DateTime(timezone=True), server_default=func.now())

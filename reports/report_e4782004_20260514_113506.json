@@ -1,0 +1,426 @@
+{
+  "report_id": "RPT-2026-05-14-11-35-06",
+  "session_id": "e4782004-8718-4faf-a8bc-4e55e9c4ad05",
+  "user_id": "b7eb2e79-094f-4a1f-bc76-64e4d1c37387",
+  "persona_id": "price_focused_customer",
+  "persona_name": "العميل المهتم بالسعر",
+  "mode": "training",
+  "created_at": "2023-10-27T10:00:00Z",
+  "quick_stats": {
+    "duration_seconds": 190,
+    "duration_formatted": "3:10",
+    "total_turns": 18,
+    "salesperson_turns": 9,
+    "customer_turns": 9,
+    "final_customer_emotion": "neutral",
+    "emotion_improved": false,
+    "checkpoints_achieved": 5,
+    "checkpoints_total": 6,
+    "checkpoint_list": [
+      "✓ Needs Identified",
+      "✓ Value Demonstrated",
+      "✓ Objection Handled",
+      "✓ Closing Signal Recognized",
+      "✓ Commitment Achieved",
+      "✗ Rapport Established"
+    ],
+    "call_outcome": "closed"
+  },
+  "scores": {
+    "overall_score": 53,
+    "pass_threshold": 75,
+    "status": "failed",
+    "points_from_passing": -22,
+    "skills": [
+      {
+        "skill_name": "Rapport Building",
+        "skill_key": "rapport_building",
+        "score": 10,
+        "weight": 0.139,
+        "weighted_contribution": 1.39,
+        "was_tested": true,
+        "summary": "The conversation started very directly, missing the chance to build a personal connection with the customer first.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Jumped directly into a sales pitch without any greeting, personalization, or attempt to build a connection with the customer."
+        ],
+        "evidence_turns": [
+          1
+        ]
+      },
+      {
+        "skill_name": "Active Listening",
+        "skill_key": "active_listening",
+        "score": 85,
+        "weight": 0.139,
+        "weighted_contribution": 11.815,
+        "was_tested": true,
+        "summary": "You did a great job of listening to the customer's direct questions and providing relevant, specific answers.",
+        "strengths": [
+          "Consistently provided direct and relevant answers to the customer's specific questions about the floor, elevator, and view."
+        ],
+        "areas_to_improve": [],
+        "evidence_turns": [
+          3,
+          4
+        ]
+      },
+      {
+        "skill_name": "Needs Discovery",
+        "skill_key": "needs_discovery",
+        "score": 0,
+        "weight": 0.0,
+        "weighted_contribution": 0.0,
+        "was_tested": false,
+        "summary": "This skill was not tested as the customer stated their needs upfront and no further discovery questions were asked.",
+        "strengths": [],
+        "areas_to_improve": [
+          "Did not ask any questions to explore the customer's needs beyond the initial statement. For example, what 'منطقة كويسة' means to the customer."
+        ],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Product Knowledge",
+        "skill_key": "product_knowledge",
+        "score": 0,
+        "weight": 0.163,
+        "weighted_contribution": 0.0,
+        "was_tested": true,
+        "summary": "There were critical inaccuracies in the price information provided, which undermines trust despite knowing other property details.",
+        "strengths": [
+          "Was able to provide details about features like finishing, parking, and views when prompted by the customer."
+        ],
+        "areas_to_improve": [
+          "Provided critically inaccurate information about the property's price, which severely undermines credibility and the validity of the sale."
+        ],
+        "evidence_turns": [
+          1,
+          2
+        ]
+      },
+      {
+        "skill_name": "Objection Handling",
+        "skill_key": "objection_handling",
+        "score": 70,
+        "weight": 0.163,
+        "weighted_contribution": 11.41,
+        "was_tested": true,
+        "summary": "You successfully moved the conversation past a price objection by highlighting value-added features.",
+        "strengths": [
+          "Successfully kept the conversation moving forward after the price objection by adding value and discussing payment terms."
+        ],
+        "areas_to_improve": [
+          "The response was a direct counter-argument rather than first acknowledging the customer's concern about the price being high."
+        ],
+        "evidence_turns": [
+          2
+        ]
+      },
+      {
+        "skill_name": "Emotional Intelligence",
+        "skill_key": "emotional_intelligence",
+        "score": 50,
+        "weight": 0.139,
+        "weighted_contribution": 6.95,
+        "was_tested": true,
+        "summary": "The tone was professional but remained transactional, missing opportunities to connect with the customer's excitement.",
+        "strengths": [
+          "Maintained a professional and factual tone that matched the customer's direct communication style."
+        ],
+        "areas_to_improve": [
+          "The interaction remained purely transactional. There was no attempt to build excitement or connect with the customer's motivations on an emotional level."
+        ],
+        "evidence_turns": []
+      },
+      {
+        "skill_name": "Closing Skills",
+        "skill_key": "closing_skills",
+        "score": 90,
+        "weight": 0.139,
+        "weighted_contribution": 12.51,
+        "was_tested": true,
+        "summary": "Excellent work recognizing multiple buying signals and using a cash discount effectively to secure commitment from the customer.",
+        "strengths": [
+          "Effectively used a cash discount as a closing tool when the customer signaled readiness to negotiate.",
+          "Recognized multiple buying signals (e.g., questions about paperwork, discount requests) and responded appropriately to move towards a close.",
+          "Successfully secured a clear commitment from the customer."
+        ],
+        "areas_to_improve": [],
+        "evidence_turns": [
+          6,
+          5
+        ]
+      },
+      {
+        "skill_name": "Communication Clarity",
+        "skill_key": "communication_clarity",
+        "score": 80,
+        "weight": 0.116,
+        "weighted_contribution": 9.28,
+        "was_tested": true,
+        "summary": "Your answers were generally clear and direct, though minor grammatical stumbles occurred near the end.",
+        "strengths": [
+          "Spoke clearly and provided direct answers that were easy for the customer to understand."
+        ],
+        "areas_to_improve": [
+          "There were minor grammatical stumbles ('كل العود ولو وراء') but they did not impede overall understanding."
+        ],
+        "evidence_turns": [
+          3,
+          7
+        ]
+      }
+    ],
+    "skills_tested": 7,
+    "skills_passed": 4,
+    "strongest_skill": "closing_skills",
+    "weakest_skill": "product_knowledge"
+  },
+  "fact_check": {
+    "claims_checked": 2,
+    "accurate_count": 0,
+    "inaccurate_count": 2,
+    "unverifiable_count": 0,
+    "accuracy_rate": 0.0,
+    "errors": [
+      {
+        "turn_number": 1,
+        "claim_type": "price",
+        "claimed_value": "1000000",
+        "correct_value": "2,000,000 - 35,000,000 EGP",
+        "severity": "critical",
+        "explanation_ar": "السعر المذكور 1,000,000 ج.م. غير صحيح. نطاق السعر الحقيقي: 2,000,000 - 35,000,000 ج.م.",
+        "property_name": "مدينتي"
+      },
+      {
+        "turn_number": 2,
+        "claim_type": "price",
+        "claimed_value": "1000000",
+        "correct_value": "2,000,000 - 35,000,000 EGP",
+        "severity": "critical",
+        "explanation_ar": "السعر المذكور 1,000,000 ج.م. غير صحيح. نطاق السعر الحقيقي: 2,000,000 - 35,000,000 ج.م.",
+        "property_name": "مدينتي"
+      }
+    ],
+    "properties_discussed": [
+      "madinaty"
+    ]
+  },
+  "checkpoints": [
+    {
+      "name": "Rapport Established",
+      "achieved": false,
+      "icon": "❌",
+      "description": "Building a personal connection before diving into business.",
+      "achieved_at_turn": null,
+      "how_achieved": null,
+      "why_missed": "The conversation started immediately with a price and property, without a personalized greeting or any small talk.",
+      "how_to_achieve": "Start with a warm welcome using the customer's name, like 'أهلاً بحضرتك يا أستاذ أحمد، منورنا.' Then, show interest in them before presenting a solution."
+    },
+    {
+      "name": "Needs Identified",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Understanding the customer's basic requirements.",
+      "achieved_at_turn": 0,
+      "how_achieved": "The customer clearly stated their need for a 3-bedroom apartment in a good area at the beginning of the call.",
+      "why_missed": null,
+      "how_to_achieve": null
+    },
+    {
+      "name": "Value Demonstrated",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Explaining the benefits and features that justify the price.",
+      "achieved_at_turn": 2,
+      "how_achieved": "You successfully listed features like 'سوبر لوكس' and a 'مطبخ جاهز' which kept the customer engaged and asking for more details.",
+      "why_missed": null,
+      "how_to_achieve": null
+    },
+    {
+      "name": "Objection Handled",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Addressing a customer's concern to move the sale forward.",
+      "achieved_at_turn": 2,
+      "how_achieved": "After the customer questioned the price, your response about the apartment's features successfully transitioned the conversation to payment terms.",
+      "why_missed": null,
+      "how_to_achieve": null
+    },
+    {
+      "name": "Closing Signal Recognized",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Identifying when the customer is ready to buy.",
+      "achieved_at_turn": 6,
+      "how_achieved": "When the customer asked for a cash discount, you correctly identified it as a buying signal and immediately provided a concrete offer.",
+      "why_missed": null,
+      "how_to_achieve": null
+    },
+    {
+      "name": "Commitment Achieved",
+      "achieved": true,
+      "icon": "✅",
+      "description": "Getting a clear 'yes' from the customer.",
+      "achieved_at_turn": 8,
+      "how_achieved": "The customer gave a clear and explicit agreement: 'أنا موافق على الصفقة دي، يلا نمشي على كده وتحضر العقد.'",
+      "why_missed": null,
+      "how_to_achieve": null
+    }
+  ],
+  "executive_summary": "Great job navigating this conversation to a successful close! You showed real strength in recognizing buying signals and using negotiation tactics effectively. The main area for growth is in product accuracy and building a stronger initial connection to create trust from the very first moment.",
+  "top_strengths": [
+    "Excellent Closing Skills: You effectively recognized buying signals and used a cash discount to secure the deal.",
+    "Strong Active Listening: You consistently provided direct and relevant answers to the customer's questions.",
+    "Effective Value Demonstration: You successfully highlighted key features that kept the customer interested after their initial price objection."
+  ],
+  "top_improvements": [
+    "Ensure Product Accuracy: Providing an incorrect price at the start is a critical error. Always double-check your information to build and maintain trust.",
+    "Build Rapport Early: Start the call with a warm, personalized greeting to build a connection before jumping into the sale.",
+    "Acknowledge Before Responding: When handling objections, first show you understand the customer's concern (e.g., 'I understand price is important...') before presenting your counter-points."
+  ],
+  "turn_feedback": [
+    {
+      "turn_number": 1,
+      "speaker": "salesperson",
+      "text": "عندي شقة في مدينتي 3 غرف بمليون جنيه",
+      "assessment": "poor",
+      "tone": "critical",
+      "what_was_good": null,
+      "what_to_improve": "This opening is very abrupt and contains critically inaccurate price information. It misses the chance to build rapport and immediately damages credibility.",
+      "suggested_alternative": "أهلاً بحضرتك يا أستاذ أحمد، منورنا. يسعدني أساعدك تلاقي الشقة المناسبة. ممكن أعرف تفاصيل أكتر عن اللي بتدور عليه في 'منطقة كويسة'؟",
+      "skills_shown": [
+        "rapport_building",
+        "product_knowledge"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    },
+    {
+      "turn_number": 2,
+      "speaker": "salesperson",
+      "text": "لا طبعا ما فيش اي شقة تلات غرة بمليون جنيه حضراك بستريم الشقة سوبر لوكس وفيها مطبخ جاهز بالكامل بالتاكيفات في كل الشقة والاسس كمان",
+      "assessment": "needs_improvement",
+      "tone": "constructive",
+      "what_was_good": "It's good that you immediately tried to justify the value by listing features like the finishing and appliances.",
+      "what_to_improve": "The phrase 'لا طبعا' can sound confrontational. Also, this statement contradicts the price you just gave. Try to acknowledge the customer's point before adding value.",
+      "suggested_alternative": "أنا فاهم إن السعر ممكن يكون أعلى من كمبوندات تانية، وده لأن الشقة بتتقدم بمميزات كتير زي التشطيب السوبر لوكس والمطبخ المجهز بالكامل...",
+      "skills_shown": [
+        "objection_handling",
+        "product_knowledge"
+      ],
+      "is_highlight": false,
+      "is_critical_moment": true
+    },
+    {
+      "turn_number": 3,
+      "speaker": "salesperson",
+      "text": "الشقة دي في الدور الرابع وفيها اسنسير وكمان في جراج خاص بالعمارة",
+      "assessment": "good",
+      "tone": "positive",
+      "what_was_good": "A perfect, direct answer to the customer's question. Adding the extra information about the private garage was a great touch to add more value.",
+      "what_to_improve": null,
+      "suggested_alternative": null,
+      "skills_shown": [
+        "active_listening",
+        "product_knowledge"
+      ],
+      "is_highlight": false,
+      "is_critical_moment": false
+    },
+    {
+      "turn_number": 4,
+      "speaker": "salesperson",
+      "text": "ايوه طبعا يا فندم الشقة بتطل على مساحات خضراء كبيرة جدا وحضرتك ممكن تنزل تتمشى فيها في اي وقت",
+      "assessment": "good",
+      "tone": "positive",
+      "what_was_good": "Excellent. You answered the question clearly and painted a positive lifestyle picture for the customer, helping them visualize living there.",
+      "what_to_improve": null,
+      "suggested_alternative": null,
+      "skills_shown": [
+        "active_listening"
+      ],
+      "is_highlight": false,
+      "is_critical_moment": false
+    },
+    {
+      "turn_number": 5,
+      "speaker": "salesperson",
+      "text": "ايوه طبعا يا فندم وحضرتك هتكون اول مالك لها وحضرتك نجم تأجرها لو حبيت وكمان حضرتك ممكن تجي تشرفنا عشان تشوف وتبص على كل الورق وكل العقود براحتك",
+      "assessment": "excellent",
+      "tone": "positive",
+      "what_was_good": "Fantastic response. You recognized this as a buying signal, answered confidently, and proactively built trust by inviting them to review the paperwork.",
+      "what_to_improve": null,
+      "suggested_alternative": null,
+      "skills_shown": [
+        "closing_skills",
+        "active_listening"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    },
+    {
+      "turn_number": 6,
+      "speaker": "salesperson",
+      "text": "لو حضراك دفعت الكاش ممكن تاخد الشقة بثمانمائة الف جنيه بس",
+      "assessment": "excellent",
+      "tone": "positive",
+      "what_was_good": "This is a textbook-perfect use of a closing technique. You heard the customer's signal and immediately presented a strong, compelling offer to close the deal.",
+      "what_to_improve": null,
+      "suggested_alternative": null,
+      "skills_shown": [
+        "closing_skills",
+        "negotiation"
+      ],
+      "is_highlight": true,
+      "is_critical_moment": true
+    },
+    {
+      "turn_number": 7,
+      "speaker": "salesperson",
+      "text": "طبعا كل العود ولو وراء مكتوبة صح وحضرك ممكن تتبص عليها براحتك.",
+      "assessment": "adequate",
+      "tone": "constructive",
+      "what_was_good": "You correctly reassured the customer about the paperwork.",
+      "what_to_improve": "The language was a little clumsy ('كل العود ولو وراء'). When discussing legal documents, it's important to be very clear and professional.",
+      "suggested_alternative": "بالتأكيد يا فندم، كل العقود والأوراق سليمة وموثقة، وحضرتك تقدر تراجعها بالكامل.",
+      "skills_shown": [
+        "communication_clarity"
+      ],
+      "is_highlight": false,
+      "is_critical_moment": false
+    },
+    {
+      "turn_number": 8,
+      "speaker": "salesperson",
+      "text": "[No response to customer's final closing signal]",
+      "assessment": "needs_improvement",
+      "tone": "constructive",
+      "what_was_good": null,
+      "what_to_improve": "The customer gave a direct order to close the deal ('يلا نمشي على كده وتحضر العقد'), but the conversation ended here. You must confirm the next steps to solidify the sale.",
+      "suggested_alternative": "على بركة الله يا فندم، مبروك مقدماً. هبدأ في تجهيز العقد فوراً وهكلم حضرتك بكرة لتحديد موعد التوقيع. هل ده مناسب؟",
+      "skills_shown": [
+        "closing_skills"
+      ],
+      "is_highlight": false,
+      "is_critical_moment": true
+    }
+  ],
+  "include_turn_feedback": true,
+  "highlight_turns": [
+    1,
+    5,
+    6
+  ],
+  "recommended_practice": [
+    "Practice starting a call by first asking 2-3 questions about the customer's needs before mentioning a specific property.",
+    "Review the product knowledge base for 3 different properties, focusing on their correct price ranges and key features.",
+    "Run a simulation where the customer immediately objects to the price, and practice responding by first saying 'I understand...' before presenting value.",
+    "Practice confirming the next steps after a customer says 'I agree' or 'I'll take it'."
+  ],
+  "passed": null,
+  "certification_eligible": null,
+  "retake_recommended": null,
+  "include_raw_analysis": false,
+  "raw_analysis": null
+}

@@ -76,13 +76,20 @@ def _check_rag() -> dict[str, str]:
 
 
 def _check_memory() -> dict[str, str]:
-    """Issue a trivial SELECT 1 to confirm PostgreSQL is reachable."""
+    """Issue a trivial SELECT 1 to confirm PostgreSQL is reachable + measure latency."""
     try:
+        import time
         from backend.database import get_db_context
         from sqlalchemy import text
+        t0 = time.perf_counter()
         with get_db_context() as db:
             db.execute(text("SELECT 1"))
-        return {"status": "ok", "message": "PostgreSQL connected"}
+        latency_ms = round((time.perf_counter() - t0) * 1000, 1)
+        return {
+            "status": "ok",
+            "message": f"PostgreSQL connected ({latency_ms}ms)",
+            "latency_ms": latency_ms,
+        }
     except Exception as e:
         return {"status": "error", "message": f"DB unreachable: {e}"}
 
@@ -165,7 +172,6 @@ def get_health_status() -> dict[str, Any]:
 def print_health_report(results: dict[str, dict]) -> None:
     """Print the startup health summary to stdout."""
     _ICONS = {"ok": "OK", "warn": "WARN", "error": "FAIL"}
-    _SYMBOLS = {"ok": "✅", "warn": "⚠️ ", "error": "❌"}
     _LABELS = {
         "stt":     "STT    ",
         "tts":     "TTS    ",
@@ -176,7 +182,7 @@ def print_health_report(results: dict[str, dict]) -> None:
     }
     print("-" * 60)
     for key, result in results.items():
-        sym   = _SYMBOLS.get(result["status"], "?")
+        icon  = _ICONS.get(result["status"], "?")
         label = _LABELS.get(key, key.upper())
-        print(f"[Health] {label}: {sym} {result['message']}")
+        print(f"[Health] {label}: [{icon}] {result['message']}")
     print("-" * 60)

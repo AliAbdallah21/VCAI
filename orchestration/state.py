@@ -34,6 +34,7 @@ class ConversationState(TypedDict):
     user_id: str                            # User/trainee ID
     persona: Optional[Persona]              # VC persona configuration
     scenario: Optional[Scenario]            # Training scenario
+    training_focus: Optional[str]           # Adaptive skill target, e.g. "closing"
     
     # ══════════════════════════════════════════════════════════════════════════
     # TURN TRACKING
@@ -84,7 +85,8 @@ def create_initial_state(
     session_id: str,
     user_id: str,
     persona: Persona = None,
-    scenario: Scenario = None
+    scenario: Scenario = None,
+    training_focus: Optional[str] = None,
 ) -> ConversationState:
     """
     Create a fresh conversation state for a new session.
@@ -104,6 +106,7 @@ def create_initial_state(
         user_id=user_id,
         persona=persona,
         scenario=scenario,
+        training_focus=training_focus,
         
         # Turn tracking
         turn_count=0,

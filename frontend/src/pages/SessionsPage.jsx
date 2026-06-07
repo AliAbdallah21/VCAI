@@ -1,0 +1,249 @@
+import { useState, useEffect, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import Layout from '../components/Layout';
+import { sessionsAPI } from '../services/api';
+
+const TABS = [
+  { key: 'all',        label: 'All' },
+  { key: 'active',     label: 'Active' },
+  { key: 'incomplete', label: 'Needs Evaluation' },
+  { key: 'evaluated',  label: 'Evaluated' },
+];
+
+const statusStyle = {
+  active:    { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)',  label: 'Live'      },
+  ended:     { bg: 'rgba(148,163,184,0.08)', text: '#94a3b8', border: 'rgba(148,163,184,0.15)', label: 'Ended'    },
+  completed: { bg: 'rgba(148,163,184,0.08)', text: '#94a3b8', border: 'rgba(148,163,184,0.15)', label: 'Ended'   },
+};
+
+const diffStyle = {
+  easy:   { bg: 'rgba(16,185,129,0.1)',  text: '#34d399', border: 'rgba(16,185,129,0.2)'  },
+  medium: { bg: 'rgba(245,158,11,0.1)',  text: '#fbbf24', border: 'rgba(245,158,11,0.2)'  },
+  hard:   { bg: 'rgba(239,68,68,0.1)',   text: '#f87171', border: 'rgba(239,68,68,0.2)'   },
+};
+
+const scoreColor = s => s >= 80 ? '#34d399' : s >= 60 ? '#fbbf24' : '#f87171';
+
+const fmtDate = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+const fmtDuration = s => { if (!s) return '—'; const m = Math.floor(s / 60); const sec = s % 60; return `${m}:${String(sec).padStart(2,'0')}`; };
+
+export default function SessionsPage() {
+  const navigate = useNavigate();
+  const [tab, setTab]           = useState('all');
+  const [sessions, setSessions] = useState([]);
+  const [total, setTotal]       = useState(0);
+  const [loading, setLoading]   = useState(true);
+  const [resuming, setResuming] = useState(null);
+  const [offset, setOffset]     = useState(0);
+  const LIMIT = 20;
+
+  const load = useCallback((off = 0) => {
+    setLoading(true);
+    sessionsAPI.getAll(LIMIT, off)
+      .then(data => {
+        if (off === 0) setSessions(data.sessions || []);
+        else setSessions(prev => [...prev, ...(data.sessions || [])]);
+        setTotal(data.total || 0);
+        setOffset(off);
+      })
+      .finally(() => setLoading(false));
+  }, []);
+
+  useEffect(() => { load(0); }, [load]);
+
+  const filtered = sessions.filter(s => {
+    if (tab === 'active')     return s.status === 'active';
+    if (tab === 'incomplete') return s.status !== 'active' && !s.overall_score;
+    if (tab === 'evaluated')  return !!s.overall_score;
+    return true;
+  });
+
+  const handleResume = async (s) => {
+    setResuming(s.id);
+    try {
+      if (s.status !== 'active') await sessionsAPI.reactivate(s.id);
+      navigate(`/session/${s.id}`);
+    } catch {
+      setResuming(null);
+    }
+  };
+
+  return (
+    <Layout>
+      <div className="p-4 md:p-8 max-w-5xl mx-auto">
+        {/* Header */}
+        <div className="mb-8 slide-up">
+          <h1 className="heading text-2xl font-bold text-white mb-1">Resume a Call</h1>
+          <p className="text-sm" style={{ color: 'rgba(148,163,184,0.55)' }}>
+            Continue any previous session or start where you left off
+          </p>
+        </div>
+
+        {/* Tabs */}
+        <div
+          className="flex gap-1 p-1 rounded-xl mb-6 w-fit"
+          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          {TABS.map(t => (
+            <button
+              key={t.key}
+              onClick={() => setTab(t.key)}
+              className="px-4 py-2 rounded-lg text-sm font-medium transition-all duration-150"
+              style={tab === t.key
+                ? { background: 'rgba(37,99,235,0.2)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.25)' }
+                : { color: 'rgba(148,163,184,0.5)', border: '1px solid transparent' }
+              }
+            >
+              {t.label}
+              {t.key !== 'all' && (
+                <span className="ml-2 text-xs opacity-60">
+                  {t.key === 'active'     ? sessions.filter(s => s.status === 'active').length             : ''}
+                  {t.key === 'incomplete' ? sessions.filter(s => s.status !== 'active' && !s.overall_score).length : ''}
+                  {t.key === 'evaluated'  ? sessions.filter(s => !!s.overall_score).length                 : ''}
+                </span>
+              )}
+            </button>
+          ))}
+        </div>
+
+        {/* Sessions list */}
+        <div
+          className="rounded-2xl overflow-hidden"
+          style={{ background: 'rgba(13,21,38,0.7)', border: '1px solid rgba(255,255,255,0.06)' }}
+        >
+          {loading && offset === 0 ? (
+            <div className="p-14 text-center">
+              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: '#3b82f6', borderRadius: '50%' }} />
+              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>Loading sessions…</p>
+            </div>
+          ) : filtered.length === 0 ? (
+            <div className="p-14 text-center">
+              <p className="font-medium text-slate-400 mb-1">No sessions found</p>
+              <p className="text-sm" style={{ color: 'rgba(148,163,184,0.4)' }}>
+                {tab === 'active' ? 'No active calls right now' : 'Try a different filter'}
+              </p>
+            </div>
+          ) : (
+            <>
+              {filtered.map((s, i) => {
+                const isActive   = s.status === 'active';
+                const evaluated  = !!s.overall_score;
+                const st         = statusStyle[s.status] || statusStyle.ended;
+                const df         = diffStyle[s.difficulty] || diffStyle.medium;
+                const isResuming = resuming === s.id;
+
+                return (
+                  <div
+                    key={s.id}
+                    className="flex items-center px-4 md:px-6 py-3 md:py-4 gap-2 transition-colors duration-150"
+                    style={{
+                      borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none',
+                    }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
+                  >
+                    {/* Left: info */}
+                    <div className="flex items-center gap-4 flex-1 min-w-0">
+                      <div
+                        className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
+                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                      >
+                        <svg width="15" height="15" fill="none" stroke="rgba(148,163,184,0.5)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                          <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
+                        </svg>
+                      </div>
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <p className="text-sm font-medium text-slate-200">{s.persona_name || 'Unknown Persona'}</p>
+                          {isActive && (
+                            <span className="flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-semibold"
+                              style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}>
+                              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse inline-block" />
+                              Live
+                            </span>
+                          )}
+                        </div>
+                        <div className="flex items-center gap-3 mt-0.5">
+                          <p className="text-xs" style={{ color: 'rgba(148,163,184,0.45)' }}>{fmtDate(s.started_at)}</p>
+                          {s.duration_seconds > 0 && (
+                            <p className="text-xs" style={{ color: 'rgba(148,163,184,0.35)' }}>
+                              {fmtDuration(s.duration_seconds)}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+
+                    {/* Mid: badges */}
+                    <div className="hidden sm:flex items-center gap-2 mx-4">
+                      <span className="px-2.5 py-1 rounded-lg text-xs font-semibold capitalize"
+                        style={{ background: df.bg, color: df.text, border: `1px solid ${df.border}` }}>
+                        {s.difficulty}
+                      </span>
+                      {s.turn_count > 0 && (
+                        <span className="px-2.5 py-1 rounded-lg text-xs font-medium"
+                          style={{ background: 'rgba(255,255,255,0.04)', color: 'rgba(148,163,184,0.6)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          {s.turn_count} turns
+                        </span>
+                      )}
+                      {evaluated && (
+                        <span className="heading text-base font-bold" style={{ color: scoreColor(s.overall_score) }}>
+                          {s.overall_score}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Right: actions */}
+                    <div className="flex items-center gap-2 flex-shrink-0">
+                      {/* Resume — always available */}
+                      <button
+                        onClick={() => handleResume(s)}
+                        disabled={isResuming}
+                        className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150 disabled:opacity-50"
+                        style={{ background: 'rgba(16,185,129,0.12)', color: '#34d399', border: '1px solid rgba(16,185,129,0.2)' }}
+                        onMouseEnter={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.22)'; }}
+                        onMouseLeave={e => { e.currentTarget.style.background = 'rgba(16,185,129,0.12)'; }}
+                      >
+                        {isResuming ? '…' : isActive ? 'Resume →' : 'Continue →'}
+                      </button>
+
+                      {/* Evaluate / View Report — for ended sessions */}
+                      {!isActive && (
+                        <button
+                          onClick={() => navigate(`/evaluation/${s.id}`)}
+                          className="px-3.5 py-1.5 rounded-xl text-xs font-semibold transition-all duration-150"
+                          style={evaluated
+                            ? { background: 'rgba(37,99,235,0.12)', color: '#93c5fd', border: '1px solid rgba(37,99,235,0.2)' }
+                            : { background: 'rgba(245,158,11,0.1)', color: '#fbbf24', border: '1px solid rgba(245,158,11,0.2)' }
+                          }
+                          onMouseEnter={e => { e.currentTarget.style.opacity = '0.8'; }}
+                          onMouseLeave={e => { e.currentTarget.style.opacity = '1'; }}
+                        >
+                          {evaluated ? 'View Report' : 'Evaluate'}
+                        </button>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+
+              {/* Load more */}
+              {sessions.length < total && (
+                <div className="p-4 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                  <button
+                    onClick={() => load(sessions.length)}
+                    disabled={loading}
+                    className="px-6 py-2 rounded-xl text-sm font-medium transition-all duration-150 disabled:opacity-40"
+                    style={{ background: 'rgba(255,255,255,0.05)', color: '#94a3b8', border: '1px solid rgba(255,255,255,0.08)' }}
+                  >
+                    {loading ? 'Loading…' : `Load more (${total - sessions.length} remaining)`}
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </div>
+      </div>
+    </Layout>
+  );
+}
