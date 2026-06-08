@@ -127,19 +127,20 @@ class TestCreateEvaluationReport:
         
         assert report.mode == "testing"
     
-    def test_raises_409_when_report_exists(self, db, test_session):
-        """Should raise 409 Conflict when report already exists."""
-        from fastapi import HTTPException
-        
-        # Create first report
-        create_evaluation_report(db, test_session.id)
-        
-        # Try to create another
-        with pytest.raises(HTTPException) as exc_info:
-            create_evaluation_report(db, test_session.id)
-        
-        assert exc_info.value.status_code == 409
-        assert "already exists" in str(exc_info.value.detail)
+    def test_returns_existing_when_report_exists(self, db, test_session):
+        """Should return the existing report (not raise) when one already exists.
+
+        create_evaluation_report is idempotent by design: a second call for the
+        same session returns the existing report rather than raising, so two
+        concurrent triggers don't double-create. See evaluation_service.py.
+        """
+        first = create_evaluation_report(db, test_session.id)
+
+        # A second call returns the same report instead of raising.
+        second = create_evaluation_report(db, test_session.id)
+
+        assert second.id == first.id
+        assert second.report_id == first.report_id
     
     def test_raises_404_for_invalid_session(self, db):
         """Should raise 404 when session doesn't exist."""

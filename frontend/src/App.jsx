@@ -16,6 +16,7 @@ import SessionsPage from './pages/SessionsPage';
 import EvaluatePage from './pages/EvaluatePage';
 import ComparePage from './pages/ComparePage';
 import ProgressPage from './pages/ProgressPage';
+import Settings from './pages/Settings';
 import ManagerDashboard from './pages/ManagerDashboard';
 import AgentProgress from './pages/AgentProgress';
 import AdminDashboard from './pages/AdminDashboard';
@@ -78,6 +79,7 @@ function AppRoutes() {
       <Route path="/evaluate" element={<ProtectedRoute><EvaluatePage /></ProtectedRoute>} />
       <Route path="/compare" element={<ProtectedRoute><ComparePage /></ProtectedRoute>} />
       <Route path="/progress" element={<ProtectedRoute><ProgressPage /></ProtectedRoute>} />
+      <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
   );

@@ -129,7 +129,13 @@ async def get_current_user_optional(
 
 
 def register_user(db: Session, user_data: UserCreate) -> User:
-    """Register a new user."""
+    """Register a new user.
+
+    If an invite_code is supplied, the new user is attached to that company as the
+    invite's role (consuming the invite). An invalid/expired code rejects the whole
+    registration — no solo account is created. Without a code, the user is a solo
+    salesperson (joining a company by company name is not supported; use an invite).
+    """
     # Check if email already exists
     existing_user = db.query(User).filter(User.email == user_data.email).first()
     if existing_user:
@@ -137,25 +143,43 @@ def register_user(db: Session, user_data: UserCreate) -> User:
             status_code=status.HTTP_400_BAD_REQUEST,
             detail="Email already registered"
         )
-    
+
+    # Resolve the invite up-front so an invalid code fails before we create
+    # anything. Imported here to avoid a circular import at module load.
+    invite = None
+    if user_data.invite_code:
+        from backend.services.seat_service import validate_invite_code, count_active_seats, seat_limit_for
+        invite = validate_invite_code(db, code=user_data.invite_code)
+        # Enforce the seat limit at registration time too.
+        if count_active_seats(db, invite.company_id) >= seat_limit_for(db, invite.company_id):
+            raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Seat limit reached")
+
     # Create user
     user = User(
         email=user_data.email,
         password_hash=get_password_hash(user_data.password),
         full_name=user_data.full_name,
         company=user_data.company,
+        company_id=invite.company_id if invite else None,
+        role=(invite.role or "salesperson") if invite else "salesperson",
         experience_level=user_data.experience_level
     )
-    
+
     db.add(user)
     db.commit()
     db.refresh(user)
-    
+
     # Create empty stats
     stats = UserStats(user_id=user.id)
     db.add(stats)
     db.commit()
-    
+
+    # Consume the invite now that the user exists (audited in the same session).
+    if invite is not None:
+        from backend.services.seat_service import consume_invite_for_new_user
+        consume_invite_for_new_user(db, user=user, invite=invite)
+        db.refresh(user)
+
     return user
 
 

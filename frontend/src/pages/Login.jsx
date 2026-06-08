@@ -148,7 +148,7 @@ export default function Login() {
         </div>
 
         <p className="text-center mt-6 text-xs" style={{ color: 'var(--text-subtle)' }}>
-          © 2024 VCAI · MIU Thesis Project
+          © 2025 VCAI · MIU Thesis Project
         </p>
       </div>
     </div>

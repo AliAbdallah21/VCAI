@@ -3,7 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 
 export default function Register() {
-  const [form, setForm] = useState({ full_name: '', email: '', company: '', password: '', confirmPassword: '' });
+  const [form, setForm] = useState({ full_name: '', email: '', company: '', invite_code: '', password: '', confirmPassword: '' });
   const [error, setError]   = useState('');
   const [loading, setLoading] = useState(false);
   const { register } = useAuth();
@@ -18,6 +18,10 @@ export default function Register() {
     setLoading(true);
     try {
       const { confirmPassword, ...data } = form;
+      // Only send invite_code when the user actually typed one; normalize case.
+      const code = data.invite_code.trim();
+      if (code) data.invite_code = code.toUpperCase();
+      else delete data.invite_code;
       await register(data);
       navigate('/dashboard');
     } catch (err) {
@@ -106,6 +110,17 @@ export default function Register() {
               <input type="text" name="company" value={form.company} onChange={handleChange}
                 className={inputClass} placeholder="Your company" />
             </div>
+            <div>
+              <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>
+                Invite code <span style={{ color: 'var(--text-subtle)' }}>(optional)</span>
+              </label>
+              <input type="text" name="invite_code" value={form.invite_code} onChange={handleChange}
+                className={`${inputClass} font-mono tracking-wider uppercase`} placeholder="ABC123"
+                maxLength={12} autoCapitalize="characters" autoCorrect="off" spellCheck="false" />
+              <p className="text-xs mt-1" style={{ color: 'var(--text-subtle)' }}>
+                Got a code from your manager? Paste it to join their team.
+              </p>
+            </div>
             <div className="grid grid-cols-2 gap-3">
               <div>
                 <label className={labelClass} style={{ color: 'var(--text-secondary)' }}>Password</label>
@@ -154,7 +169,7 @@ export default function Register() {
         </div>
 
         <p className="text-center mt-5 text-xs" style={{ color: 'var(--text-subtle)' }}>
-          © 2024 VCAI · MIU Thesis Project
+          © 2025 VCAI · MIU Thesis Project
         </p>
       </div>
     </div>

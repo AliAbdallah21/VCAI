@@ -10,6 +10,15 @@ export default function AcceptInvite() {
 
   const [invite, setInvite] = useState(null);
   const [loadError, setLoadError] = useState('');
+
+  // Never surface a raw/placeholder company name to an invitee ("Join test",
+  // "Join "). Fall back to a neutral heading when the name is empty/whitespace
+  // or an obvious placeholder.
+  const companyHeading = (() => {
+    const raw = (invite?.company_name || '').trim();
+    const placeholder = !raw || ['test', 'company', 'untitled', 'n/a'].includes(raw.toLowerCase());
+    return placeholder ? "You've been invited" : `Join ${raw}`;
+  })();
   const [fullName, setFullName] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
@@ -68,7 +77,7 @@ export default function AcceptInvite() {
           ) : (
             <>
               <div className="text-center mb-6">
-                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>Join {invite.company_name}</h2>
+                <h2 className="text-xl font-bold" style={{ color: 'var(--text-primary)' }}>{companyHeading}</h2>
                 <p className="text-sm mt-2" style={{ color: 'var(--text-muted)' }}>
                   You were invited as a {invite.role} ({invite.email}). Set your name and password to continue.
                 </p>

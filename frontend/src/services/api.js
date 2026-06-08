@@ -47,11 +47,21 @@ export const plansAPI = {
   getAll: getPlans,
 };
 
+// A token-free axios instance for genuinely public calls. The shared `api`
+// instance attaches localStorage.token to every request via its interceptor,
+// which breaks public endpoints when a stale/wrong-user token is present (an
+// invite-accept page must work for a logged-out or different visitor).
+const publicApi = axios.create({
+  baseURL: API_URL,
+  headers: { 'Content-Type': 'application/json' },
+});
+
 // Onboarding (mostly public — no token required).
 export const onboardingAPI = {
   signup: (data) => api.post('/onboarding/signup', data).then(r => r.data),
-  getInvite: (token) => api.get(`/onboarding/invite/${token}`).then(r => r.data),
-  accept: (data) => api.post('/onboarding/accept', data).then(r => r.data),
+  // Public invite lookup — must NOT send an Authorization header.
+  getInvite: (token) => publicApi.get(`/onboarding/invite/${token}`).then(r => r.data),
+  accept: (data) => publicApi.post('/onboarding/accept', data).then(r => r.data),
 };
 
 // Seats (manager-only — token required).
@@ -60,6 +70,8 @@ export const seatsAPI = {
   invite: (email, role = 'salesperson') => api.post('/seats/invite', { email, role }).then(r => r.data),
   revoke: (inviteId) => api.delete(`/seats/invite/${inviteId}`).then(r => r.data),
   deactivate: (userId) => api.post(`/seats/${userId}/deactivate`).then(r => r.data),
+  // Existing logged-in user joins a company by pasting a 6-char invite code.
+  join: (code) => api.post('/seats/join', { code }).then(r => r.data),
 };
 
 // Subscriptions (manager-only — token required).

@@ -20,6 +20,9 @@ class UserCreate(BaseModel):
     full_name: str = Field(..., min_length=2)
     company: Optional[str] = None
     experience_level: str = "beginner"
+    # Optional 6-char invite code to join a company on signup. If present and
+    # invalid, registration is rejected (no solo account is created).
+    invite_code: Optional[str] = None
 
 
 class UserLogin(BaseModel):
@@ -334,12 +337,13 @@ class InviteInfo(BaseModel):
 
 
 class InviteResponse(BaseModel):
-    """A created seat invite, including the (stubbed-email) accept link."""
+    """A created seat invite, including the (stubbed-email) accept link + code."""
     id: UUID
     email: str
     role: str
     status: str
     token: str
+    invite_code: Optional[str] = None
     invite_link: str
     expires_at: Optional[datetime]
     created_at: datetime
@@ -353,6 +357,11 @@ class InviteAccept(BaseModel):
     token: str
     full_name: str = Field(..., min_length=2)
     password: str = Field(..., min_length=6)
+
+
+class JoinByCode(BaseModel):
+    """An existing logged-in user joins a company by pasting an invite code."""
+    code: str = Field(..., min_length=4, max_length=12)
 
 
 class SeatUser(BaseModel):

@@ -26,6 +26,9 @@ class SeatInvite(Base):
     email = Column(String(255), nullable=False)
     role = Column(String(50), default="salesperson")
     token = Column(String(128), unique=True, index=True, nullable=False)
+    # Short, human-typeable code the invitee can paste at registration or in
+    # settings (alternative to the full link). Nullable for pre-existing invites.
+    invite_code = Column(String(12), unique=True, index=True, nullable=True)
     status = Column(String(20), default="pending")  # pending, accepted, revoked, expired
     invited_by = Column(UUID(as_uuid=True), ForeignKey("users.id"), nullable=True)
     expires_at = Column(DateTime(timezone=True))

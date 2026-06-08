@@ -51,10 +51,14 @@ export default function SeatManagement() {
     }
   };
 
-  const handleDeactivate = async (id) => {
+  const handleDeactivate = async (user) => {
+    const name = user.full_name || user.email;
+    if (!window.confirm(`Deactivate ${name}? This frees their seat and revokes their access. They will need a new invite to rejoin.`)) {
+      return;
+    }
     setError('');
     try {
-      await seatsAPI.deactivate(id);
+      await seatsAPI.deactivate(user.id);
       await load();
     } catch (err) {
       setError(err.response?.data?.detail || 'Could not deactivate user');
@@ -144,6 +148,11 @@ export default function SeatManagement() {
                 <div key={inv.id} className="py-3 flex items-center justify-between gap-3">
                   <div className="min-w-0">
                     <p className="text-sm font-medium truncate" style={{ color: 'var(--text-primary)' }}>{inv.email}</p>
+                    {inv.invite_code && (
+                      <p className="text-xs mt-0.5" style={{ color: 'var(--text-secondary)' }}>
+                        Code: <span className="font-mono font-semibold tracking-wider" style={{ color: 'var(--primary)' }}>{inv.invite_code}</span>
+                      </p>
+                    )}
                     <p className="text-xs truncate" style={{ color: 'var(--text-subtle)' }}>{inv.invite_link}</p>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">
@@ -195,7 +204,7 @@ export default function SeatManagement() {
                       <td className="py-3 text-right">
                         {u.role === 'salesperson' ? (
                           <button
-                            onClick={() => handleDeactivate(u.id)}
+                            onClick={() => handleDeactivate(u)}
                             className="btn-danger text-sm"
                             style={{ padding: '6px 12px' }}
                           >

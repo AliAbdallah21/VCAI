@@ -92,15 +92,28 @@ export const AuthProvider = ({ children }) => {
     localStorage.setItem('user', JSON.stringify(authUser));
   };
 
+  // Re-fetch the current user from the server and update context + storage.
+  // Used after an action changes the account server-side (e.g. joining a company
+  // by code changes company_id + role) so routing reflects the new state.
+  const refreshUser = async () => {
+    const userData = await authAPI.getMe();
+    setUser(userData);
+    localStorage.setItem('user', JSON.stringify(userData));
+    return userData;
+  };
+
   const logout = () => {
     setToken(null);
     setUser(null);
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    // Clear all auth keys, including legacy ones from earlier builds, so a stale
+    // token can never linger and silently re-authenticate the next visitor.
+    ['token', 'user', 'fitai_access_token', 'fitai_refresh_token'].forEach((k) =>
+      localStorage.removeItem(k)
+    );
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, isAuthenticated: !!token, login, register, setAuth, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, isAuthenticated: !!token, login, register, setAuth, refreshUser, logout }}>
       {children}
     </AuthContext.Provider>
   );

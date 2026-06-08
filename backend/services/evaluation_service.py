@@ -124,6 +124,52 @@ def create_evaluation_report(
         raise  # Re-raise if it's a different error
 
 
+def update_evaluation_status(
+    db: Session,
+    session_id: UUID,
+    status_value: str,
+    *,
+    progress: Optional[int] = None,
+    error_message: Optional[str] = None,
+) -> EvaluationReport:
+    """Update an evaluation report's status (and related timestamps).
+
+    Transitions:
+      - "processing" stamps started_at (first time only).
+      - "completed"/"failed" stamp completed_at; "completed" also forces
+        progress to 100.
+      - progress / error_message are applied when provided.
+
+    Raises 404 if no report exists for the session.
+    """
+    report = get_evaluation_report_by_session(db, session_id)
+    if not report:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Evaluation report not found"
+        )
+
+    report.status = status_value
+
+    if status_value == "processing" and report.started_at is None:
+        report.started_at = datetime.now(timezone.utc)
+
+    if status_value in ("completed", "failed"):
+        report.completed_at = datetime.now(timezone.utc)
+    if status_value == "completed":
+        report.progress = 100
+
+    if progress is not None:
+        report.progress = progress
+    if error_message is not None:
+        report.error_message = error_message
+
+    db.commit()
+    db.refresh(report)
+
+    return report
+
+
 def save_evaluation_result(
     db: Session,
     session_id: UUID,

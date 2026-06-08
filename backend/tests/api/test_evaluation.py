@@ -281,82 +281,87 @@ def client_other_user(other_user):
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Test: POST /evaluation/{session_id}/trigger
+# Test: POST /sessions/{session_id}/evaluate  (start evaluation)
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestTriggerEvaluationEndpoint:
-    """Tests for trigger evaluation endpoint."""
-    
+    """Tests for the start-evaluation endpoint."""
+
     def test_trigger_evaluation_success(self, client, completed_session, session_with_messages):
-        """Should trigger evaluation for a completed session."""
-        response = client.post(f"/api/evaluation/{completed_session.id}/trigger")
-        
+        """Should start evaluation for a completed session."""
+        response = client.post(f"/api/sessions/{completed_session.id}/evaluate")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "started"
         assert data["session_id"] == str(completed_session.id)
-        assert data["report_id"] is not None
-        assert data["report_id"].startswith("eval_")
-    
+
     def test_trigger_with_custom_mode(self, client, completed_session, session_with_messages):
-        """Should trigger evaluation with custom mode."""
+        """Should start evaluation with a custom mode."""
         response = client.post(
-            f"/api/evaluation/{completed_session.id}/trigger",
+            f"/api/sessions/{completed_session.id}/evaluate",
             params={"mode": "testing"}
         )
-        
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "started"
-    
-    def test_trigger_returns_existing_when_exists(self, client, completed_session, existing_evaluation):
-        """Should return existing evaluation if one already exists."""
-        response = client.post(f"/api/evaluation/{completed_session.id}/trigger")
-        
+
+    def test_trigger_is_idempotent_when_exists(self, client, completed_session, existing_evaluation):
+        """A second call with an existing report is a no-op that still 200s.
+
+        create_evaluation_report returns the existing report rather than
+        raising, so the endpoint reports "started" without re-firing the
+        background task (the report is already completed).
+        """
+        response = client.post(f"/api/sessions/{completed_session.id}/evaluate")
+
         assert response.status_code == 200
-        data = response.json()
-        assert data["status"] == "already_exists"
-        assert data["report_id"] == existing_evaluation.report_id
-    
+        assert response.json()["status"] == "started"
+
     def test_trigger_fails_for_active_session(self, client, active_session):
-        """Should fail for sessions that aren't completed."""
-        response = client.post(f"/api/evaluation/{active_session.id}/trigger")
-        
-        assert response.status_code == 400
-        assert "status" in response.json()["detail"].lower()
-    
+        """Active sessions are auto-ended then evaluated, so this 200s.
+
+        The endpoint auto-ends an active session (status -> ended) before
+        evaluating, so a previously-active session is accepted.
+        """
+        response = client.post(f"/api/sessions/{active_session.id}/evaluate")
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "started"
+
     def test_trigger_fails_for_nonexistent_session(self, client):
-        """Should return 404 for non-existent session."""
+        """Should return 404 for a non-existent session."""
         fake_id = uuid4()
-        response = client.post(f"/api/evaluation/{fake_id}/trigger")
-        
+        response = client.post(f"/api/sessions/{fake_id}/evaluate")
+
         assert response.status_code == 404
-    
+
     def test_trigger_fails_for_other_users_session(self, client_other_user, completed_session):
-        """Should return 403 when trying to access another user's session."""
-        response = client_other_user.post(f"/api/evaluation/{completed_session.id}/trigger")
-        
-        assert response.status_code == 403
+        """Cross-tenant access is hidden as 404 (not 403) to avoid leaking existence."""
+        response = client_other_user.post(f"/api/sessions/{completed_session.id}/evaluate")
+
+        assert response.status_code == 404
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Test: GET /evaluation/{session_id}/status
+# Test: GET /sessions/{session_id}/eval-status
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestGetEvaluationStatusEndpoint:
-    """Tests for get evaluation status endpoint."""
-    
-    def test_get_status_not_found(self, client, completed_session):
-        """Should return 'not_found' status when no evaluation exists."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/status")
-        
+    """Tests for the lightweight eval-status endpoint."""
+
+    def test_get_status_not_started(self, client, completed_session):
+        """Should return 'not_started' when no evaluation exists yet."""
+        response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
+
         assert response.status_code == 200
         data = response.json()
-        assert data["status"] == "not_found"
-        assert data["session_id"] == str(completed_session.id)
-    
+        assert data["status"] == "not_started"
+        assert data["progress"] is None
+
     def test_get_status_pending(self, client, test_db, completed_session):
-        """Should return pending status for new evaluation."""
+        """Should return pending status for a new evaluation."""
         # Create pending report
         report = EvaluationReport(
             session_id=completed_session.id,
@@ -366,14 +371,14 @@ class TestGetEvaluationStatusEndpoint:
         )
         test_db.add(report)
         test_db.commit()
-        
-        response = client.get(f"/api/evaluation/{completed_session.id}/status")
-        
+
+        response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "pending"
         assert data["progress"] == 0
-    
+
     def test_get_status_processing(self, client, test_db, completed_session):
         """Should return processing status with progress."""
         report = EvaluationReport(
@@ -384,26 +389,26 @@ class TestGetEvaluationStatusEndpoint:
         )
         test_db.add(report)
         test_db.commit()
-        
-        response = client.get(f"/api/evaluation/{completed_session.id}/status")
-        
+
+        response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "processing"
         assert data["progress"] == 50
-    
+
     def test_get_status_completed(self, client, completed_session, existing_evaluation):
         """Should return completed status."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/status")
-        
+        response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "completed"
         assert data["progress"] == 100
         assert data["report_id"] == existing_evaluation.report_id
-    
+
     def test_get_status_failed_with_error(self, client, test_db, completed_session):
-        """Should return error message for failed evaluations."""
+        """Should return the error message for failed evaluations."""
         report = EvaluationReport(
             session_id=completed_session.id,
             report_id=generate_report_id(),
@@ -412,67 +417,64 @@ class TestGetEvaluationStatusEndpoint:
         )
         test_db.add(report)
         test_db.commit()
-        
-        response = client.get(f"/api/evaluation/{completed_session.id}/status")
-        
+
+        response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
+
         assert response.status_code == 200
         data = response.json()
         assert data["status"] == "failed"
         assert data["error"] == "LLM timeout after 30s"
-    
+
     def test_get_status_forbidden_for_other_user(self, client_other_user, completed_session):
-        """Should return 403 for other user's session."""
-        response = client_other_user.get(f"/api/evaluation/{completed_session.id}/status")
-        
-        assert response.status_code == 403
+        """Cross-tenant access is hidden as 404 (not 403)."""
+        response = client_other_user.get(f"/api/sessions/{completed_session.id}/eval-status")
+
+        assert response.status_code == 404
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Test: GET /evaluation/{session_id}/report
+# Test: GET /sessions/{session_id}/report
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestGetEvaluationReportEndpoint:
-    """Tests for get evaluation report endpoint."""
-    
+    """Tests for the report-polling endpoint."""
+
     def test_get_report_success(self, client, completed_session, existing_evaluation):
-        """Should return full evaluation report."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/report")
-        
+        """Should return the full evaluation report when completed."""
+        response = client.get(f"/api/sessions/{completed_session.id}/report")
+
         assert response.status_code == 200
         data = response.json()
-        assert data["session_id"] == str(completed_session.id)
-        assert data["report_id"] == existing_evaluation.report_id
         assert data["status"] == "completed"
         assert data["overall_score"] == 85
         assert data["passed"] == True
         assert data["report"] == {"summary": "Good performance"}
-        assert data["quick_stats"] == {"total_turns": 4}
-    
-    def test_get_report_not_found(self, client, completed_session):
-        """Should return 404 when no evaluation exists."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/report")
-        
-        assert response.status_code == 404
-        assert "No evaluation found" in response.json()["detail"]
-    
+
+    def test_get_report_not_started(self, client, completed_session):
+        """Missing report returns status 'not_started' with HTTP 200 (poll-friendly)."""
+        response = client.get(f"/api/sessions/{completed_session.id}/report")
+
+        assert response.status_code == 200
+        assert response.json()["status"] == "not_started"
+
     def test_get_report_forbidden_for_other_user(self, client_other_user, completed_session, existing_evaluation):
-        """Should return 403 for other user's session."""
-        response = client_other_user.get(f"/api/evaluation/{completed_session.id}/report")
-        
-        assert response.status_code == 403
+        """Cross-tenant access is hidden as 404 (not 403)."""
+        response = client_other_user.get(f"/api/sessions/{completed_session.id}/report")
+
+        assert response.status_code == 404
 
 
 # ═══════════════════════════════════════════════════════════════════════════════
-# Test: GET /evaluation/{session_id}/quick-stats
+# Test: GET /sessions/{session_id}/quick-stats
 # ═══════════════════════════════════════════════════════════════════════════════
 
 class TestGetQuickStatsEndpoint:
-    """Tests for get quick stats endpoint."""
-    
+    """Tests for the quick-stats endpoint."""
+
     def test_get_quick_stats_computed(self, client, completed_session, session_with_messages):
-        """Should compute quick stats when not cached."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/quick-stats")
-        
+        """Should compute quick stats fresh when not cached."""
+        response = client.get(f"/api/sessions/{completed_session.id}/quick-stats")
+
         assert response.status_code == 200
         data = response.json()
         assert data["session_id"] == str(completed_session.id)
@@ -480,37 +482,36 @@ class TestGetQuickStatsEndpoint:
         assert data["stats"]["total_turns"] == 4
         assert data["stats"]["salesperson_turns"] == 2
         assert data["stats"]["customer_turns"] == 2
-        assert data["evaluation_available"] == True
-    
+        assert data["from_cache"] == False
+
     def test_get_quick_stats_cached(self, client, completed_session, existing_evaluation):
-        """Should return cached stats from evaluation report."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/quick-stats")
-        
+        """Should return cached stats from the existing evaluation report."""
+        response = client.get(f"/api/sessions/{completed_session.id}/quick-stats")
+
         assert response.status_code == 200
         data = response.json()
         assert data["stats"] == {"total_turns": 4}
-        # evaluation_available should be False since report is completed
-        assert data["evaluation_available"] == False
-    
+        assert data["from_cache"] == True
+
     def test_get_quick_stats_with_emotions(self, client, completed_session, session_with_emotions):
-        """Should include emotion journey in stats."""
-        response = client.get(f"/api/evaluation/{completed_session.id}/quick-stats")
-        
+        """Should include the emotion journey in computed stats."""
+        response = client.get(f"/api/sessions/{completed_session.id}/quick-stats")
+
         assert response.status_code == 200
         data = response.json()
         assert "emotion_journey" in data["stats"]
-    
+
     def test_get_quick_stats_forbidden_for_other_user(self, client_other_user, completed_session):
-        """Should return 403 for other user's session."""
-        response = client_other_user.get(f"/api/evaluation/{completed_session.id}/quick-stats")
-        
-        assert response.status_code == 403
-    
+        """Cross-tenant access is hidden as 404 (not 403)."""
+        response = client_other_user.get(f"/api/sessions/{completed_session.id}/quick-stats")
+
+        assert response.status_code == 404
+
     def test_get_quick_stats_not_found_session(self, client):
-        """Should return 404 for non-existent session."""
+        """Should return 404 for a non-existent session."""
         fake_id = uuid4()
-        response = client.get(f"/api/evaluation/{fake_id}/quick-stats")
-        
+        response = client.get(f"/api/sessions/{fake_id}/quick-stats")
+
         assert response.status_code == 404
 
 
@@ -522,20 +523,22 @@ class TestEvaluationFlow:
     """Tests for the complete evaluation flow."""
     
     def test_full_evaluation_flow(self, client, test_db, completed_session, session_with_messages):
-        """Test complete flow: trigger -> check status -> get report."""
-        # Step 1: Trigger evaluation
-        trigger_response = client.post(f"/api/evaluation/{completed_session.id}/trigger")
+        """Test complete flow: start -> check status -> get report."""
+        # Step 1: Start evaluation. The endpoint atomically claims the report
+        # (pending -> processing) before firing the background task.
+        trigger_response = client.post(f"/api/sessions/{completed_session.id}/evaluate")
         assert trigger_response.status_code == 200
         assert trigger_response.json()["status"] == "started"
-        report_id = trigger_response.json()["report_id"]
-        
-        # Step 2: Check status (should be pending)
-        status_response = client.get(f"/api/evaluation/{completed_session.id}/status")
+
+        # Step 2: A report now exists and carries a report_id.
+        status_response = client.get(f"/api/sessions/{completed_session.id}/eval-status")
         assert status_response.status_code == 200
-        assert status_response.json()["status"] == "pending"
-        assert status_response.json()["report_id"] == report_id
-        
-        # Step 3: Simulate completion (manually update in DB)
+        status_data = status_response.json()
+        assert status_data["status"] in ("pending", "processing", "completed", "failed")
+        report_id = status_data["report_id"]
+        assert report_id is not None
+
+        # Step 3: Simulate completion (manually update in DB).
         report = test_db.query(EvaluationReport).filter(
             EvaluationReport.session_id == completed_session.id
         ).first()
@@ -545,9 +548,9 @@ class TestEvaluationFlow:
         report.passed = True
         report.report_json = {"summary": "Excellent sales call!"}
         test_db.commit()
-        
-        # Step 4: Get final report
-        report_response = client.get(f"/api/evaluation/{completed_session.id}/report")
+
+        # Step 4: Get the final report.
+        report_response = client.get(f"/api/sessions/{completed_session.id}/report")
         assert report_response.status_code == 200
         data = report_response.json()
         assert data["status"] == "completed"
