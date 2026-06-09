@@ -94,9 +94,10 @@ const scoreColor = s => s >= 80 ? '#a5d6a7' : s >= 60 ? '#e9c46a' : '#ffb4ab';
 const formatDate = d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 
 const SESSION_TABS = [
-  { key: 'all',       label: 'All' },
-  { key: 'active',    label: 'Active' },
-  { key: 'evaluated', label: 'Evaluated' },
+  { key: 'all',        label: 'All' },
+  { key: 'active',     label: 'Active' },
+  { key: 'incomplete', label: 'Needs Evaluation' },
+  { key: 'evaluated',  label: 'Evaluated' },
 ];
 
 export default function Dashboard() {
@@ -106,6 +107,18 @@ export default function Dashboard() {
   const [loading, setLoading]       = useState(true);
   const [sessionTab, setSessionTab] = useState('all');
   const [triggering, setTriggering] = useState({});
+  const [resuming, setResuming]     = useState(null);
+
+  // Re-open an ended session: reactivate it server-side, then enter the call.
+  const handleResume = async (s) => {
+    setResuming(s.id);
+    try {
+      if (s.status !== 'active') await sessionsAPI.reactivate(s.id);
+      navigate(`/session/${s.id}`);
+    } catch {
+      setResuming(null);
+    }
+  };
   const [stats, setStats]           = useState({ total: 0, avgScore: 0, totalMinutes: 0 });
   const [profile, setProfile]       = useState(null);
 
@@ -126,8 +139,9 @@ export default function Dashboard() {
   }, []);
 
   const filtered = sessions.filter(s => {
-    if (sessionTab === 'active')    return s.status === 'active';
-    if (sessionTab === 'evaluated') return !!s.overall_score;
+    if (sessionTab === 'active')     return s.status === 'active';
+    if (sessionTab === 'incomplete') return s.status !== 'active' && !s.overall_score;
+    if (sessionTab === 'evaluated')  return !!s.overall_score;
     return true;
   });
 
@@ -368,6 +382,10 @@ export default function Dashboard() {
                 return (
                   <div
                     key={s.id}
+                    onClick={() => handleResume(s)}
+                    role="button"
+                    tabIndex={0}
+                    onKeyDown={e => { if (e.key === 'Enter') handleResume(s); }}
                     style={{
                       display: 'flex',
                       alignItems: 'center',
@@ -375,6 +393,7 @@ export default function Dashboard() {
                       padding: '13px 20px',
                       borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none',
                       gap: 12,
+                      cursor: 'pointer',
                       transition: 'background 0.12s',
                     }}
                     onMouseEnter={e => e.currentTarget.style.background = 'rgba(222,183,255,0.03)'}
@@ -398,60 +417,83 @@ export default function Dashboard() {
                       </div>
                     </div>
 
-                    {/* Right: difficulty + score + actions */}
-                    <div style={{ display: 'flex', alignItems: 'center', gap: 8, flexShrink: 0 }}>
-                      {!isActive && s.difficulty && (
-                        <Badge variant={s.difficulty} label={s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)} />
-                      )}
+                    {/* Right: difficulty · score · actions — aligned into fixed slots */}
+                    <div style={{ display: 'flex', alignItems: 'center', gap: 10, flexShrink: 0 }}>
+                      {/* Difficulty — fixed slot so badges line up across rows */}
+                      <div style={{ width: 64, display: 'flex', justifyContent: 'flex-end' }}>
+                        {!isActive && s.difficulty && (
+                          <Badge variant={s.difficulty} label={s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)} />
+                        )}
+                      </div>
 
-                      {isActive ? (
-                        <button
-                          onClick={() => navigate(`/session/${s.id}`)}
-                          className="btn-primary"
-                          style={{ fontSize: 12, padding: '6px 14px' }}
-                        >
-                          Resume →
-                        </button>
-                      ) : evaluated ? (
-                        <>
-                          <span style={{ fontSize: 16, fontWeight: 700, color: scoreColor(s.overall_score), marginRight: 2 }}>
+                      {/* Score — fixed slot, right-aligned (N/A when unscored) */}
+                      <div style={{ width: 36, textAlign: 'right' }}>
+                        {evaluated ? (
+                          <span style={{ fontSize: 16, fontWeight: 700, color: scoreColor(s.overall_score) }}>
                             {s.overall_score}
                           </span>
+                        ) : (
+                          <span style={{ fontSize: 12, fontWeight: 600, letterSpacing: '0.02em', color: 'var(--text-subtle)' }}>
+                            N/A
+                          </span>
+                        )}
+                      </div>
+
+                      {/* Action buttons — uniform padding, primary always first */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 6 }}>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleResume(s); }}
+                          disabled={resuming === s.id}
+                          className="btn-primary"
+                          style={{ fontSize: 12, padding: '6px 14px', minWidth: 96, opacity: resuming === s.id ? 0.5 : 1 }}
+                        >
+                          {resuming === s.id ? '…' : isActive ? 'Resume →' : 'Continue →'}
+                        </button>
+
+                        {!isActive && (evaluated ? (
                           <button
-                            onClick={() => navigate(`/evaluation/${s.id}`)}
+                            onClick={e => { e.stopPropagation(); navigate(`/evaluation/${s.id}`); }}
                             className="btn-secondary"
-                            style={{ fontSize: 12, padding: '6px 12px' }}
+                            style={{ fontSize: 12, padding: '6px 14px', minWidth: 96 }}
                           >
                             Report
                           </button>
+                        ) : (
                           <button
-                            onClick={async () => {
+                            onClick={async e => {
+                              e.stopPropagation();
                               setTriggering(p => ({ ...p, [s.id]: true }));
-                              try { await evaluationAPI.triggerEvaluation(s.id, 'training', true); navigate(`/evaluation/${s.id}`); }
+                              try { await evaluationAPI.triggerEvaluation(s.id, 'training', false); navigate(`/evaluation/${s.id}`); }
                               catch { setTriggering(p => ({ ...p, [s.id]: false })); }
                             }}
                             disabled={isBusy}
                             className="btn-secondary"
-                            style={{ fontSize: 12, padding: '6px 10px' }}
-                            title="Re-evaluate"
+                            style={{ fontSize: 12, padding: '6px 14px', minWidth: 96, color: '#e9c46a', borderColor: 'rgba(233,196,106,0.3)' }}
                           >
-                            {isBusy ? '…' : '↻'}
+                            {isBusy ? 'Starting…' : 'Evaluate →'}
                           </button>
-                        </>
-                      ) : (
-                        <button
-                          onClick={async () => {
-                            setTriggering(p => ({ ...p, [s.id]: true }));
-                            try { await evaluationAPI.triggerEvaluation(s.id, 'training', false); navigate(`/evaluation/${s.id}`); }
-                            catch { setTriggering(p => ({ ...p, [s.id]: false })); }
-                          }}
-                          disabled={isBusy}
-                          className="btn-secondary"
-                          style={{ fontSize: 12, padding: '6px 14px', color: '#e9c46a', borderColor: 'rgba(233,196,106,0.3)' }}
-                        >
-                          {isBusy ? 'Starting…' : 'Evaluate →'}
-                        </button>
-                      )}
+                        ))}
+
+                        {/* Re-evaluate — fixed slot so rows end at the same edge */}
+                        <div style={{ width: 32 }}>
+                          {evaluated && (
+                            <button
+                              onClick={async e => {
+                                e.stopPropagation();
+                                setTriggering(p => ({ ...p, [s.id]: true }));
+                                try { await evaluationAPI.triggerEvaluation(s.id, 'training', true); navigate(`/evaluation/${s.id}`); }
+                                catch { setTriggering(p => ({ ...p, [s.id]: false })); }
+                              }}
+                              disabled={isBusy}
+                              className="btn-secondary"
+                              style={{ fontSize: 12, padding: '6px 0', width: 32 }}
+                              title="Re-evaluate"
+                            >
+                              {isBusy ? '…' : '↻'}
+                            </button>
+                          )}
+                        </div>
+                      </div>
                     </div>
                   </div>
                 );
