@@ -136,21 +136,27 @@ body {
 }
 .mic-glow { animation: mic-glow 2s ease-in-out infinite; }
 
-/* Vibrance rings — expanding pulses around the mic while the agent speaks */
-@keyframes vibrance-pulse {
-  0%   { transform: scale(0.55); opacity: 0.55; }
+/* Live mic — expanding ripples + breathing red glow while recording.
+   Makes the main action feel alive: the user can SEE they're being heard. */
+@keyframes mic-ripple {
+  0%   { transform: scale(0.6);  opacity: 0.6; }
   70%  { opacity: 0.12; }
-  100% { transform: scale(1.25); opacity: 0; }
+  100% { transform: scale(1.9);  opacity: 0; }
 }
-.vibrance-ring {
+.mic-ripple {
   position: absolute;
-  width: 200px;
-  height: 200px;
-  border-radius: 28px;
-  border: 1.5px solid rgba(120, 175, 255, 0.5);
+  width: 72px;
+  height: 72px;
+  border-radius: 9999px;
+  border: 2px solid rgba(248, 113, 113, 0.55);
   pointer-events: none;
-  animation: vibrance-pulse 1.8s ease-out infinite;
+  animation: mic-ripple 1.6s cubic-bezier(0.22, 0.61, 0.36, 1) infinite;
 }
+@keyframes mic-live {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5), 0 0 22px rgba(239, 68, 68, 0.45); transform: scale(1); }
+  50%      { box-shadow: 0 0 0 10px rgba(239, 68, 68, 0), 0 0 40px rgba(248, 113, 113, 0.6); transform: scale(1.05); }
+}
+.mic-live { animation: mic-live 1.2s ease-in-out infinite; }
 
 @keyframes shimmer {
   0%   { background-position: -400% center; }
