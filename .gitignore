@@ -55,3 +55,7 @@ logs/
 *.onnx
 *.safetensors
 emotion/model/
+
+# Thesis document (managed separately in Overleaf)
+MIU_CSC_GP26___Thesis_Document___AI16/
+mock_document/

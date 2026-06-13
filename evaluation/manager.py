@@ -188,6 +188,25 @@ def get_evaluation_llm() -> EvaluationLLMWrapper:
 # Data Gathering Functions
 # ═══════════════════════════════════════════════════════════════════════════════
 
+def _compute_duration(session, messages: list) -> int:
+    """Return actual conversation time (first msg → last msg), not idle wait time."""
+    from datetime import timezone as _tz
+    msgs_with_ts = [m for m in messages if getattr(m, 'created_at', None)]
+    if len(msgs_with_ts) >= 2:
+        t0 = msgs_with_ts[0].created_at
+        t1 = msgs_with_ts[-1].created_at
+        if t0.tzinfo is None:
+            t0 = t0.replace(tzinfo=_tz.utc)
+        if t1.tzinfo is None:
+            t1 = t1.replace(tzinfo=_tz.utc)
+        return max(0, int((t1 - t0).total_seconds()))
+    if session.duration_seconds:
+        return session.duration_seconds
+    if session.started_at and session.ended_at:
+        return max(0, int((session.ended_at - session.started_at).total_seconds()))
+    return 0
+
+
 def gather_evaluation_inputs_db_only(session_id: str) -> dict:
     """
     Gather ONLY database data (transcript, emotions, session_info).
@@ -240,11 +259,7 @@ def gather_evaluation_inputs_db_only(session_id: str) -> dict:
             for i, log in enumerate(emotion_logs)
         ]
 
-        duration_seconds = 0
-        if session.duration_seconds:
-            duration_seconds = session.duration_seconds
-        elif session.started_at and session.ended_at:
-            duration_seconds = int((session.ended_at - session.started_at).total_seconds())
+        duration_seconds = _compute_duration(session, messages)
 
         persona = db.query(PersonaModel).filter(
             PersonaModel.id == session.persona_id
@@ -258,13 +273,7 @@ def gather_evaluation_inputs_db_only(session_id: str) -> dict:
             "persona_id": session.persona_id,
             "persona_name": persona_name,
             "persona_difficulty": persona_difficulty,
-            # The session's chosen difficulty (what the trainee actually faced).
-            # The evaluator uses this to calibrate scoring — a hard customer
-            # shouldn't be graded on the same closing expectations as an easy one.
             "difficulty": getattr(session, "difficulty", None) or persona_difficulty,
-            # The buyer scenario — lets the evaluator score whether the
-            # salesperson discovered the customer's real needs and respected
-            # their budget/timeline.
             "scenario": getattr(session, "scenario", None),
             "started_at": session.started_at.isoformat() if session.started_at else None,
             "ended_at": session.ended_at.isoformat() if session.ended_at else None,
@@ -334,13 +343,8 @@ def gather_evaluation_inputs(session_id: str) -> dict:
                 "trend": log.emotion_trend,
             })
         
-        # Calculate duration
-        duration_seconds = 0
-        if session.duration_seconds:
-            duration_seconds = session.duration_seconds
-        elif session.started_at and session.ended_at:
-            duration_seconds = int((session.ended_at - session.started_at).total_seconds())
-        
+        duration_seconds = _compute_duration(session, messages)
+
         # Look up persona for name and difficulty
         persona = db.query(PersonaModel).filter(
             PersonaModel.id == session.persona_id

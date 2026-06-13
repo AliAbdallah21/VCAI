@@ -249,11 +249,26 @@ def end_session(
     
     session.status = "completed"
     session.ended_at = datetime.now(timezone.utc)
-    
-    # Calculate duration
-    if session.started_at:
-        duration = (session.ended_at - session.started_at).total_seconds()
-        session.duration_seconds = int(duration)
+
+    # Duration = actual conversation span (first msg → last msg), not idle wait time
+    first_msg = (
+        db.query(Message)
+        .filter(Message.session_id == session_id)
+        .order_by(Message.created_at.asc())
+        .first()
+    )
+    last_msg = (
+        db.query(Message)
+        .filter(Message.session_id == session_id)
+        .order_by(Message.created_at.desc())
+        .first()
+    )
+    if first_msg and last_msg and first_msg.created_at and last_msg.created_at:
+        t0 = first_msg.created_at if first_msg.created_at.tzinfo else first_msg.created_at.replace(tzinfo=timezone.utc)
+        t1 = last_msg.created_at if last_msg.created_at.tzinfo else last_msg.created_at.replace(tzinfo=timezone.utc)
+        session.duration_seconds = max(0, int((t1 - t0).total_seconds()))
+    elif session.started_at:
+        session.duration_seconds = max(0, int((session.ended_at - session.started_at).total_seconds()))
     
     # Add evaluation if provided
     if evaluation:

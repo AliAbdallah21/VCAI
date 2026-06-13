@@ -47,7 +47,12 @@
       "Bash(grep -v -E \"^\\(Example|Alternatively|If submitted|future|No report|conda config|\\\\\\\\$ conda|Would you\\)\")",
       "Bash(del *)",
       "Bash(npm install *)",
-      "Bash(node --input-type=module --eval ' *)"
+      "Bash(node --input-type=module --eval ' *)",
+      "Bash(git add *)",
+      "Bash(git commit -m ' *)",
+      "Bash(findstr -i \"tailwind\")",
+      "PowerShell(Get-ChildItem \"C:\\\\VCAI\\\\mock_document\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\VCAI\\\\mock_document\\\\\",\"\"\\) })",
+      "Bash(pip install *)"
     ]
   }
 }

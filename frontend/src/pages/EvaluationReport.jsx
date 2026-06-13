@@ -367,19 +367,27 @@ export default function EvaluationReport() {
 
   useEffect(() => { fetchEvaluation(); }, [fetchEvaluation]);
 
-  // Poll for completion
+  // Poll for completion — use ref so interval isn't recreated on every status update
+  const evaluationRef = useRef(evaluation);
+  useEffect(() => { evaluationRef.current = evaluation; }, [evaluation]);
+
   useEffect(() => {
     if (!evaluation || evaluation.status === 'completed' || evaluation.status === 'failed') return;
     const interval = setInterval(async () => {
+      if (evaluationRef.current?.status === 'completed' || evaluationRef.current?.status === 'failed') {
+        clearInterval(interval);
+        return;
+      }
       try {
         const report = await evaluationAPI.getReport(sessionId);
         setEvaluation(report);
         if (report.quick_stats) setQuickStats(report.quick_stats);
         if (report.status === 'completed' || report.status === 'failed') clearInterval(interval);
       } catch {}
-    }, 3000);
+    }, 5000);
     return () => clearInterval(interval);
-  }, [evaluation, sessionId]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [sessionId, evaluation?.status === 'pending' || evaluation?.status === 'processing']);
 
   // Reveal report once evaluation completes
   useEffect(() => {
