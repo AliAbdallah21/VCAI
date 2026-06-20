@@ -9,6 +9,9 @@ Or:
     python -m backend.main
 """
 
+from dotenv import load_dotenv
+load_dotenv()
+
 import logging
 import traceback
 import uuid
@@ -34,6 +37,7 @@ from backend.routers import (
     admin_router,
 )
 from backend.routers.websocket import router as websocket_router
+from backend.routers.chatbot import router as chatbot_router
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -57,8 +61,8 @@ async def lifespan(app: FastAPI):
         except Exception as e:
             print(f"[Startup] Warning: Could not preload STT: {e}")
 
-        # LLM (local Qwen only; OpenRouter is stateless)
-        if not settings.use_mocks:
+        # LLM (local Qwen only; OpenRouter is stateless and needs no preload)
+        if not settings.use_mocks and not settings.use_openrouter:
             try:
                 print("[Startup] Loading LLM model (this may take ~40 seconds)...")
                 from llm.agent import _load_model
@@ -66,6 +70,8 @@ async def lifespan(app: FastAPI):
                 print("[Startup] LLM model loaded")
             except Exception as e:
                 print(f"[Startup] Warning: Could not preload LLM: {e}")
+        elif settings.use_openrouter:
+            print("[Startup] LLM: OpenRouter mode — skipping local model load")
 
         # TTS
         try:
@@ -184,6 +190,7 @@ app.include_router(learning_router, prefix="/api")
 app.include_router(manager_router, prefix="/api")
 app.include_router(admin_router, prefix="/api")
 app.include_router(websocket_router)
+app.include_router(chatbot_router)
 
 
 # ── Endpoints ─────────────────────────────────────────────────────────────────

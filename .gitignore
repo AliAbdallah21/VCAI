@@ -1,29 +1,32 @@
-﻿# Python
+﻿# ── Python ────────────────────────────────────────────────────────────────────
 __pycache__/
 *.py[cod]
-*.class
 *.so
-.Python
 venv/
 ENV/
-.env
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
 
-# Node
+# ── Node ──────────────────────────────────────────────────────────────────────
 node_modules/
 dist/
 .npm
 
-# IDE
+# ── IDE / OS ──────────────────────────────────────────────────────────────────
 .vscode/
 .idea/
 *.swp
 *.swo
-
-# OS
 .DS_Store
 Thumbs.db
 
-# Project specific
+# ── Environment & secrets ─────────────────────────────────────────────────────
+.env
+
+# ── Audio (large binary, session-specific) ────────────────────────────────────
 data/audio_sessions/*
 !data/audio_sessions/.gitkeep
 data/voices/*
@@ -32,30 +35,43 @@ data/voices/*
 *.mp3
 *.webm
 
-# Evaluation reports (generated artifacts, not source)
+# ── Evaluation reports (generated artifacts) ──────────────────────────────────
 reports/*
 !reports/.gitkeep
+report*.json
 
-# Personal demo / ops files (not shared with the repo)
-DEMO_RUNBOOK.md
-scripts/smoke_test.py
-tools/
+# ── Database backups ──────────────────────────────────────────────────────────
+backup_*.sql
 
-# Logs
-*.log
-logs/
+# ── RAG / vector store build artifacts ───────────────────────────────────────
+build/
+data/faiss_index/
+*.faiss
+*.pkl
 
-# Database
-*.db
-*.sqlite
-
-# Models (large files)
+# ── ML model weights (large files) ───────────────────────────────────────────
 *.bin
 *.pt
 *.onnx
 *.safetensors
 emotion/model/
 
-# Thesis document (managed separately in Overleaf)
+# ── Logs ──────────────────────────────────────────────────────────────────────
+*.log
+logs/
+
+# ── Database files ────────────────────────────────────────────────────────────
+*.db
+*.sqlite
+
+# ── Local-only ops files (exist on disk, not in repo) ────────────────────────
+tools/
+DEMO_RUNBOOK.md
+scripts/smoke_test.py
+Makefile
+status_now.md
+trigger_eval.py
+resume.md
+venv/
 MIU_CSC_GP26___Thesis_Document___AI16/
 mock_document/

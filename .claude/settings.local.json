@@ -52,7 +52,9 @@
       "Bash(git commit -m ' *)",
       "Bash(findstr -i \"tailwind\")",
       "PowerShell(Get-ChildItem \"C:\\\\VCAI\\\\mock_document\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\VCAI\\\\mock_document\\\\\",\"\"\\) })",
-      "Bash(pip install *)"
+      "Bash(pip install *)",
+      "Bash(git rm *)",
+      "PowerShell(git *)"
     ]
   }
 }

@@ -1,4 +1,4 @@
-﻿import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+﻿import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import ErrorBoundary from './components/ErrorBoundary';
 import Login from './pages/Login';
@@ -8,7 +8,10 @@ import SessionSetup from './pages/SessionSetup';
 import TrainingSession from './pages/TrainingSession';
 import EvaluationReport from './pages/EvaluationReport';
 import Landing from './pages/Landing';
+import About from './pages/About';
+import Privacy from './pages/Privacy';
 import Contact from './pages/Contact';
+import ChatWidget from './components/ChatWidget';
 import Onboarding from './pages/Onboarding';
 import AcceptInvite from './pages/AcceptInvite';
 import SeatManagement from './pages/SeatManagement';
@@ -58,10 +61,22 @@ const CatchAll = () => {
   return <Navigate to={isAuthenticated ? '/dashboard' : '/'} replace />;
 };
 
+const PUBLIC_CHAT_PATHS = ['/', '/about', '/privacy', '/contact'];
+
+function PublicChatWrapper() {
+  const { pathname } = useLocation();
+  if (!PUBLIC_CHAT_PATHS.includes(pathname)) return null;
+  return <ChatWidget />;
+}
+
 function AppRoutes() {
   return (
+    <>
+    <PublicChatWrapper />
     <Routes>
       <Route path="/" element={<Landing />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/privacy" element={<Privacy />} />
       <Route path="/contact" element={<Contact />} />
       <Route path="/onboarding" element={<Onboarding />} />
       <Route path="/invite/:token" element={<AcceptInvite />} />
@@ -82,6 +97,7 @@ function AppRoutes() {
       <Route path="/settings" element={<ProtectedRoute><Settings /></ProtectedRoute>} />
       <Route path="*" element={<Navigate to="/dashboard" replace />} />
     </Routes>
+    </>
   );
 }
 

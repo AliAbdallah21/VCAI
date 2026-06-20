@@ -30,6 +30,9 @@ class Settings(BaseSettings):
     port: int = 8000
     debug: bool = False
 
+    # LLM backend selection
+    use_openrouter: bool = False
+
     # Models
     use_mocks: bool = False
     preload_models: bool = True
