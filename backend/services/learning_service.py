@@ -385,14 +385,21 @@ def _build_skill_summaries(sessions: list[SessionModel]) -> list[SkillSummary]:
             ))
             continue
 
+        # current_score = rolling average of last 3 sessions for this skill.
+        # A single session can score 0 on an untested skill (e.g. closing never
+        # came up), so one raw score is too volatile to represent current ability.
+        recent_window = min(3, len(all_scores))
+        current_score = round(sum(all_scores[-recent_window:]) / recent_window)
+        raw_last = all_scores[-1]
+
         summaries.append(SkillSummary(
             skill_key=skill,
             skill_name_ar=SKILL_NAMES_AR[skill],
             first_score=all_scores[0],
-            current_score=all_scores[-1],
+            current_score=current_score,
             best_score=max(all_scores),
             worst_score=min(all_scores),
-            total_improvement=float(all_scores[-1] - all_scores[0]),
+            total_improvement=float(raw_last - all_scores[0]),
             trend=_detect_trend([float(s) for s in all_scores]),
             focus_sessions=focus_sessions,
         ))

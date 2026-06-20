@@ -54,7 +54,10 @@
       "PowerShell(Get-ChildItem \"C:\\\\VCAI\\\\mock_document\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"C:\\\\VCAI\\\\mock_document\\\\\",\"\"\\) })",
       "Bash(pip install *)",
       "Bash(git rm *)",
-      "PowerShell(git *)"
+      "PowerShell(git *)",
+      "Bash(python3 *)",
+      "PowerShell($r = Get-Content \"C:\\\\VCAI\\\\reports\\\\report_e9f72b13_20260620_142918.json\" -Raw | ConvertFrom-Json; $r.scores.overall_score; $r.scores.skills | ForEach-Object { \"$\\($_.skill_key\\): $\\($_.score\\)\" })",
+      "PowerShell($r = Get-Content \"C:\\\\VCAI\\\\reports\\\\report_8b23f92c_20260525_072549.json\" -Raw | ConvertFrom-Json; $r.scores.overall_score; $r.scores.skills | ForEach-Object { \"$\\($_.skill_key\\): $\\($_.score\\)\" })"
     ]
   }
 }
