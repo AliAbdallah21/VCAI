@@ -49,7 +49,7 @@ function EmptyState({ navigate }) {
           <path d="M3 3v18h18M7 16l4-4 4 4 4-5"/>
         </svg>
       </div>
-      <h3 className="font-bold text-white mb-2">No data yet</h3>
+      <h3 className="font-bold mb-2" style={{ color: 'var(--text-primary)' }}>No data yet</h3>
       <p className="text-sm mb-6" style={{ color: 'var(--text-muted)' }}>
         Complete your first training session to start tracking progress.
       </p>

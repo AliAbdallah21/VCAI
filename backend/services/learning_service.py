@@ -157,7 +157,7 @@ def compute_learning_profile(
         .filter(
             SessionModel.user_id == user_id,
             SessionModel.status.in_(("completed", "ended")),
-            SessionModel.communication_score.isnot(None),
+            SessionModel.overall_score.isnot(None),
         )
         .order_by(SessionModel.ended_at.desc())
         .limit(last_n)
@@ -250,7 +250,7 @@ def get_progress_data(
         .filter(
             SessionModel.user_id == user_id,
             SessionModel.status.in_(("completed", "ended")),
-            SessionModel.communication_score.isnot(None),
+            SessionModel.overall_score.isnot(None),
         )
         .order_by(SessionModel.ended_at.asc())
         .all()

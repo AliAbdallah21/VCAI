@@ -248,8 +248,8 @@ export default function Dashboard() {
         </Link>
 
         {/* ── Skill Progress widget ── */}
-        {profile?.has_enough_data && profile.skill_averages?.length > 0 && (() => {
-          const weakest = [...profile.skill_averages].sort((a, b) => a.avg_score - b.avg_score).slice(0, 3);
+        {profile?.has_enough_data && profile.skill_statuses?.length > 0 && (() => {
+          const weakest = [...profile.skill_statuses].sort((a, b) => a.current_avg - b.current_avg).slice(0, 3);
           return (
             <div
               style={{
@@ -276,7 +276,7 @@ export default function Dashboard() {
                   const color = SKILL_COLORS[skill.skill_key] ?? '#deb7ff';
                   const label = SKILL_LABELS[skill.skill_key] ?? skill.skill_key;
                   const trend = TREND_META[skill.trend] ?? TREND_META.insufficient_data;
-                  const score = Math.round(skill.avg_score);
+                  const score = Math.round(skill.current_avg);
                   return (
                     <div key={skill.skill_key} style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                       <span style={{ fontSize: 12.5, fontWeight: 500, width: 148, flexShrink: 0, color: 'var(--text-secondary)' }}>
