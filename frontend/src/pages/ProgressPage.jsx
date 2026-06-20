@@ -28,7 +28,7 @@ function Spinner() {
       <div
         className="w-6 h-6"
         style={{
-          border: '2px solid rgba(255,255,255,0.08)',
+          border: '2px solid var(--border)',
           borderTopColor: '#b472f1',
           borderRadius: '50%',
           animation: 'spin 0.8s linear infinite',
@@ -123,8 +123,8 @@ export default function ProgressPage() {
                     onClick={() => setGroupBy(opt.id)}
                     className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
                     style={{
-                      background: active ? 'rgba(222,183,255,0.15)' : 'rgba(255,255,255,0.03)',
-                      border: `1px solid ${active ? 'rgba(222,183,255,0.45)' : 'rgba(255,255,255,0.07)'}`,
+                      background: active ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                      border: `1px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
                       color: active ? 'var(--primary)' : 'var(--text-muted)',
                     }}
                   >
@@ -164,7 +164,7 @@ export default function ProgressPage() {
               style={{ background: 'var(--bg-card)', border: '1px solid var(--border)' }}
             >
               <div className="flex items-center justify-between mb-4">
-                <h3 className="text-sm font-semibold text-white">
+                <h3 className="text-sm font-semibold" style={{ color: 'var(--text-primary)' }}>
                   {selectedSkill
                     ? `${SKILL_CONFIG.find(s => s.key === selectedSkill)?.label} over time`
                     : 'All skills over time'}
@@ -173,7 +173,7 @@ export default function ProgressPage() {
                   <button
                     onClick={() => setSelectedSkill(null)}
                     className="text-xs px-2 py-1 rounded-lg"
-                    style={{ color: 'var(--text-muted)', background: 'rgba(255,255,255,0.03)' }}
+                    style={{ color: 'var(--text-muted)', background: 'var(--bg-card-alt)' }}
                   >
                     Show all
                   </button>

@@ -67,7 +67,7 @@ function StatCard({ label, value, sub, Icon, accent }) {
           <Icon size={14} color={accent} />
         </div>
       </div>
-      <span style={{ fontSize: 30, fontWeight: 800, color: '#e5e1e4', letterSpacing: '-0.04em', lineHeight: 1 }}>
+      <span style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
         {value}
       </span>
       {sub && <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 5 }}>{sub}</p>}

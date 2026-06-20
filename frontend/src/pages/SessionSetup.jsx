@@ -57,7 +57,7 @@ const StepBadge = ({ n, active }) => (
     className="w-7 h-7 rounded-lg flex items-center justify-center text-xs font-bold flex-shrink-0"
     style={active
       ? { background: 'linear-gradient(135deg, #b472f1, #deb7ff)', color: '#4a007f' }
-      : { background: 'rgba(255,255,255,0.06)', color: 'var(--text-muted)' }
+      : { background: 'var(--bg-card-alt)', color: 'var(--text-muted)' }
     }
   >
     {n}
@@ -202,7 +202,7 @@ export default function SessionSetup() {
               <button
                 onClick={() => setRecommendationDismissed(true)}
                 className="text-xs px-2 py-1 rounded-lg transition-all"
-                style={{ color: 'var(--text-muted)', background: 'rgba(255,255,255,0.03)' }}
+                style={{ color: 'var(--text-muted)', background: 'var(--bg-card-alt)' }}
               >
                 Dismiss
               </button>
@@ -228,7 +228,7 @@ export default function SessionSetup() {
               {learningProfile.recommendation.scenario_hint && (
                 <span
                   className="text-xs px-2.5 py-1 rounded-lg"
-                  style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.06)' }}
+                  style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
                 >
                   {learningProfile.recommendation.scenario_hint}
                 </span>
@@ -273,8 +273,8 @@ export default function SessionSetup() {
                   onClick={() => setDifficulty(d.id)}
                   className="p-4 rounded-xl text-left transition-all duration-200"
                   style={{
-                    background: active ? d.bg : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${active ? d.borderActive : 'rgba(255,255,255,0.06)'}`,
+                    background: active ? d.bg : 'var(--bg-card-alt)',
+                    border: `1px solid ${active ? d.borderActive : 'var(--border)'}`,
                   }}
                 >
                   <div style={{ color: active ? d.color : 'var(--text-muted)' }} className="mb-3">
@@ -320,8 +320,8 @@ export default function SessionSetup() {
                   onClick={() => { setGenderFilter(g.id); setSelected(null); }}
                   className="px-3 py-1.5 rounded-lg text-xs font-semibold transition-all duration-150"
                   style={{
-                    background: active ? 'rgba(180,114,241,0.18)' : 'rgba(255,255,255,0.03)',
-                    border: `1px solid ${active ? 'rgba(180,114,241,0.5)' : 'rgba(255,255,255,0.07)'}`,
+                    background: active ? 'var(--primary-soft-hover)' : 'var(--bg-card-alt)',
+                    border: `1px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
                     color: active ? 'var(--primary)' : 'var(--text-muted)',
                   }}
                 >
@@ -335,7 +335,7 @@ export default function SessionSetup() {
             <div className="py-10 text-center">
               <div
                 className="w-5 h-5 spin-ring mx-auto"
-                style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}
+                style={{ border: '2px solid var(--border)', borderTopColor: 'var(--primary)', borderRadius: '50%' }}
               />
             </div>
           ) : filtered.length === 0 ? (
@@ -352,8 +352,8 @@ export default function SessionSetup() {
                     onClick={() => setSelected(p)}
                     className="p-4 rounded-xl text-left transition-all duration-200"
                     style={{
-                      background: active ? 'rgba(180,114,241,0.1)' : 'rgba(255,255,255,0.02)',
-                      border: `1px solid ${active ? 'rgba(180,114,241,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                      background: active ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                      border: `1px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
                     }}
                   >
                     <div className="flex items-start gap-3">
@@ -411,8 +411,8 @@ export default function SessionSetup() {
                   onClick={() => setScenarioMode(m.id)}
                   className="p-3 rounded-xl text-left transition-all duration-200"
                   style={{
-                    background: active ? 'rgba(180,114,241,0.1)' : 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${active ? 'rgba(180,114,241,0.4)' : 'rgba(255,255,255,0.06)'}`,
+                    background: active ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                    border: `1px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
                   }}
                 >
                   <p className="font-semibold text-xs mb-0.5" style={{ color: 'var(--text-primary)' }}>{m.label}</p>
@@ -425,7 +425,7 @@ export default function SessionSetup() {
           {/* Mode-specific content */}
           {scenarioMode === 'random' && (
             <p className="text-xs px-3 py-2.5 rounded-xl"
-              style={{ background: 'rgba(255,255,255,0.02)', color: 'var(--text-secondary)' }}>
+              style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)' }}>
               A coherent buyer scenario will be generated for this session.
             </p>
           )}

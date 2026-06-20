@@ -44,7 +44,7 @@ export default function FocusTimeline({ periods, skillConfig }) {
                     style={{
                       width: 12,
                       height: 1,
-                      background: 'rgba(255,255,255,0.07)',
+                      background: 'var(--border)',
                       marginBottom: 14,
                       flexShrink: 0,
                     }}

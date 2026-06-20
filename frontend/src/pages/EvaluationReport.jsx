@@ -98,7 +98,7 @@ function ScoreRing({ score }) {
   return (
     <div className="score-pop" style={{ display: 'inline-block' }}>
       <svg width="140" height="140" viewBox="0 0 140 140">
-        <circle cx="70" cy="70" r={radius} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="9"/>
+        <circle cx="70" cy="70" r={radius} fill="none" stroke="var(--border)" strokeWidth="9"/>
         <circle
           cx="70" cy="70" r={radius}
           fill="none"
@@ -140,7 +140,7 @@ function ScoreBar({ label, score, delay = 0 }) {
         </span>
         <span className="font-semibold" style={{ color: textColor }}>{score}%</span>
       </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{
@@ -216,8 +216,8 @@ function AnalysisPanel({ progress, stage }) {
                     ? 'rgba(165,214,167,0.15)'
                     : isActive
                     ? 'rgba(180,114,241,0.15)'
-                    : 'rgba(255,255,255,0.04)',
-                  color: isDone ? '#a5d6a7' : isActive ? '#deb7ff' : 'var(--text-subtle)',
+                    : 'var(--bg-card-alt)',
+                  color: isDone ? '#a5d6a7' : isActive ? 'var(--primary)' : 'var(--text-subtle)',
                 }}
               >
                 {isDone ? (
@@ -254,7 +254,7 @@ function AnalysisPanel({ progress, stage }) {
                 )}
                 {isActive && (
                   <span className="text-xs font-semibold px-2.5 py-1 rounded-lg"
-                    style={{ background: 'rgba(180,114,241,0.1)', color: '#deb7ff', border: '1px solid rgba(180,114,241,0.2)' }}>
+                    style={{ background: 'var(--primary-soft)', color: 'var(--primary)', border: '1px solid var(--glass-border)' }}>
                     Running
                   </span>
                 )}
@@ -268,9 +268,9 @@ function AnalysisPanel({ progress, stage }) {
       <div>
         <div className="flex justify-between text-xs mb-2" style={{ color: 'var(--text-muted)' }}>
           <span>Overall progress</span>
-          <span className="font-medium" style={{ color: '#deb7ff' }}>{Math.round(progress)}%</span>
+          <span className="font-medium" style={{ color: 'var(--primary)' }}>{Math.round(progress)}%</span>
         </div>
-        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+        <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
           <div
             className="h-full rounded-full transition-all duration-700"
             style={{
@@ -589,7 +589,7 @@ export default function EvaluationReport() {
                   <div key={i} className="flex items-center">
                     <div
                       className="px-3 py-2 rounded-xl text-center"
-                      style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+                      style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border)' }}
                     >
                       <span className="text-xl block">{EMOTION_EMOJI[em] || '😐'}</span>
                       <span className="text-xs mt-1 block capitalize" style={{ color: 'var(--text-muted)' }}>{em}</span>
@@ -754,7 +754,7 @@ export default function EvaluationReport() {
                         <div className="mb-3 flex flex-wrap gap-1.5">
                           {fc.properties_discussed.map((name, i) => (
                             <span key={i} className="text-xs px-2 py-0.5 rounded-lg"
-                              style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
+                              style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                               {name}
                             </span>
                           ))}
@@ -778,7 +778,7 @@ export default function EvaluationReport() {
                                   {err.severity}
                                 </span>
                                 <span className="text-xs px-2 py-0.5 rounded font-medium"
-                                  style={{ background: 'rgba(255,255,255,0.06)', color: 'var(--text-secondary)' }}>
+                                  style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)' }}>
                                   {err.claim_type}
                                 </span>
                                 {err.turn_number != null && (
@@ -860,7 +860,7 @@ export default function EvaluationReport() {
                         const customerUrl = customerId ? sessionsAPI.messageAudioUrl(sessionId, customerId) : null;
                         return (
                           <div key={i} className="rounded-xl p-4"
-                            style={{ background: 'rgba(255,255,255,0.02)', border: '1px solid rgba(255,255,255,0.05)' }}>
+                            style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border)' }}>
                             <div className="flex items-center gap-2 mb-2 flex-wrap">
                               <span className="text-xs px-2 py-0.5 rounded-lg font-medium capitalize"
                                 style={{ background: `${aColor}15`, color: aColor, border: `1px solid ${aColor}30` }}>
@@ -872,9 +872,9 @@ export default function EvaluationReport() {
                                   onClick={() => playAudio(youPlayId, youUrl)}
                                   className="ml-auto flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150"
                                   style={{
-                                    background: playingId === youPlayId ? 'rgba(222,183,255,0.18)' : 'rgba(255,255,255,0.04)',
-                                    color: playingId === youPlayId ? '#deb7ff' : 'var(--text-secondary)',
-                                    border: `1px solid ${playingId === youPlayId ? 'rgba(222,183,255,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                    background: playingId === youPlayId ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                                    color: playingId === youPlayId ? 'var(--primary)' : 'var(--text-secondary)',
+                                    border: `1px solid ${playingId === youPlayId ? 'var(--primary)' : 'var(--border)'}`,
                                   }}
                                   title="Play your audio for this turn"
                                 >
@@ -891,9 +891,9 @@ export default function EvaluationReport() {
                                   onClick={() => playAudio(customerPlayId, customerUrl)}
                                   className={`flex items-center gap-1 text-xs px-2 py-0.5 rounded-lg font-medium transition-all duration-150 ${youUrl ? '' : 'ml-auto'}`}
                                   style={{
-                                    background: playingId === customerPlayId ? 'rgba(180,114,241,0.18)' : 'rgba(255,255,255,0.04)',
-                                    color: playingId === customerPlayId ? '#b472f1' : 'var(--text-secondary)',
-                                    border: `1px solid ${playingId === customerPlayId ? 'rgba(180,114,241,0.35)' : 'rgba(255,255,255,0.06)'}`,
+                                    background: playingId === customerPlayId ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                                    color: playingId === customerPlayId ? 'var(--primary-container)' : 'var(--text-secondary)',
+                                    border: `1px solid ${playingId === customerPlayId ? 'var(--primary-container)' : 'var(--border)'}`,
                                   }}
                                   title="Play AI customer audio for this turn"
                                 >
@@ -929,12 +929,12 @@ export default function EvaluationReport() {
                 {rep.recommended_practice?.length > 0 && (
                   <div className="rounded-2xl p-6 mb-5"
                     style={{ background: 'rgba(180,114,241,0.05)', border: '1px solid rgba(180,114,241,0.12)' }}>
-                    <h3 className="heading text-sm font-bold mb-4" style={{ color: '#deb7ff' }}>Recommended Practice</h3>
+                    <h3 className="heading text-sm font-bold mb-4" style={{ color: 'var(--primary)' }}>Recommended Practice</h3>
                     <ul className="space-y-2.5">
                       {rep.recommended_practice.map((item, i) => (
                         <li key={i} className="flex items-start gap-2.5 text-sm" style={{ color: 'var(--text-secondary)' }}>
                           <span className="flex-shrink-0 w-5 h-5 rounded-lg flex items-center justify-center text-xs font-bold mt-0.5"
-                            style={{ background: 'rgba(180,114,241,0.15)', color: '#deb7ff' }}>{i + 1}</span>
+                            style={{ background: 'var(--primary-soft)', color: 'var(--primary)' }}>{i + 1}</span>
                           {item}
                         </li>
                       ))}
@@ -952,8 +952,8 @@ export default function EvaluationReport() {
               to="/dashboard"
               className="px-6 py-3 rounded-xl text-sm font-semibold text-center transition-all duration-200"
               style={{
-                background: 'rgba(255,255,255,0.04)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                background: 'var(--bg-card-alt)',
+                border: '1px solid var(--border)',
                 color: 'var(--text-secondary)',
               }}
             >

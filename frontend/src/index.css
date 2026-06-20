@@ -75,6 +75,76 @@
   --shadow-overlay:       0 20px 40px rgba(0, 0, 0, 0.4);
 }
 
+/* ═══════════════════════════════════════════════════════
+   LIGHT MODE — overrides via [data-theme="light"]
+═══════════════════════════════════════════════════════ */
+
+[data-theme="light"] {
+  --bg-app:               #f5f3ff;
+  --bg-sidebar:           #ede9ff;
+  --bg-card:              #ffffff;
+  --bg-card-alt:          #f0edfb;
+  --bg-hover:             #e8e2f8;
+  --bg-elevated:          #ddd7f5;
+
+  --border:               rgba(100, 80, 160, 0.15);
+  --border-strong:        rgba(100, 80, 160, 0.35);
+
+  --text-primary:         #1a1040;
+  --text-secondary:       #3b2a6e;
+  --text-muted:           #6b5a99;
+  --text-subtle:          #7060a0;
+
+  --primary:              #7c3aed;
+  --primary-hover:        #6d28d9;
+  --primary-on:           #ffffff;
+  --primary-container:    #7c3aed;
+  --primary-soft:         rgba(124, 58, 237, 0.08);
+  --primary-soft-hover:   rgba(124, 58, 237, 0.15);
+
+  --success:              #555;
+  --success-green:        #2e7d32;
+  --error:                #c62828;
+  --error-container:      #ffcdd2;
+  --warning:              #e65100;
+  --amber:                #e65100;
+
+  --surface-container-lowest:  #ede9ff;
+  --surface-container-low:     #f0edfb;
+  --surface-container:         #f5f3ff;
+  --surface-container-high:    #e8e2f8;
+  --surface-container-highest: #ddd7f5;
+  --surface-bright:            #ffffff;
+  --inverse-surface:           #1a1040;
+  --inverse-on-surface:        #f5f3ff;
+  --secondary-container:       #e8e2f8;
+  --on-secondary-container:    #3b2a6e;
+
+  --glass-bg:             rgba(245, 243, 255, 0.85);
+  --glass-border:         rgba(124, 58, 237, 0.12);
+  --shadow-overlay:       0 20px 40px rgba(60, 20, 120, 0.12);
+}
+
+[data-theme="light"] .text-gradient,
+[data-theme="light"] .hero-gradient-text {
+  background: linear-gradient(135deg, #7c3aed 0%, #a855f7 50%, #6d28d9 100%);
+  background-size: 300% 300%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+[data-theme="light"] .glass {
+  background: rgba(245, 243, 255, 0.85);
+  border-color: rgba(124, 58, 237, 0.12);
+}
+
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c4b8e8; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #9b87cc; }
+
+/* Override hard-coded Tailwind white text in light mode */
+[data-theme="light"] .text-white { color: var(--text-primary) !important; }
+
 /* ── Base ─────────────────────────────────────────────── */
 
 *, *::before, *::after { box-sizing: border-box; }

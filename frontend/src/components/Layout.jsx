@@ -1,6 +1,39 @@
 import { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
+import { useTheme } from '../context/ThemeContext';
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button
+      onClick={toggle}
+      title={isDark ? 'Switch to light mode' : 'Switch to dark mode'}
+      style={{
+        width: 32, height: 32, borderRadius: 8, border: '1px solid var(--border)',
+        background: 'transparent', cursor: 'pointer', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)',
+        transition: 'all 0.2s ease', flexShrink: 0,
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--primary)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+    >
+      {isDark ? (
+        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      ) : (
+        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      )}
+    </button>
+  );
+}
 
 /* ── Breakpoint hook ── */
 function useIsMobile(breakpoint = 768) {
@@ -119,25 +152,25 @@ function NavItem({ path, label, Icon, active }) {
         fontSize: 13,
         fontWeight: active ? 600 : 500,
         textDecoration: 'none',
-        color: active ? '#e5e1e4' : 'rgba(207,194,212,0.55)',
-        background: active ? 'rgba(222,183,255,0.1)' : 'transparent',
-        borderLeft: active ? '2px solid #deb7ff' : '2px solid transparent',
+        color: active ? 'var(--text-primary)' : 'var(--text-muted)',
+        background: active ? 'var(--primary-soft)' : 'transparent',
+        borderLeft: active ? '2px solid var(--primary)' : '2px solid transparent',
         transition: 'all 0.13s ease',
       }}
       onMouseEnter={e => {
         if (!active) {
-          e.currentTarget.style.background = 'rgba(222,183,255,0.06)';
-          e.currentTarget.style.color = 'rgba(207,194,212,0.85)';
+          e.currentTarget.style.background = 'var(--primary-soft)';
+          e.currentTarget.style.color = 'var(--text-secondary)';
         }
       }}
       onMouseLeave={e => {
         if (!active) {
           e.currentTarget.style.background = 'transparent';
-          e.currentTarget.style.color = 'rgba(207,194,212,0.55)';
+          e.currentTarget.style.color = 'var(--text-muted)';
         }
       }}
     >
-      <span style={{ flexShrink: 0, color: active ? '#deb7ff' : 'inherit' }}>
+      <span style={{ flexShrink: 0, color: active ? 'var(--primary)' : 'inherit' }}>
         <Icon />
       </span>
       <span>{label}</span>
@@ -171,14 +204,14 @@ export default function Layout({ children }) {
             justifyContent: 'space-between',
             padding: '0 16px',
             height: 56,
-            background: 'rgba(19,19,21,0.97)',
+            background: 'var(--bg-sidebar)',
             borderBottom: '1px solid var(--border)',
             backdropFilter: 'blur(20px)',
           }}
         >
           <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 10, textDecoration: 'none' }}>
             <VcaiLogo />
-            <span style={{ fontWeight: 700, fontSize: 14, color: '#e5e1e4', letterSpacing: '0.04em' }}>VCAI</span>
+            <span style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '0.04em' }}>VCAI</span>
           </Link>
           <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
             <div
@@ -237,7 +270,7 @@ export default function Layout({ children }) {
             <Link to="/dashboard" style={{ display: 'flex', alignItems: 'center', gap: 12, textDecoration: 'none' }}>
               <VcaiLogo />
               <div>
-                <p style={{ fontWeight: 700, fontSize: 14, color: '#e5e1e4', letterSpacing: '0.04em', lineHeight: 1.2 }}>VCAI</p>
+                <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '0.04em', lineHeight: 1.2 }}>VCAI</p>
                 <p style={{ fontSize: 11, color: 'var(--text-muted)', lineHeight: 1.2 }}>Sales Training AI</p>
               </div>
             </Link>
@@ -285,7 +318,7 @@ export default function Layout({ children }) {
                   {initials}
                 </div>
                 <div style={{ minWidth: 0, flex: 1 }}>
-                  <p style={{ fontSize: 13, fontWeight: 600, color: '#e5e1e4', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
+                  <p style={{ fontSize: 13, fontWeight: 600, color: 'var(--text-primary)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
                     {user?.full_name}
                   </p>
                   <p style={{ fontSize: 11, color: 'var(--text-muted)', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
@@ -293,10 +326,12 @@ export default function Layout({ children }) {
                   </p>
                 </div>
               </div>
+              <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+              <ThemeToggle />
               <button
                 onClick={handleLogout}
                 style={{
-                  width: '100%',
+                  flex: 1,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
@@ -325,6 +360,7 @@ export default function Layout({ children }) {
                 <IconLogout />
                 Sign out
               </button>
+              </div>
             </div>
           </div>
         </aside>
@@ -353,7 +389,7 @@ export default function Layout({ children }) {
             alignItems: 'stretch',
             justifyContent: 'space-around',
             padding: '8px 4px',
-            background: 'rgba(19,19,21,0.97)',
+            background: 'var(--bg-sidebar)',
             borderTop: '1px solid var(--border)',
             backdropFilter: 'blur(20px)',
           }}
@@ -373,7 +409,7 @@ export default function Layout({ children }) {
                   flex: 1,
                   padding: '6px 2px',
                   borderRadius: 10,
-                  color: active ? '#deb7ff' : 'rgba(207,194,212,0.45)',
+                  color: active ? 'var(--primary)' : 'var(--text-muted)',
                   textDecoration: 'none',
                   transition: 'color 0.13s',
                 }}

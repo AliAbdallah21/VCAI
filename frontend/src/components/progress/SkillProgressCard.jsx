@@ -34,8 +34,8 @@ export default function SkillProgressCard({
       onClick={onClick}
       className="p-4 rounded-xl text-left transition-all duration-200 w-full"
       style={{
-        background: isSelected ? `${color}12` : 'rgba(255,255,255,0.02)',
-        border: `1px solid ${isSelected ? color + '55' : 'rgba(255,255,255,0.06)'}`,
+        background: isSelected ? `${color}12` : 'var(--bg-card-alt)',
+        border: `1px solid ${isSelected ? color + '55' : 'var(--border)'}`,
       }}
     >
       {/* Header row */}
@@ -52,7 +52,7 @@ export default function SkillProgressCard({
       </div>
 
       {/* Progress bar */}
-      <div className="h-1 rounded-full mb-3" style={{ background: 'rgba(255,255,255,0.06)' }}>
+      <div className="h-1 rounded-full mb-3" style={{ background: 'var(--border)' }}>
         <div
           className="h-full rounded-full transition-all duration-500"
           style={{

@@ -51,7 +51,7 @@ export default function DashboardShell({
           justifyContent: 'space-between',
           padding: '0 32px',
           height: 64,
-          background: 'rgba(19,19,21,0.97)',
+          background: 'var(--bg-card)',
           borderBottom: '1px solid var(--border)',
           backdropFilter: 'blur(20px)',
           gap: 16,
@@ -61,7 +61,7 @@ export default function DashboardShell({
         <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
           <VcaiLogo accent={accent} accent2={accent2} />
           <div>
-            <p style={{ fontWeight: 700, fontSize: 14, color: '#e5e1e4', letterSpacing: '0.03em', lineHeight: 1.2 }}>
+            <p style={{ fontWeight: 700, fontSize: 14, color: 'var(--text-primary)', letterSpacing: '0.03em', lineHeight: 1.2 }}>
               {title}
             </p>
             {subtitle && (

@@ -21,7 +21,7 @@ function SkillBar({ label, color, value }) {
         <span className="text-xs font-medium" style={{ color: 'var(--text-secondary)' }}>{label}</span>
         <span className="text-xs font-bold" style={{ color: 'var(--text-primary)' }}>{value == null ? '—' : value}</span>
       </div>
-      <div className="h-2 rounded-full" style={{ background: 'rgba(255,255,255,0.05)' }}>
+      <div className="h-2 rounded-full" style={{ background: 'var(--border)' }}>
         <div className="h-2 rounded-full" style={{ width: `${pct}%`, background: color }} />
       </div>
     </div>
@@ -31,7 +31,7 @@ function SkillBar({ label, color, value }) {
 const ChartTooltip = ({ active, payload, label }) => {
   if (!active || !payload?.length) return null;
   return (
-    <div className="rounded-xl p-3 text-xs" style={{ background: 'var(--surface-container-lowest)', border: '1px solid rgba(255,255,255,0.1)' }}>
+    <div className="rounded-xl p-3 text-xs" style={{ background: 'var(--glass-bg)', border: '1px solid var(--border-strong)' }}>
       <p className="font-semibold mb-1" style={{ color: 'var(--text-primary)' }}>{label}</p>
       <p className="font-bold" style={{ color: 'var(--primary)' }}>{payload[0].value}</p>
     </div>
@@ -106,8 +106,8 @@ export default function AgentProgress() {
               ) : (
                 <ResponsiveContainer width="100%" height={220}>
                   <LineChart data={trendData} margin={{ top: 8, right: 16, left: -24, bottom: 4 }}>
-                    <CartesianGrid strokeDasharray="3 3" stroke="rgba(255,255,255,0.04)" vertical={false} />
-                    <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickLine={false} axisLine={{ stroke: 'rgba(255,255,255,0.06)' }} interval="preserveStartEnd" />
+                    <CartesianGrid strokeDasharray="3 3" stroke="var(--border)" vertical={false} />
+                    <XAxis dataKey="label" tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickLine={false} axisLine={{ stroke: 'var(--border)' }} interval="preserveStartEnd" />
                     <YAxis domain={[0, 100]} ticks={[0, 25, 50, 75, 100]} tick={{ fill: 'var(--text-muted)', fontSize: 11 }} tickLine={false} axisLine={false} />
                     <Tooltip content={<ChartTooltip />} />
                     <Line type="monotone" dataKey="overall_score" name="Overall" stroke="#b472f1" strokeWidth={2} dot={{ r: 3, fill: '#b472f1' }} connectNulls={false} />

@@ -27,7 +27,7 @@ export default function Login() {
   return (
     <div
       className="min-h-screen flex items-center justify-center relative overflow-hidden p-4"
-      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, rgba(180,114,241,0.15) 0%, #0e0e10 60%)' }}
+      style={{ background: 'radial-gradient(ellipse 80% 60% at 50% -10%, var(--primary-soft-hover) 0%, var(--bg-app) 60%)' }}
     >
       {/* Background orbs */}
       <div className="absolute inset-0 overflow-hidden pointer-events-none">

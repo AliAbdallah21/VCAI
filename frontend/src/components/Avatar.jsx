@@ -27,9 +27,9 @@ export default function Avatar({ src, name = '?', size = 40, active = false, cla
         width: px,
         height: px,
         fontSize: Math.max(12, Math.round(size * 0.36)),
-        background: active ? 'rgba(222,183,255,0.18)' : 'rgba(255,255,255,0.06)',
-        color: active ? '#deb7ff' : 'var(--text-muted)',
-        border: '1px solid rgba(255,255,255,0.05)',
+        background: active ? 'var(--primary-soft-hover)' : 'var(--bg-card-alt)',
+        color: active ? 'var(--primary)' : 'var(--text-muted)',
+        border: '1px solid var(--border)',
       }}
     >
       {showImage ? (

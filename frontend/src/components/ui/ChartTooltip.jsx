@@ -18,7 +18,7 @@ export default function ChartTooltip({ active, payload, label }) {
       {payload.map(e => (
         <div key={e.dataKey} style={{ display: 'flex', justifyContent: 'space-between', gap: 16, alignItems: 'center' }}>
           <span style={{ color: e.color, fontWeight: 500 }}>{e.name}</span>
-          <span style={{ fontWeight: 700, color: '#e5e1e4' }}>{e.value}</span>
+          <span style={{ fontWeight: 700, color: 'var(--text-primary)' }}>{e.value}</span>
         </div>
       ))}
     </div>

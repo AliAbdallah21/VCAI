@@ -107,7 +107,7 @@ const SkillBar = ({ name, score, otherScore }) => {
           <span className="font-semibold" style={{ color: tone.color }}>{score}%</span>
         </span>
       </div>
-      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.04)' }}>
+      <div className="h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
         <div
           className="h-full rounded-full transition-all duration-700"
           style={{ width: `${score}%`, background: tone.color, boxShadow: `0 0 6px ${tone.color}60` }}
@@ -127,7 +127,7 @@ const Side = ({ data, error, loading, otherData }) => {
       <div className="py-16 text-center">
         <div
           className="w-6 h-6 spin-ring mx-auto"
-          style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: 'var(--primary-container)', borderRadius: '50%' }}
+          style={{ border: '2px solid var(--border)', borderTopColor: 'var(--primary-container)', borderRadius: '50%' }}
         />
         <p className="text-xs mt-3" style={{ color: 'var(--text-muted)' }}>Loading report…</p>
       </div>
@@ -343,7 +343,7 @@ export default function ComparePage() {
           <button
             onClick={() => navigate('/sessions')}
             className="text-xs px-3 py-1.5 rounded-lg font-medium"
-            style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.06)' }}
+            style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}
           >
             View all sessions
           </button>

@@ -43,7 +43,7 @@ export default function StatCard({ label, value, sub, icon: Icon, accent = '#deb
       {/* Value + trend */}
       <div>
         <div style={{ display: 'flex', alignItems: 'baseline', gap: 8 }}>
-          <span style={{ fontSize: 28, fontWeight: 800, color: '#e5e1e4', letterSpacing: '-0.04em', lineHeight: 1 }}>
+          <span style={{ fontSize: 28, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
             {value}
           </span>
           {trend !== undefined && (

@@ -59,7 +59,7 @@ function StatCard({ label, value, sub, Icon, accent }) {
           <Icon size={14} color={accent} />
         </div>
       </div>
-      <span style={{ fontSize: 30, fontWeight: 800, color: '#e5e1e4', letterSpacing: '-0.04em', lineHeight: 1 }}>
+      <span style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
         {value}
       </span>
       {sub && <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 5 }}>{sub}</p>}
@@ -212,7 +212,7 @@ export default function Dashboard() {
               </svg>
             </div>
             <div>
-              <p style={{ fontSize: 15, fontWeight: 600, color: '#e5e1e4', margin: 0 }}>
+              <p style={{ fontSize: 15, fontWeight: 600, color: 'var(--text-primary)', margin: 0 }}>
                 Start New Training Session
               </p>
               <p style={{ fontSize: 12.5, color: 'var(--text-muted)', marginTop: 3 }}>
@@ -231,7 +231,7 @@ export default function Dashboard() {
               alignItems: 'center',
               justifyContent: 'center',
               flexShrink: 0,
-              color: '#deb7ff',
+              color: 'var(--primary)',
             }}
           >
             <IcoArrow />
@@ -256,7 +256,7 @@ export default function Dashboard() {
                 <Link
                   to="/progress"
                   style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.13s' }}
-                  onMouseEnter={e => e.currentTarget.style.color = '#deb7ff'}
+                  onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
                   onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
                 >
                   View all →
@@ -326,7 +326,7 @@ export default function Dashboard() {
                         borderRadius: 7,
                         fontSize: 12,
                         fontWeight: isActive ? 600 : 500,
-                        color: isActive ? '#e5e1e4' : 'var(--text-muted)',
+                        color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
                         background: isActive ? 'rgba(222,183,255,0.12)' : 'transparent',
                         border: `1px solid ${isActive ? 'rgba(222,183,255,0.3)' : 'transparent'}`,
                         cursor: 'pointer',
@@ -341,7 +341,7 @@ export default function Dashboard() {
               <Link
                 to="/sessions"
                 style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.13s' }}
-                onMouseEnter={e => e.currentTarget.style.color = '#deb7ff'}
+                onMouseEnter={e => e.currentTarget.style.color = 'var(--primary)'}
                 onMouseLeave={e => e.currentTarget.style.color = 'var(--text-muted)'}
               >
                 View all →

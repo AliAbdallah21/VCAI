@@ -63,8 +63,8 @@ export default function AbuseQueue({ flags, onResolved }) {
                 onClick={() => setStatusFilter(s)}
                 className="px-2.5 py-1 rounded-lg text-xs font-semibold"
                 style={{
-                  background: active ? 'rgba(222,183,255,0.15)' : 'rgba(255,255,255,0.03)',
-                  border: `1px solid ${active ? 'rgba(222,183,255,0.45)' : 'rgba(255,255,255,0.07)'}`,
+                  background: active ? 'var(--primary-soft)' : 'var(--bg-card-alt)',
+                  border: `1px solid ${active ? 'var(--primary)' : 'var(--border)'}`,
                   color: active ? 'var(--primary)' : 'var(--text-muted)',
                 }}
               >
@@ -96,7 +96,7 @@ export default function AbuseQueue({ flags, onResolved }) {
             </thead>
             <tbody>
               {visible.map((f) => (
-                <tr key={f.id} style={{ borderTop: '1px solid rgba(255,255,255,0.05)' }}>
+                <tr key={f.id} style={{ borderTop: '1px solid var(--border)' }}>
                   <td className="py-2.5 pr-4" style={{ color: 'var(--text-primary)' }}>{f.reason}</td>
                   <td className="py-2.5 pr-4">
                     <Badge text={f.severity} color={SEVERITY_COLOR[f.severity] || 'var(--text-muted)'} />
@@ -125,7 +125,7 @@ export default function AbuseQueue({ flags, onResolved }) {
                           disabled={busyId === f.id}
                           onClick={() => resolve(f.id, 'dismissed')}
                           className="px-2.5 py-1 rounded-lg text-xs font-semibold"
-                          style={{ color: 'var(--text-secondary)', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.1)' }}
+                          style={{ color: 'var(--text-secondary)', background: 'var(--bg-card-alt)', border: '1px solid var(--border)' }}
                         >
                           Dismiss
                         </button>

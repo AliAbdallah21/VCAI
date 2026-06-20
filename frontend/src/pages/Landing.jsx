@@ -4,6 +4,37 @@ import { useAuth } from '../context/AuthContext';
 import { getPlans } from '../services/api';
 import PricingCards from '../components/PricingCards';
 import { useScrollReveal } from '../hooks/useScrollReveal';
+import { useTheme } from '../context/ThemeContext';
+
+function ThemeToggle() {
+  const { theme, toggle } = useTheme();
+  const isDark = theme === 'dark';
+  return (
+    <button onClick={toggle} title={isDark ? 'Light mode' : 'Dark mode'}
+      style={{
+        width: 34, height: 34, borderRadius: 8, border: '1px solid var(--border)',
+        background: 'transparent', cursor: 'pointer', display: 'flex',
+        alignItems: 'center', justifyContent: 'center', color: 'var(--text-muted)',
+        transition: 'all 0.2s ease',
+      }}
+      onMouseEnter={e => { e.currentTarget.style.background = 'var(--primary-soft)'; e.currentTarget.style.color = 'var(--primary)'; }}
+      onMouseLeave={e => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
+    >
+      {isDark ? (
+        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/>
+          <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/>
+          <line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/>
+          <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+        </svg>
+      ) : (
+        <svg width="15" height="15" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+          <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/>
+        </svg>
+      )}
+    </button>
+  );
+}
 
 /* ── Data ──────────────────────────────────────────────── */
 const STATS = [
@@ -146,7 +177,7 @@ function Header({ isAuthenticated }) {
     <header
       className="sticky top-0 z-50"
       style={{
-        background: scrolled ? 'rgba(19,19,21,0.92)' : 'transparent',
+        background: scrolled ? 'var(--glass-bg)' : 'transparent',
         backdropFilter: scrolled ? 'blur(20px)' : 'none',
         borderBottom: scrolled ? '1px solid var(--border)' : '1px solid transparent',
         transition: 'all 0.3s ease',
@@ -174,6 +205,7 @@ function Header({ isAuthenticated }) {
             onMouseEnter={e => e.target.style.color='var(--primary)'}
             onMouseLeave={e => e.target.style.color='var(--text-secondary)'}
           >Contact</Link>
+          <ThemeToggle />
           {isAuthenticated ? (
             <Link to="/dashboard" className="btn-primary" style={{ padding: '8px 18px' }}>Go to dashboard</Link>
           ) : (

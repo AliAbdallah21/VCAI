@@ -394,11 +394,11 @@ export default function TrainingSession() {
     : 'Disconnected';
 
   return (
-    <div className="min-h-screen flex flex-col" style={{ background: '#0e0e10' }}>
+    <div className="min-h-screen flex flex-col" style={{ background: 'var(--bg-app)' }}>
       {/* Header */}
       <header
         className="flex justify-between items-center px-4 md:px-6 py-3 md:py-4 gap-2 flex-shrink-0"
-        style={{ background: 'rgba(19,19,21,0.95)', borderBottom: '1px solid rgba(255,255,255,0.05)', backdropFilter: 'blur(20px)' }}
+        style={{ background: 'var(--bg-card)', borderBottom: '1px solid var(--border)', backdropFilter: 'blur(20px)' }}
       >
         <div className="flex items-center gap-3">
           <div
@@ -452,14 +452,14 @@ export default function TrainingSession() {
       {/* Emotion Bar */}
       <div
         className="px-4 md:px-6 py-3 md:py-4 flex-shrink-0"
-        style={{ background: 'rgba(28,27,29,0.8)', borderBottom: '1px solid rgba(255,255,255,0.04)' }}
+        style={{ background: 'var(--bg-card-alt)', borderBottom: '1px solid var(--border)' }}
       >
         <div className="max-w-2xl mx-auto">
           <div className="flex items-center gap-2 md:gap-4">
             <span className="text-xs font-medium w-16 md:w-28 flex-shrink-0" style={{ color: 'var(--text-muted)' }}>
               Mood
             </span>
-            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'rgba(255,255,255,0.06)' }}>
+            <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{ background: 'var(--border)' }}>
               <div
                 className="h-full rounded-full transition-all duration-700"
                 style={{ width: `${moodPercent}%`, background: moodColor, boxShadow: `0 0 8px ${moodColor}60` }}
@@ -538,9 +538,9 @@ export default function TrainingSession() {
                         className="flex items-center justify-center transition-all duration-150"
                         style={{
                           width: 22, height: 22, borderRadius: 6,
-                          background: isPlaying ? 'rgba(255,255,255,0.18)' : 'rgba(255,255,255,0.08)',
-                          color: isPlaying ? '#ffffff' : 'rgba(255,255,255,0.65)',
-                          border: '1px solid rgba(255,255,255,0.1)',
+                          background: isPlaying ? 'var(--bg-elevated)' : 'rgba(128,128,128,0.12)',
+                          color: isPlaying ? 'var(--text-primary)' : 'var(--text-muted)',
+                          border: '1px solid var(--border)',
                         }}
                       >
                         {isPlaying ? (
@@ -593,7 +593,7 @@ export default function TrainingSession() {
       {/* Controls */}
       <div
         className="flex-shrink-0 px-4 md:px-6 py-4 md:py-6"
-        style={{ background: 'rgba(19,19,21,0.95)', borderTop: '1px solid rgba(255,255,255,0.05)' }}
+        style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border)' }}
       >
         <div className="flex flex-col items-center">
           {/* mic row: cancel (while recording) · mic · spacer to keep mic centered */}

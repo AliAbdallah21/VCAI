@@ -26,7 +26,7 @@ export default function Tabs({ tabs, active, onChange, badge }) {
               borderRadius: 8,
               fontSize: 12.5,
               fontWeight: isActive ? 600 : 500,
-              color: isActive ? '#e5e1e4' : 'var(--text-muted)',
+              color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
               background: isActive ? 'rgba(222,183,255,0.12)' : 'transparent',
               border: `1px solid ${isActive ? 'rgba(222,183,255,0.3)' : 'transparent'}`,
               cursor: 'pointer',

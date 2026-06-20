@@ -73,7 +73,7 @@ export default function EvaluatePage() {
         {/* Tabs */}
         <div
           className="flex gap-1 p-1 rounded-xl mb-6 w-fit"
-          style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.06)' }}
+          style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border)' }}
         >
           {TABS.map(t => (
             <button
@@ -103,7 +103,7 @@ export default function EvaluatePage() {
         >
           {loading && offset === 0 ? (
             <div className="p-14 text-center">
-              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid rgba(255,255,255,0.08)', borderTopColor: 'var(--primary-container)', borderRadius: '50%' }} />
+              <div className="w-6 h-6 spin-ring mx-auto mb-3" style={{ border: '2px solid var(--border)', borderTopColor: 'var(--primary-container)', borderRadius: '50%' }} />
               <p className="text-sm" style={{ color: 'var(--text-muted)' }}>Loading sessions…</p>
             </div>
           ) : filtered.length === 0 ? (
@@ -124,15 +124,15 @@ export default function EvaluatePage() {
                   <div
                     key={s.id}
                     className="flex items-center px-6 py-4 transition-colors duration-150"
-                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid rgba(255,255,255,0.04)' : 'none' }}
-                    onMouseEnter={e => e.currentTarget.style.background = 'rgba(255,255,255,0.02)'}
+                    style={{ borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none' }}
+                    onMouseEnter={e => e.currentTarget.style.background = 'var(--primary-soft)'}
                     onMouseLeave={e => e.currentTarget.style.background = 'transparent'}
                   >
                     {/* Left */}
                     <div className="flex items-center gap-4 flex-1 min-w-0">
                       <div
                         className="w-9 h-9 rounded-xl flex items-center justify-center flex-shrink-0"
-                        style={{ background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.07)' }}
+                        style={{ background: 'var(--bg-card-alt)', border: '1px solid var(--border)' }}
                       >
                         <svg width="15" height="15" fill="none" stroke="var(--text-muted)" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
                           <path d="M17.982 18.725A7.488 7.488 0 0012 15.75a7.488 7.488 0 00-5.982 2.975m11.963 0a9 9 0 10-11.963 0m11.963 0A8.966 8.966 0 0112 21a8.966 8.966 0 01-5.982-2.275M15 9.75a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -152,7 +152,7 @@ export default function EvaluatePage() {
                       </span>
                       {s.turn_count > 0 && (
                         <span className="px-2.5 py-1 rounded-lg text-xs font-medium"
-                          style={{ background: 'rgba(255,255,255,0.04)', color: 'var(--text-secondary)', border: '1px solid rgba(255,255,255,0.07)' }}>
+                          style={{ background: 'var(--bg-card-alt)', color: 'var(--text-secondary)', border: '1px solid var(--border)' }}>
                           {s.turn_count} turns
                         </span>
                       )}
@@ -215,12 +215,12 @@ export default function EvaluatePage() {
               })}
 
               {sessions.length < total && (
-                <div className="p-4 text-center" style={{ borderTop: '1px solid rgba(255,255,255,0.04)' }}>
+                <div className="p-4 text-center" style={{ borderTop: '1px solid var(--border)' }}>
                   <button
                     onClick={() => load(sessions.length)}
                     disabled={loading}
                     className="px-6 py-2 rounded-xl text-sm font-medium disabled:opacity-40"
-                    style={{ background: 'rgba(255,255,255,0.05)', color: 'var(--text-muted)', border: '1px solid rgba(255,255,255,0.08)' }}
+                    style={{ background: 'var(--bg-card-alt)', color: 'var(--text-muted)', border: '1px solid var(--border)' }}
                   >
                     {loading ? 'Loading…' : `Load more (${total - sessions.length} remaining)`}
                   </button>

@@ -79,9 +79,9 @@ export default class ErrorBoundary extends Component {
               onClick={this.handleGoHome}
               className="px-4 py-2 rounded-xl text-sm font-medium transition-all duration-200"
               style={{
-                background: 'rgba(255,255,255,0.06)',
+                background: 'var(--bg-card-alt)',
                 color: 'var(--text-secondary)',
-                border: '1px solid rgba(255,255,255,0.08)',
+                border: '1px solid var(--border)',
               }}
             >
               Go to dashboard
