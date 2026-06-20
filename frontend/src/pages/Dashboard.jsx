@@ -39,30 +39,32 @@ const IcoArrow = () => (
 );
 
 /* ── KPI stat card ── */
-function StatCard({ label, value, sub, Icon, accent }) {
+function StatCard({ label, value, sub, Icon, accent, compact = false }) {
   return (
     <div
       style={{
         background: 'var(--bg-card)',
         border: '1px solid var(--border)',
         borderRadius: 'var(--radius-card)',
-        padding: '20px 22px',
+        padding: compact ? '14px 12px' : '20px 22px',
         position: 'relative',
         overflow: 'hidden',
       }}
     >
-      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.08em', color: 'var(--text-muted)' }}>
+      <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: compact ? 8 : 12 }}>
+        <span style={{ fontSize: compact ? 9 : 11, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.06em', color: 'var(--text-muted)', lineHeight: 1.3 }}>
           {label}
         </span>
-        <div style={{ width: 30, height: 30, borderRadius: 8, background: `${accent}18`, border: `1px solid ${accent}28`, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-          <Icon size={14} color={accent} />
-        </div>
+        {!compact && (
+          <div style={{ width: 30, height: 30, borderRadius: 8, background: `${accent}18`, border: `1px solid ${accent}28`, display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+            <Icon size={14} color={accent} />
+          </div>
+        )}
       </div>
-      <span style={{ fontSize: 30, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
+      <span style={{ fontSize: compact ? 22 : 30, fontWeight: 800, color: 'var(--text-primary)', letterSpacing: '-0.04em', lineHeight: 1 }}>
         {value}
       </span>
-      {sub && <p style={{ fontSize: 11.5, color: 'var(--text-muted)', marginTop: 5 }}>{sub}</p>}
+      {sub && <p style={{ fontSize: compact ? 10 : 11.5, color: 'var(--text-muted)', marginTop: 4 }}>{sub}</p>}
       <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 2, background: `linear-gradient(90deg, transparent, ${accent}40, transparent)` }} />
     </div>
   );
@@ -108,6 +110,7 @@ export default function Dashboard() {
   const [sessionTab, setSessionTab] = useState('all');
   const [triggering, setTriggering] = useState({});
   const [resuming, setResuming]     = useState(null);
+  const [isMobile, setIsMobile]     = useState(() => window.innerWidth < 768);
 
   // Re-open an ended session: reactivate it server-side, then enter the call.
   const handleResume = async (s) => {
@@ -121,6 +124,12 @@ export default function Dashboard() {
   };
   const [stats, setStats]           = useState({ total: 0, avgScore: 0, totalMinutes: 0 });
   const [profile, setProfile]       = useState(null);
+
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
 
   useEffect(() => {
     sessionsAPI.getAll(5)
@@ -149,7 +158,7 @@ export default function Dashboard() {
 
   return (
     <Layout>
-      <div style={{ padding: '32px 36px', maxWidth: 900, margin: '0 auto' }}>
+      <div style={{ padding: isMobile ? '20px 16px' : '32px 36px', maxWidth: 900, margin: '0 auto' }}>
 
         {/* ── Page header ── */}
         <div className="slide-up" style={{ marginBottom: 28 }}>
@@ -162,10 +171,10 @@ export default function Dashboard() {
         </div>
 
         {/* ── KPI Stats ── */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 16, marginBottom: 24 }}>
-          <StatCard label="Total Sessions"  value={stats.total}              Icon={IcoActivity} accent="#deb7ff" />
-          <StatCard label="Average Score"   value={stats.avgScore || '—'}    Icon={IcoTarget}   accent="#a5d6a7" sub={stats.avgScore ? 'out of 100' : 'No sessions yet'} />
-          <StatCard label="Training Time"   value={`${stats.totalMinutes}m`} Icon={IcoClock}    accent="#b472f1" />
+        <div style={{ display: 'grid', gridTemplateColumns: isMobile ? 'repeat(3, minmax(0, 1fr))' : 'repeat(3, 1fr)', gap: isMobile ? 10 : 16, marginBottom: 24 }}>
+          <StatCard label="Total Sessions"  value={stats.total}              Icon={IcoActivity} accent="#deb7ff" compact={isMobile} />
+          <StatCard label="Average Score"   value={stats.avgScore || '—'}    Icon={IcoTarget}   accent="#a5d6a7" sub={stats.avgScore ? 'out of 100' : undefined} compact={isMobile} />
+          <StatCard label="Training Time"   value={`${stats.totalMinutes}m`} Icon={IcoClock}    accent="#b472f1" compact={isMobile} />
         </div>
 
         {/* ── Start New Session CTA ── */}
@@ -303,41 +312,16 @@ export default function Dashboard() {
           <div
             style={{
               display: 'flex',
-              alignItems: 'center',
+              alignItems: isMobile ? 'flex-start' : 'center',
+              flexDirection: isMobile ? 'column' : 'row',
               justifyContent: 'space-between',
-              padding: '16px 20px',
+              padding: isMobile ? '14px 16px' : '16px 20px',
               borderBottom: '1px solid var(--border)',
-              gap: 12,
-              flexWrap: 'wrap',
+              gap: 10,
             }}
           >
-            <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>Recent Sessions</p>
-            <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-              {/* Pill tabs */}
-              <div style={{ display: 'flex', gap: 2, padding: 3, borderRadius: 9, background: 'rgba(222,183,255,0.04)', border: '1px solid var(--border)' }}>
-                {SESSION_TABS.map(t => {
-                  const isActive = t.key === sessionTab;
-                  return (
-                    <button
-                      key={t.key}
-                      onClick={() => setSessionTab(t.key)}
-                      style={{
-                        padding: '5px 12px',
-                        borderRadius: 7,
-                        fontSize: 12,
-                        fontWeight: isActive ? 600 : 500,
-                        color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
-                        background: isActive ? 'rgba(222,183,255,0.12)' : 'transparent',
-                        border: `1px solid ${isActive ? 'rgba(222,183,255,0.3)' : 'transparent'}`,
-                        cursor: 'pointer',
-                        transition: 'all 0.13s',
-                      }}
-                    >
-                      {t.label}
-                    </button>
-                  );
-                })}
-              </div>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', width: isMobile ? '100%' : 'auto' }}>
+              <p style={{ fontSize: 13.5, fontWeight: 600, color: 'var(--text-primary)' }}>Recent Sessions</p>
               <Link
                 to="/sessions"
                 style={{ fontSize: 12, fontWeight: 500, color: 'var(--text-muted)', textDecoration: 'none', transition: 'color 0.13s' }}
@@ -346,6 +330,33 @@ export default function Dashboard() {
               >
                 View all →
               </Link>
+            </div>
+            {/* Pill tabs — on mobile show compact labels */}
+            <div style={{ display: 'flex', gap: 2, padding: 3, borderRadius: 9, background: 'rgba(222,183,255,0.04)', border: '1px solid var(--border)', width: isMobile ? '100%' : 'auto' }}>
+              {SESSION_TABS.map(t => {
+                const isActive = t.key === sessionTab;
+                return (
+                  <button
+                    key={t.key}
+                    onClick={() => setSessionTab(t.key)}
+                    style={{
+                      padding: isMobile ? '5px 0' : '5px 12px',
+                      flex: isMobile ? 1 : 'none',
+                      borderRadius: 7,
+                      fontSize: isMobile ? 11 : 12,
+                      fontWeight: isActive ? 600 : 500,
+                      color: isActive ? 'var(--text-primary)' : 'var(--text-muted)',
+                      background: isActive ? 'rgba(222,183,255,0.12)' : 'transparent',
+                      border: `1px solid ${isActive ? 'rgba(222,183,255,0.3)' : 'transparent'}`,
+                      cursor: 'pointer',
+                      transition: 'all 0.13s',
+                      whiteSpace: 'nowrap',
+                    }}
+                  >
+                    {isMobile ? (t.key === 'all' ? 'All' : t.key === 'active' ? 'Active' : t.key === 'incomplete' ? 'Needs Eval' : 'Done') : t.label}
+                  </button>
+                );
+              })}
             </div>
           </div>
 
@@ -378,6 +389,75 @@ export default function Dashboard() {
                 const isActive  = s.status === 'active';
                 const evaluated = !!s.overall_score;
                 const isBusy    = triggering[s.id];
+
+                if (isMobile) {
+                  // Mobile: stacked card layout so buttons don't overflow the screen
+                  return (
+                    <div
+                      key={s.id}
+                      style={{
+                        padding: '12px 16px',
+                        borderBottom: i < filtered.length - 1 ? '1px solid var(--border)' : 'none',
+                      }}
+                    >
+                      {/* Row 1: avatar + name + badge + score */}
+                      <div style={{ display: 'flex', alignItems: 'center', gap: 10, marginBottom: 8 }}>
+                        <div style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(222,183,255,0.06)', border: '1px solid var(--border)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                          <IcoUser size={14} color="var(--text-muted)" />
+                        </div>
+                        <div style={{ flex: 1, minWidth: 0 }}>
+                          <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 8 }}>
+                            <span style={{ fontSize: 13, fontWeight: 500, color: 'var(--text-secondary)', overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
+                              {s.persona_name || s.persona_id}
+                            </span>
+                            <div style={{ display: 'flex', alignItems: 'center', gap: 6, flexShrink: 0 }}>
+                              {isActive && <Badge variant="live" label="Live" dot />}
+                              {!isActive && s.difficulty && <Badge variant={s.difficulty} label={s.difficulty.charAt(0).toUpperCase() + s.difficulty.slice(1)} />}
+                              {evaluated
+                                ? <span style={{ fontSize: 15, fontWeight: 700, color: scoreColor(s.overall_score) }}>{s.overall_score}</span>
+                                : <span style={{ fontSize: 11, color: 'var(--text-subtle)', fontWeight: 600 }}>N/A</span>}
+                            </div>
+                          </div>
+                          <p style={{ fontSize: 11, color: 'var(--text-muted)', marginTop: 2 }}>{formatDate(s.started_at)}</p>
+                        </div>
+                      </div>
+                      {/* Row 2: action buttons, full-width */}
+                      <div style={{ display: 'flex', gap: 8, paddingLeft: 42 }}>
+                        <button
+                          onClick={e => { e.stopPropagation(); handleResume(s); }}
+                          disabled={resuming === s.id}
+                          className="btn-primary"
+                          style={{ fontSize: 12, padding: '6px 0', flex: 1, opacity: resuming === s.id ? 0.5 : 1 }}
+                        >
+                          {resuming === s.id ? '…' : isActive ? 'Resume →' : 'Continue →'}
+                        </button>
+                        {!isActive && (evaluated ? (
+                          <button
+                            onClick={e => { e.stopPropagation(); navigate(`/evaluation/${s.id}`); }}
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '6px 0', flex: 1 }}
+                          >
+                            Report
+                          </button>
+                        ) : (
+                          <button
+                            onClick={async e => {
+                              e.stopPropagation();
+                              setTriggering(p => ({ ...p, [s.id]: true }));
+                              try { await evaluationAPI.triggerEvaluation(s.id, 'training', false); navigate(`/evaluation/${s.id}`); }
+                              catch { setTriggering(p => ({ ...p, [s.id]: false })); }
+                            }}
+                            disabled={isBusy}
+                            className="btn-secondary"
+                            style={{ fontSize: 12, padding: '6px 0', flex: 1, color: '#e9c46a', borderColor: 'rgba(233,196,106,0.3)' }}
+                          >
+                            {isBusy ? 'Starting…' : 'Evaluate →'}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  );
+                }
 
                 return (
                   <div

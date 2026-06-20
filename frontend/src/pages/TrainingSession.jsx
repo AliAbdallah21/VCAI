@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { createWebSocket, sessionsAPI } from '../services/api';
+import { createWebSocket, sessionsAPI, personasAPI } from '../services/api';
 
 const MicIcon = () => (
   <svg width="28" height="28" fill="none" stroke="#4a007f" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
@@ -23,11 +23,14 @@ export default function TrainingSession() {
   const [isRecording, setIsRecording]   = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
   const [emotion, setEmotion]           = useState({ mood: 0, risk: 'low', tip: null });
+  const [elapsed, setElapsed]           = useState(0);
+  const [persona, setPersona]           = useState({ name: '', subtitle: '', avatar: null });
+  const [isMobile, setIsMobile]         = useState(() => window.innerWidth < 768);
 
   const wsRef                = useRef(null);
   const mediaRecorderRef     = useRef(null);
   const audioChunksRef       = useRef([]);
-  const cancelRecordingRef   = useRef(false); // when true, onstop discards instead of sending
+  const cancelRecordingRef   = useRef(false);
   const messagesEndRef       = useRef(null);
   const audioContextRef      = useRef(null);
   const audioQueueRef        = useRef([]);
@@ -39,7 +42,6 @@ export default function TrainingSession() {
   const processingWatchdogRef = useRef(null);
   const [stuckRecovery, setStuckRecovery] = useState(null);
 
-  // Replay audio (one shared element so only one plays at a time)
   const replayAudioRef = useRef(null);
   const [playingId, setPlayingId] = useState(null);
 
@@ -57,9 +59,18 @@ export default function TrainingSession() {
     setPlayingId(id);
   }, [playingId]);
 
-  // Watchdog: if processing doesn't complete within 60s, force-unlock the UI.
-  // Prevents the user from being permanently locked out when the server drops
-  // the processing:completed message for any reason.
+  useEffect(() => {
+    const handler = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener('resize', handler);
+    return () => window.removeEventListener('resize', handler);
+  }, []);
+
+  useEffect(() => {
+    if (!connected) return;
+    const t = setInterval(() => setElapsed(e => e + 1), 1000);
+    return () => clearInterval(t);
+  }, [connected]);
+
   const PROCESSING_TIMEOUT_MS = 60000;
   const armProcessingWatchdog = () => {
     if (processingWatchdogRef.current) clearTimeout(processingWatchdogRef.current);
@@ -89,6 +100,11 @@ export default function TrainingSession() {
     if (audioQueueRef.current.length === 0) { isPlayingRef.current = false; return; }
     isPlayingRef.current = true;
     const chunk = audioQueueRef.current.shift();
+    // Guard against double-advance (iOS Safari: onended sometimes fires late or
+    // not at all for short buffers; the fallback timer ensures the queue keeps
+    // moving even when the event is swallowed by the browser).
+    let advanced = false;
+    const advance = () => { if (advanced) return; advanced = true; playNextChunkRef.current(); };
     try {
       const ctx = getAudioContext();
       const buffer = ctx.createBuffer(1, chunk.data.length, chunk.sampleRate);
@@ -96,9 +112,11 @@ export default function TrainingSession() {
       const source = ctx.createBufferSource();
       source.buffer = buffer;
       source.connect(ctx.destination);
-      source.onended = () => playNextChunkRef.current();
+      const durationMs = Math.ceil((chunk.data.length / chunk.sampleRate) * 1000);
+      const fallback = setTimeout(advance, durationMs + 500);
+      source.onended = () => { clearTimeout(fallback); advance(); };
       source.start();
-    } catch { playNextChunkRef.current(); }
+    } catch { advance(); }
   };
 
   const queueAudioChunkRef = useRef(null);
@@ -127,8 +145,6 @@ export default function TrainingSession() {
 
   useEffect(() => { messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' }); }, [messages]);
 
-  // Client-side ping every 15s — prevents browser/proxy from closing the WebSocket
-  // during long LLM generation (which can take 10-35s with no data flowing)
   useEffect(() => {
     if (!connected) return;
     const id = setInterval(() => {
@@ -139,8 +155,6 @@ export default function TrainingSession() {
     return () => clearInterval(id);
   }, [connected]);
 
-  // Stable connect function stored in a ref so the timeout callback always
-  // sees the latest version without stale closure issues.
   const doConnectRef = useRef(null);
   doConnectRef.current = () => {
     if (isConnectingRef.current) return;
@@ -202,9 +216,6 @@ export default function TrainingSession() {
           } else {
             setIsProcessing(false);
             clearProcessingWatchdog();
-            // After a turn completes, refetch the persisted message list so
-            // the latest two messages get their real ids + audio_paths
-            // (needed for the inline replay buttons).
             sessionsAPI.getMessages(sessionId)
               .then(msgs => {
                 if (!msgs?.length) return;
@@ -219,8 +230,6 @@ export default function TrainingSession() {
           }
           break;
         case 'info':
-          // Server says it can't process right now (e.g. "busy"). Unlock the UI
-          // so the user isn't silently stuck.
           if (data.data?.message === 'busy') {
             setIsProcessing(false);
             clearProcessingWatchdog();
@@ -247,7 +256,6 @@ export default function TrainingSession() {
         case 'audio':
           if (!hasReceivedChunksRef.current) playAudioRef.current(data.data.audio_base64, data.data.sample_rate);
           break;
-        // server keepalive ping — no reply needed, connection stays alive
         case 'ping': break;
       }
     };
@@ -257,8 +265,6 @@ export default function TrainingSession() {
     unmountedRef.current = false;
     reconnectAttemptsRef.current = 0;
 
-    // Load existing messages so resumed sessions show previous conversation.
-    // Keep id+audioPath so the replay buttons work.
     sessionsAPI.getMessages(sessionId)
       .then(msgs => {
         if (msgs?.length > 0) {
@@ -271,6 +277,22 @@ export default function TrainingSession() {
         }
       })
       .catch(() => {});
+
+    // Load persona info for the mobile call-screen header card.
+    Promise.all([
+      sessionsAPI.getById(sessionId).catch(() => null),
+      personasAPI.getAll().catch(() => null),
+    ]).then(([session, personaList]) => {
+      if (!session || unmountedRef.current) return;
+      const list = personaList?.personas || personaList || [];
+      const p = list.find(x => x.id === session.persona_id);
+      const scenario = session.scenario || {};
+      setPersona({
+        name: p?.name_en || p?.name_ar || session.persona_id || 'Customer',
+        subtitle: scenario.label_en || scenario.label || (p?.difficulty ? `${p.difficulty} difficulty` : ''),
+        avatar: p?.avatar_url || null,
+      });
+    });
 
     doConnectRef.current();
 
@@ -298,7 +320,6 @@ export default function TrainingSession() {
       const mr = new MediaRecorder(stream, { mimeType: 'audio/webm;codecs=opus' });
       mr.ondataavailable = e => { if (e.data.size > 0) audioChunksRef.current.push(e.data); };
       mr.onstop = () => {
-        // User discarded this take — drop the audio, don't send, don't lock UI.
         if (cancelRecordingRef.current) {
           cancelRecordingRef.current = false;
           audioChunksRef.current = [];
@@ -310,9 +331,6 @@ export default function TrainingSession() {
 
         const blob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
 
-        // Guard accidental quick taps — opus webm of < ~0.4s of speech is
-        // typically under 3KB. Lets "أوك" / "تمام" / "لا" through, blocks
-        // 0.1s clicks. Don't send, don't lock the UI, just nudge the user.
         if (blob.size < 3000) {
           stream.getTracks().forEach(t => t.stop());
           setIsProcessing(false);
@@ -322,13 +340,9 @@ export default function TrainingSession() {
           return;
         }
 
-        // Use FileReader for base64 encoding — spreading a 60KB Uint8Array
-        // into String.fromCharCode(...bytes) overflows the JS call stack on
-        // longer recordings. FileReader handles arbitrary sizes natively.
         const reader = new FileReader();
         reader.onloadend = () => {
           try {
-            // result is "data:audio/webm;base64,XXXX" — strip the prefix
             const base64 = String(reader.result).split(',')[1] || '';
             if (wsRef.current?.readyState === WebSocket.OPEN && base64) {
               wsRef.current.send(JSON.stringify({
@@ -364,7 +378,6 @@ export default function TrainingSession() {
     armProcessingWatchdog();
   };
 
-  // Discard the in-progress take without sending it (for stutters / mistakes).
   const cancelRecording = () => {
     cancelRecordingRef.current = true;
     if (mediaRecorderRef.current?.state !== 'inactive') mediaRecorderRef.current.stop();
@@ -373,6 +386,304 @@ export default function TrainingSession() {
 
   const endSession = () => wsRef.current?.send(JSON.stringify({ type: 'end_session' }));
 
+  const fmtClock = s => `${String(Math.floor(s / 60)).padStart(2, '0')}:${String(s % 60).padStart(2, '0')}`;
+
+  const replayLastCustomer = () => {
+    const last = [...messages].reverse().find(m => m.speaker === 'customer' && m.id && m.audioPath);
+    if (last) playReplay(`msg-${last.id}`, sessionsAPI.messageAudioUrl(sessionId, last.id));
+  };
+  const hasCustomerAudio = messages.some(m => m.speaker === 'customer' && m.id && m.audioPath);
+
+  const emotionLabel = (() => {
+    const m = emotion.mood;
+    const tone = m > 35 ? 'Happy' : m > 10 ? 'Interested' : m < -35 ? 'Frustrated' : m < -10 ? 'Skeptical' : 'Calm';
+    const guard = emotion.risk === 'high' ? 'Tense' : emotion.risk === 'medium' ? 'Guarded' : 'Calm';
+    return `${guard} / ${tone}`;
+  })();
+
+  /* ── Mobile render: phone-call aesthetic with scrollable message log ── */
+  if (isMobile) {
+    return (
+      <div style={{
+        background: 'radial-gradient(ellipse 90% 70% at 50% 45%, #15233f 0%, #0b1220 70%)',
+        minHeight: '100vh',
+        display: 'flex',
+        flexDirection: 'column',
+        overflow: 'hidden',
+      }}>
+        {/* Status bar: call state + timer */}
+        <div style={{ padding: '16px 20px 10px', flexShrink: 0 }}>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div>
+              <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
+                <span style={{
+                  width: 9, height: 9, borderRadius: '50%', display: 'inline-block', flexShrink: 0,
+                  background: connected ? '#ef4444' : reconnecting ? '#f59e0b' : '#4b5563',
+                  boxShadow: connected ? '0 0 8px #ef4444' : 'none',
+                }} />
+                <span style={{ color: '#e8edf5', fontWeight: 700, fontSize: 15 }}>
+                  {connected ? 'Call in progress' : reconnecting ? 'Reconnecting…' : 'Disconnected'}
+                </span>
+              </div>
+              <p style={{ color: '#6b7a93', fontSize: 12, marginTop: 2 }}>Secure connection</p>
+            </div>
+            <span style={{ color: '#c9d6e8', fontWeight: 700, fontSize: 36, letterSpacing: '0.1em', fontVariantNumeric: 'tabular-nums' }}>
+              {fmtClock(elapsed)}
+            </span>
+          </div>
+        </div>
+
+        {/* Emotional state display */}
+        <div style={{ textAlign: 'center', padding: '4px 20px 8px', flexShrink: 0 }}>
+          <p style={{ color: '#b08d57', fontSize: 10, fontWeight: 600, letterSpacing: '0.18em', textTransform: 'uppercase', marginBottom: 3 }}>
+            Customer Emotional State
+          </p>
+          <p style={{ color: '#f1f5fb', fontWeight: 700, fontSize: 20 }}>{emotionLabel}</p>
+        </div>
+
+        {/* Persona card */}
+        {persona.name && (
+          <div style={{
+            margin: '0 16px 8px',
+            padding: '10px 14px',
+            borderRadius: 14,
+            background: 'rgba(20,32,56,0.6)',
+            border: '1px solid rgba(255,255,255,0.07)',
+            display: 'flex', alignItems: 'center', gap: 10,
+            flexShrink: 0,
+            backdropFilter: 'blur(8px)',
+          }}>
+            {persona.avatar ? (
+              <img src={persona.avatar} alt="" style={{ width: 36, height: 36, borderRadius: 10, objectFit: 'cover', flexShrink: 0, border: '1px solid rgba(255,255,255,0.1)' }} />
+            ) : (
+              <div style={{ width: 36, height: 36, borderRadius: 10, background: 'rgba(120,150,210,0.2)', display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0 }}>
+                <svg width="16" height="16" fill="none" stroke="#9db8e8" strokeWidth="1.6" viewBox="0 0 24 24">
+                  <path d="M15 9.75a3 3 0 11-6 0 3 3 0 016 0zM18 18.7A7.5 7.5 0 0012 15.75 7.5 7.5 0 006 18.7" strokeLinecap="round" strokeLinejoin="round" />
+                </svg>
+              </div>
+            )}
+            <div style={{ minWidth: 0 }}>
+              <p style={{ color: '#f1f5fb', fontWeight: 600, fontSize: 13, lineHeight: 1.2 }}>{persona.name}</p>
+              {persona.subtitle && <p style={{ color: '#7e8ca4', fontSize: 11, marginTop: 2 }}>{persona.subtitle}</p>}
+            </div>
+          </div>
+        )}
+
+        {/* Error / recovery banner */}
+        {stuckRecovery && (
+          <div style={{ margin: '0 16px 6px', padding: '8px 14px', borderRadius: 10, background: 'rgba(255,180,171,0.1)', border: '1px solid rgba(255,180,171,0.25)', color: '#ffb4ab', fontSize: 12, textAlign: 'center', fontWeight: 500, flexShrink: 0 }}>
+            {stuckRecovery}
+          </div>
+        )}
+        {reconnecting && (
+          <div style={{ margin: '0 16px 6px', padding: '8px 14px', borderRadius: 10, background: 'rgba(233,196,106,0.08)', border: '1px solid rgba(233,196,106,0.2)', color: '#e9c46a', fontSize: 12, textAlign: 'center', fontWeight: 500, flexShrink: 0 }}>
+            Reconnecting… ({reconnectAttemptsRef.current}/3)
+          </div>
+        )}
+
+        {/* Message log — scrollable conversation transcript */}
+        <div style={{ flex: 1, overflowY: 'auto', padding: '4px 16px 8px', minHeight: 0 }}>
+          {messages.length === 0 && !isProcessing && (
+            <div style={{ textAlign: 'center', paddingTop: 28 }}>
+              <p style={{ color: '#6b7a93', fontSize: 13 }}>Tap the mic below to start the conversation</p>
+            </div>
+          )}
+
+          {messages.map((m, i) => {
+            const isYou = m.speaker === 'you';
+            const hasAudio = !!(m.id && m.audioPath);
+            const playId = m.id ? `msg-${m.id}` : null;
+            const audioUrl = hasAudio ? sessionsAPI.messageAudioUrl(sessionId, m.id) : null;
+            const isPlaying = playId && playingId === playId;
+            return (
+              <div key={m.id || i} style={{ display: 'flex', justifyContent: isYou ? 'flex-end' : 'flex-start', marginBottom: 8 }}>
+                <div style={{
+                  maxWidth: '80%',
+                  padding: '8px 12px',
+                  borderRadius: 14,
+                  fontSize: 13,
+                  lineHeight: 1.45,
+                  ...(isYou ? {
+                    background: 'linear-gradient(135deg, rgba(90,140,220,0.4), rgba(130,180,255,0.3))',
+                    border: '1px solid rgba(90,140,220,0.3)',
+                    color: '#e8edf5',
+                    borderBottomRightRadius: 4,
+                  } : {
+                    background: 'rgba(255,255,255,0.07)',
+                    border: '1px solid rgba(255,255,255,0.09)',
+                    color: '#c9d6e8',
+                    borderBottomLeftRadius: 4,
+                  })
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', gap: 6, marginBottom: 3 }}>
+                    <p style={{ fontSize: 10, color: isYou ? 'rgba(232,237,245,0.45)' : 'rgba(107,122,147,0.8)', fontWeight: 500 }}>
+                      {isYou ? 'You' : 'Customer'}
+                    </p>
+                    {hasAudio && (
+                      <button
+                        onClick={() => playReplay(playId, audioUrl)}
+                        style={{
+                          width: 18, height: 18, borderRadius: 5, flexShrink: 0,
+                          background: isPlaying ? 'rgba(90,150,250,0.3)' : 'rgba(255,255,255,0.08)',
+                          border: '1px solid rgba(255,255,255,0.1)',
+                          display: 'flex', alignItems: 'center', justifyContent: 'center', cursor: 'pointer',
+                        }}
+                      >
+                        {isPlaying ? (
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="#c9d6e8"><rect x="6" y="5" width="4" height="14" rx="1"/><rect x="14" y="5" width="4" height="14" rx="1"/></svg>
+                        ) : (
+                          <svg width="9" height="9" viewBox="0 0 24 24" fill="#c9d6e8"><path d="M8 5v14l11-7z"/></svg>
+                        )}
+                      </button>
+                    )}
+                  </div>
+                  {m.text}
+                </div>
+              </div>
+            );
+          })}
+
+          {isProcessing && (
+            <div style={{ display: 'flex', justifyContent: 'flex-start', marginBottom: 8 }}>
+              <div style={{ padding: '8px 12px', borderRadius: 14, background: 'rgba(255,255,255,0.07)', border: '1px solid rgba(255,255,255,0.09)', borderBottomLeftRadius: 4 }}>
+                <p style={{ fontSize: 10, color: 'rgba(107,122,147,0.8)', fontWeight: 500, marginBottom: 5 }}>Customer</p>
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {[0, 1, 2].map(n => (
+                    <div key={n} className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#9db8e8', animationDelay: `${n * 0.12}s` }} />
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          <div ref={messagesEndRef} />
+        </div>
+
+        {/* Bottom call controls: Cancel · Mic/Stop · End · Replay */}
+        <div style={{
+          flexShrink: 0,
+          paddingTop: 14,
+          paddingBottom: 28,
+          paddingLeft: 12,
+          paddingRight: 12,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-around',
+          background: 'rgba(11,18,32,0.65)',
+          borderTop: '1px solid rgba(255,255,255,0.06)',
+          backdropFilter: 'blur(10px)',
+        }}>
+          {/* Cancel / discard */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+            <button
+              onClick={cancelRecording}
+              disabled={!isRecording}
+              style={{
+                width: 52, height: 52, borderRadius: 16,
+                background: isRecording ? 'rgba(40,58,92,0.7)' : 'rgba(40,58,92,0.25)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                cursor: isRecording ? 'pointer' : 'not-allowed',
+                opacity: isRecording ? 1 : 0.4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+              title="Discard recording"
+            >
+              <svg width="18" height="18" fill="none" stroke="#c9d6e8" strokeWidth="2" strokeLinecap="round" viewBox="0 0 24 24">
+                <path d="M18 6L6 18M6 6l12 12" />
+              </svg>
+            </button>
+            <span style={{ fontSize: 10, color: '#6b7a93' }}>Cancel</span>
+          </div>
+
+          {/* Mic / Stop (tap to speak or send) */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+            <button
+              onClick={isRecording ? stopRecording : startRecording}
+              disabled={!connected || isProcessing}
+              style={{
+                width: 68, height: 68, borderRadius: 22,
+                cursor: (!connected || isProcessing) ? 'not-allowed' : 'pointer',
+                opacity: (!connected || isProcessing) ? 0.4 : 1,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                transition: 'all 0.2s',
+                ...(isRecording ? {
+                  background: 'linear-gradient(135deg, rgba(80,130,220,0.9), rgba(120,170,250,0.8))',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 0 40px rgba(90,150,250,0.5)',
+                } : {
+                  background: 'rgba(40,58,92,0.65)',
+                  border: '1px solid rgba(255,255,255,0.08)',
+                  boxShadow: '0 8px 32px rgba(0,0,0,0.4)',
+                })
+              }}
+              title={isRecording ? 'Send recording' : 'Tap to speak'}
+            >
+              {isProcessing ? (
+                <div style={{ display: 'flex', gap: 4 }}>
+                  {[0, 1, 2].map(n => (
+                    <span key={n} className="w-2 h-2 rounded-full animate-bounce" style={{ background: '#9db8e8', animationDelay: `${n * 0.12}s` }} />
+                  ))}
+                </div>
+              ) : isRecording ? (
+                <svg width="26" height="26" fill="#fff" viewBox="0 0 24 24"><rect x="6" y="6" width="12" height="12" rx="3" /></svg>
+              ) : (
+                <svg width="28" height="28" fill="none" stroke="#aebfdc" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" viewBox="0 0 24 24">
+                  <path d="M12 18.75a6 6 0 006-6v-1.5m-6 7.5a6 6 0 01-6-6v-1.5m6 7.5v3.75m-3.75 0h7.5M12 15.75a3 3 0 01-3-3V4.5a3 3 0 116 0v8.25a3 3 0 01-3 3z" />
+                </svg>
+              )}
+            </button>
+            <span style={{ fontSize: 10, color: isRecording ? '#7faef5' : '#6b7a93' }}>
+              {isRecording ? '● Send' : isProcessing ? 'Processing' : 'Speak'}
+            </span>
+          </div>
+
+          {/* End call */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+            <button
+              onClick={endSession}
+              style={{
+                width: 60, height: 60, borderRadius: 18,
+                background: '#e23b3b',
+                boxShadow: '0 8px 28px rgba(226,59,59,0.45)',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: 'none', cursor: 'pointer',
+              }}
+              title="End session"
+            >
+              <svg width="22" height="22" fill="#fff" viewBox="0 0 24 24" style={{ transform: 'rotate(135deg)' }}>
+                <path d="M21 15.46l-5.27-.61-2.52 2.52a15.05 15.05 0 01-6.59-6.59l2.53-2.53L8.54 3H3.03C2.45 13.18 10.82 21.55 21 20.97v-5.51z" />
+              </svg>
+            </button>
+            <span style={{ fontSize: 10, color: '#6b7a93' }}>End</span>
+          </div>
+
+          {/* Replay last customer turn */}
+          <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 5 }}>
+            <button
+              onClick={replayLastCustomer}
+              disabled={!hasCustomerAudio}
+              style={{
+                width: 52, height: 52, borderRadius: 16,
+                background: playingId ? 'rgba(90,150,250,0.25)' : 'rgba(40,58,92,0.6)',
+                border: '1px solid rgba(255,255,255,0.08)',
+                cursor: hasCustomerAudio ? 'pointer' : 'not-allowed',
+                opacity: hasCustomerAudio ? 1 : 0.4,
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+              }}
+              title="Replay last customer response"
+            >
+              <svg width="20" height="20" fill="#c9d6e8" viewBox="0 0 24 24">
+                <path d="M3 10v4h4l5 5V5L7 10H3zm13.5 2a4.5 4.5 0 00-2.5-4.03v8.06A4.5 4.5 0 0016.5 12z"/>
+              </svg>
+            </button>
+            <span style={{ fontSize: 10, color: '#6b7a93' }}>Replay</span>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  /* ── Desktop render: chat-bubble layout ── */
   const moodPercent = 50 + emotion.mood / 2;
   const moodColor   = emotion.mood > 20 ? '#a5d6a7' : emotion.mood < -20 ? '#ffb4ab' : '#e9c46a';
   const riskStyle   = {
@@ -429,7 +740,6 @@ export default function TrainingSession() {
         </button>
       </header>
 
-      {/* Reconnecting banner */}
       {reconnecting && (
         <div
           className="px-6 py-2.5 text-center text-xs font-medium"
@@ -439,7 +749,6 @@ export default function TrainingSession() {
         </div>
       )}
 
-      {/* Stuck/error recovery banner */}
       {stuckRecovery && !reconnecting && (
         <div
           className="px-6 py-2.5 text-center text-xs font-medium"
@@ -596,9 +905,7 @@ export default function TrainingSession() {
         style={{ background: 'var(--bg-card)', borderTop: '1px solid var(--border)' }}
       >
         <div className="flex flex-col items-center">
-          {/* mic row: cancel (while recording) · mic · spacer to keep mic centered */}
           <div className="flex items-center gap-5">
-            {/* Cancel / discard — only live while recording */}
             <button
               onClick={cancelRecording}
               aria-label="Discard recording"
@@ -619,7 +926,6 @@ export default function TrainingSession() {
               </svg>
             </button>
 
-            {/* Mic — vibrant: live pulse rings + audio-reactive glow while recording */}
             <div className="relative flex items-center justify-center" style={{ width: 96, height: 96 }}>
               {isRecording && (
                 <>
@@ -647,7 +953,6 @@ export default function TrainingSession() {
               </button>
             </div>
 
-            {/* invisible spacer mirrors the cancel button so the mic stays centered */}
             <div style={{ width: 48, height: 48 }} aria-hidden="true" />
           </div>
 
